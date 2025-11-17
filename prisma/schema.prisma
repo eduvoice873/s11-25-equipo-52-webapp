@@ -48,36 +48,32 @@ enum Rol {
   editor
 }
 
-// AUTH
-
 model User {
-  id                  String       @id @default(cuid())
-  name                String?
-  email               String       @unique
-  password            String?
-  emailVerified       DateTime?
-  image               String?
-  activo              Boolean      @default(true)
-  rol                 Rol
-  organizacionId      String
-  organizacion        Organizacion @relation(fields: [organizacionId], references: [id], onDelete: Cascade)
-  accounts            Account[]
-  sessions            Session[]
-  testimoniosEditados Testimonio[]
-  revisiones          Revision[]
-
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
-  categorias Categoria[]
-
-  @@index([organizacionId])
+  id                 String              @id @default(uuid())
+  name               String
+  email              String              @unique
+  password           String
+  emailVerified      DateTime?
+  image              String?
+  activo             Boolean
+  rol                Rol
+  organizacionId     String
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  organizacion       Organizacion        @relation(fields: [organizacionId], references: [id])
+  accounts           Account[]
+  sessions           Session[]
+  testimonios        Testimonio[]
+  revisiones         Revision[]
+  verificationTokens VerificationToken[]
+  categorias         Categoria[]
 }
 
 model Account {
-  userId            String
-  type              String
   provider          String
   providerAccountId String
+  userId            String
+  type              String
   refresh_token     String?
   access_token      String?
   expires_at        Int?
@@ -85,23 +81,24 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id])
 
   @@id([provider, providerAccountId])
 }
 
 model Session {
-  sessionToken String   @unique
+  sessionToken String
   userId       String
   expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  user User @relation(fields: [userId], references: [id])
+
+  @@id([sessionToken])
 }
 
 model VerificationToken {
@@ -109,121 +106,114 @@ model VerificationToken {
   token      String
   expires    DateTime
 
+  user User @relation(fields: [identifier], references: [id])
+
   @@id([identifier, token])
 }
 
-// TESTIMONIAL CMS
-
 model Organizacion {
-  id         String      @id @default(uuid())
+  id         String      @id
   nombre     String
   slug       String      @unique
   creadoEn   DateTime    @default(now())
-  usuarios   User[]
   categorias Categoria[]
-  etiquetas  Etiqueta[]
+  users      User[]
   medios     Medio[]
-}
-
-model Persona {
-  id             String       @id @default(uuid())
-  nombreCompleto String
-  correo         String       @unique
-  fotoUrl        String?
-  testimonios    Testimonio[]
+  etiquetas  Etiqueta[]
 }
 
 model Categoria {
-  id             String        @id @default(uuid())
+  id             String        @id
   organizacionId String
   creadoPorId    String
+  tipo           TipoCategoria
   nombre         String
-  titulo         String?
-  mensaje        String?
+  titulo         String
+  mensaje        String
   creadoEn       DateTime      @default(now())
-  organizacion   Organizacion? @relation(fields: [organizacionId], references: [id], onDelete: Cascade)
-  creadoPor      User          @relation(fields: [creadoPorId], references: [id])
-  preguntas      Pregunta[]
-  testimonios    Testimonio[]
 
-  @@index([organizacionId])
-  @@index([creadoPorId])
+  organizacion Organizacion @relation(fields: [organizacionId], references: [id])
+  creadoPor    User         @relation(fields: [creadoPorId], references: [id])
+  preguntas    Pregunta[]
+  testimonios  Testimonio[]
 }
 
 model Pregunta {
-  id          String    @id @default(uuid())
-  categoriaId String
-  texto       String
-  categoria   Categoria @relation(fields: [categoriaId], references: [id], onDelete: Cascade)
+  id        String @id
+  espacioId String
+  texto     String
 
-  @@index([categoriaId])
+  espacio Categoria @relation(fields: [espacioId], references: [id])
 }
 
 model Testimonio {
-  id               String              @id @default(uuid())
-  categoriaId      String
-  personaId        String
-  modalidad        ModalidadTestimonio @default(texto_imagen)
+  id               String              @id
+  espacioId        String
+  nombreCompleto   String
+  correo           String
+  fotoUrl          String?
+  modalidad        ModalidadTestimonio
   titulo           String
-  texto            String?
-  estado           EstadoTestimonio    @default(borrador)
-  destacado        Boolean             @default(false)
-  calificacion     Int                 @default(5)
+  texto            String
+  estado           EstadoTestimonio
+  destacado        Boolean
+  calificacion     Int
   publicadoEn      DateTime?
-  actualizadoPorId String?
+  actualizadoPorId String
   creadoEn         DateTime            @default(now())
   actualizadoEn    DateTime            @updatedAt
-  categoria        Categoria           @relation(fields: [categoriaId], references: [id], onDelete: Cascade)
-  persona          Persona             @relation(fields: [personaId], references: [id])
-  actualizadoPor   User?               @relation(fields: [actualizadoPorId], references: [id])
-  etiquetas        Etiqueta[]
-  revisiones       Revision[]
-  medios           Medio[]
 
-  @@index([categoriaId])
-  @@index([personaId])
-  @@index([actualizadoPorId])
+  espacio        Categoria             @relation(fields: [espacioId], references: [id])
+  actualizadoPor User                  @relation(fields: [actualizadoPorId], references: [id])
+  revision       Revision[]
+  medios         Medio[]
+  etiquetas      Testimonio_Etiqueta[]
 }
 
 model Medio {
-  id               String       @id @default(uuid())
+  id               String    @id
   organizacionId   String
   testimonioId     String
   tipo             TipoMedio
   url              String
   ancho            Int
   alto             Int
-  duracionSegundos Int?
-  bytes            BigInt?
-  leyenda          String?
-  creadoEn         DateTime     @default(now())
-  organizacion     Organizacion @relation(fields: [organizacionId], references: [id], onDelete: Cascade)
-  testimonio       Testimonio   @relation(fields: [testimonioId], references: [id], onDelete: Cascade)
+  duracionSegundos Int
+  bytes            BigInt
+  leyenda          String
+  creadoEn         DateTime  @default(now())
 
-  @@index([organizacionId])
-  @@index([testimonioId])
+  organizacion Organizacion @relation(fields: [organizacionId], references: [id])
+  testimonio   Testimonio   @relation(fields: [testimonioId], references: [id])
 }
 
 model Etiqueta {
-  id             String       @id @default(uuid())
+  id             String @id
   organizacionId String
   nombre         String
-  organizacion   Organizacion @relation(fields: [organizacionId], references: [id], onDelete: Cascade)
-  testimonios    Testimonio[]
 
-  @@index([organizacionId])
+  organizacion Organizacion          @relation(fields: [organizacionId], references: [id])
+  testimonios  Testimonio_Etiqueta[]
 }
 
 model Revision {
-  id           String           @id @default(uuid())
+  id           String           @id
   testimonioId String
   revisorId    String
   decision     DecisionRevision
   notas        String?
   creadoEn     DateTime         @default(now())
-  testimonio   Testimonio       @relation(fields: [testimonioId], references: [id], onDelete: Cascade)
-  revisor      User             @relation(fields: [revisorId], references: [id], onDelete: Cascade)
 
-  @@index([testimonioId])
-  @@index([revisorId])
+  testimonio Testimonio @relation(fields: [testimonioId], references: [id])
+  revisor    User       @relation(fields: [revisorId], references: [id])
+}
+
+model Testimonio_Etiqueta {
+  testimonioId String
+  etiquetaId   String
+
+  testimonio Testimonio @relation(fields: [testimonioId], references: [id])
+  etiqueta   Etiqueta   @relation(fields: [etiquetaId], references: [id])
+
+  @@id([testimonioId, etiquetaId])
 }
