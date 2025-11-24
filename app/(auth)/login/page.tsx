@@ -1,6 +1,5 @@
 import LoginForm from "@/components/auth/LoginForm";
 import Link from 'next/link';
-import { Card } from '@/components/ui/card';
 
 export default function LoginPage() {
   return (
@@ -14,9 +13,7 @@ export default function LoginPage() {
           Inicia sesión para acceder a tu cuenta de EduVoice.
         </p>
 
-        <Card bg="bg-white">
-          <LoginForm />
-        </Card>
+        <LoginForm />
       </div>
       <p className="text-center text-sm p-4">
         <span className="text-[#a0aec0]">¿No tienes una cuenta?</span>{' '}

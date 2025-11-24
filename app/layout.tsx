@@ -25,7 +25,7 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en" className={`${nunito.variable} ${lato.variable}`}>
-      <body>
+      <body className="bg-gray-100">
         {children}
         <Toaster />
       </body>
