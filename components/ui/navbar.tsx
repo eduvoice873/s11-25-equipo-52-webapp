@@ -1,17 +1,14 @@
 "use client";
+import { Menu } from 'lucide-react';
 
-import Link from "next/link";
-
-export function Navbar() {
+export const Navbar = ({ onToggle }: { onToggle: () => void }) => {
   return (
-    <nav className="w-full h-16 bg-brand-blue text-white flex items-center px-6 justify-between">
-      <h1 className="font-nunito text-xl font-bold">EduVoice</h1>
+    <header className="fixed top-0 left-0 w-full h-16 bg-white shadow flex items-center px-4 z-50">
+      <button className="md:hidden" onClick={onToggle}>
+        <Menu className="w-6 h-6" />
+      </button>
 
-      <div className="flex gap-6">
-        <Link href="/home">Home</Link>
-        <Link href="/dashboard">Dashboard</Link>
-        <Link href="/profile">Perfil</Link>
-      </div>
-    </nav>
+      <h1 className="ml-4 font-semibold text-lg">Dashboard</h1>
+    </header>
   );
-}
+};
