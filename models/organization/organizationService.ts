@@ -11,15 +11,11 @@ export class OrganizationService {
     }
 
     async getOrganizationById(id: string) {
-        return await prisma.organizacion.findUnique({
-            where: { id },
-        });
+        return await prisma.organizacion.findUnique({ where: { id } });
     }
 
     async getOrganizationBySlug(slug: string) {
-        return await prisma.organizacion.findUnique({
-            where: { slug },
-        });
+        return await prisma.organizacion.findUnique({ where: { slug } });
     }
 
     async updateOrganization(id: string, data: OrganizationUpdateDto) {
@@ -30,8 +26,6 @@ export class OrganizationService {
     }
 
     async deleteOrganization(id: string) {
-        return await prisma.organizacion.delete({
-            where: { id },
-        });
+        return await prisma.organizacion.delete({ where: { id } });
     }
 };

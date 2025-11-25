@@ -11,15 +11,11 @@ export class PersonService {
     }
 
     async getPersonById(id: string) {
-        return await prisma.persona.findUnique({
-            where: { id },
-        });
+        return await prisma.persona.findUnique({ where: { id } });
     }
 
     async getPersonByEmail(email: string) {
-        return await prisma.persona.findUnique({
-            where: { correo: email },
-        });
+        return await prisma.persona.findUnique({ where: { correo: email } });
     };
 
     async updatePerson(id: string, data: PersonUpdateDto) {
@@ -30,8 +26,6 @@ export class PersonService {
     }
 
     async deletePerson(id: string) {
-        return await prisma.persona.delete({
-            where: { id },
-        });
+        return await prisma.persona.delete({ where: { id } });
     }
 }

@@ -1,18 +1,19 @@
 import { NextResponse } from "next/server";
-import { PersonService } from "@/models/person/personService";
-import { PersonUpdateSchema } from "@/models/person/dto/person";
+// import { auth } from "@/lib/auth";
+import { QuestionService } from "@/models/question/questionService";
+import { QuestionUpdateSchema } from "@/models/question/dto/question";
 
-const personService = new PersonService();
+const questionService = new QuestionService();
 
-//Obtiene una persona por su ID
+// Obtiene una pregunta por ID
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
         const { id } = await params;
 
-        const person = await personService.getPersonById(id);
-        if (!person) return NextResponse.json({ error: "Person not found" }, { status: 404 });
+        const question = await questionService.getQuestionById(id);
+        if (!question) return NextResponse.json({ error: "Question not found" }, { status: 404 });
 
-        return NextResponse.json(person, { status: 200 });
+        return NextResponse.json(question, { status: 200 });
     } catch (error) {
         if (error instanceof Error) return NextResponse.json({ error: error.message }, { status: 400 });
 
@@ -20,19 +21,19 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     }
 };
 
-// Actualiza una persona por su ID
+// Actualiza una pregunta por ID
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
         const { id } = await params;
 
-        const personFounded = await personService.getPersonById(id);
-        if (!personFounded) return NextResponse.json({ error: "Person not found" }, { status: 404 });
+        const questionFounded = await questionService.getQuestionById(id);
+        if (!questionFounded) return NextResponse.json({ error: "Question not found" }, { status: 404 });
 
         const body = await request.json();
-        const dto = PersonUpdateSchema.parse(body);
-        const updatedPerson = await personService.updatePerson(id, dto);
+        const dto = QuestionUpdateSchema.parse(body);
+        const updatedQuestion = await questionService.updateQuestion(id, dto);
 
-        return NextResponse.json(updatedPerson, { status: 200 });
+        return NextResponse.json(updatedQuestion, { status: 200 });
     } catch (error) {
         if (error instanceof Error) return NextResponse.json({ error: error.message }, { status: 400 });
 
@@ -40,19 +41,19 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     }
 };
 
-// Elimina una persona por su ID
+// Elimina una pregunta por ID
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
         const { id } = await params;
 
-        const personFounded = await personService.getPersonById(id);
-        if (!personFounded) return NextResponse.json({ error: "Person not found" }, { status: 404 });
+        const questionFounded = await questionService.getQuestionById(id);
+        if (!questionFounded) return NextResponse.json({ error: "Question not found" }, { status: 404 });
 
-        await personService.deletePerson(id);
+        await questionService.deleteQuestion(id);
         return NextResponse.json(null, { status: 204 });
     } catch (error) {
         if (error instanceof Error) return NextResponse.json({ error: error.message }, { status: 400 });
 
         return NextResponse.json({ error: "Internal server error" }, { status: 500 });
     }
-}
+};
