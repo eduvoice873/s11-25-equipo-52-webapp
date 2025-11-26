@@ -15,7 +15,7 @@ const lato = Lato({
 });
 
 export const metadata = {
-  title: 'EduVoice',
+  title: 'EduVoice CMS',
   description: 'Plataforma  moderna',
 };
 interface RootLayoutProps {
