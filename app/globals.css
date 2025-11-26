@@ -43,9 +43,15 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+   --color-brand-blue: var(--brand-blue);
+  --color-brand-light: var(--brand-light);
+  --color-brand-yellow: var(--brand-yellow);
 }
 
 :root {
+  --brand-blue: #1E3A8A;
+  --brand-light: #60A5FA;
+  --brand-yellow: #FCD34D;
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.129 0.042 264.695);

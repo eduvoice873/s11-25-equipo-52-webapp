@@ -12,9 +12,10 @@ export const buttonVariants = cva(
         outline:
           'border border-brand-blue text-brand-blue hover:bg-brand-blue hover:text-white',
         yellow:
-          'bg-brand-yellow text-brand-blue hover:bg-yellow-300 border border-brand-yellow',
+          'bg-brand-yellow text-brand-blue hover:bg-yellow-300 border border-brand-yellow cursor-pointer',
         login:
           'bg-blue-900 hover:bg-blue-800 text-white  disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed',
+        disabled:'bg-gray-300 text-gray-500 cursor-not-allowed',
       },
 
       size: {
