@@ -1,10 +1,7 @@
 import prisma from "@/lib/db";
-import { TestimonialCreateDto, TestimonialUpdateDto } from "./dto/testimonial";
+import { TestimonialUpdateDto } from "./dto/testimonial";
 
 export class TestimonialService {
-    // async createTestimonial(data: TestimonialCreateDto) {
-    //     return await prisma.testimonio.create({ data });
-    // }
 
     async getAllTestimonials() {
         return await prisma.testimonio.findMany();

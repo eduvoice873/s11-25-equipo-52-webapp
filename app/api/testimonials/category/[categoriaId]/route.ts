@@ -1,10 +1,45 @@
 import { NextResponse } from "next/server";
-// import { auth } from "@/lib/auth";
 import { CategoryService } from "@/models/category/categoryService";
 import { TestimonialService } from "@/models/testimonial/testimonialService";
 
 const testimonialService = new TestimonialService();
 const categoryService = new CategoryService();
+
+/**
+ * @openapi
+ * /api/testimonials/category/{categoriaId}:
+ *   get:
+ *     summary: Obtiene testimonios por categoriaId
+ *     tags:
+ *       - Testimonios
+ *     parameters:
+ *       - in: path
+ *         name: categoriaId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID de la categoría
+ *     responses:
+ *       200:
+ *         description: Testimonios obtenidos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   person:
+ *                     $ref: '#/components/schemas/PersonCreateSchema'
+ *                   testimonial:
+ *                     $ref: '#/components/schemas/TestimonialCreateSchema'
+ *       400:
+ *         description: Error de validación
+ *       401:
+ *         description: No autorizado
+ *       500:
+ *         description: Error interno
+ */
 
 // Obtiene testimonios por categoriaId
 export async function GET(request: Request, { params }: { params: Promise<{ categoriaId: string }> }) {

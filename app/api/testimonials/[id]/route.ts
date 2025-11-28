@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import { TestimonialService } from "@/models/testimonial/testimonialService";
-import { TestimonialUpdateSchema } from "@/models/testimonial/dto/testimonial";
+import { CreateTestimonialFullService } from "@/models/testimonialFull/testimonialFullService";
+import { TestimonialFullUpdateSchema } from "@/models/testimonialFull/dto/testimonialFull";
 
 const testimonialService = new TestimonialService();
+const createTestimonialFullService = new CreateTestimonialFullService();
 
 // Obtiene un testimonio por ID
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -29,8 +31,8 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
         if (!testimonialFounded) return NextResponse.json({ message: "Testimonial not found" }, { status: 404 });
 
         const body = await request.json();
-        const dto = TestimonialUpdateSchema.parse(body);
-        const updatedTestimonial = await testimonialService.updateTestimonial(id, dto);
+        const dto = TestimonialFullUpdateSchema.parse(body);
+        const updatedTestimonial = await createTestimonialFullService.updateTestimonialFull(id, dto);
 
         return NextResponse.json(updatedTestimonial, { status: 200 });
     } catch (error) {

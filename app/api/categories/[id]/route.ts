@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { CategoryService } from "@/models/category/categoryService";
-import { CategoryUpdateSchema } from "@/models/category/dto/category";
+import { CategoryFullService } from "@/models/categoryFull/categoryFullService";
+import { CategoryFullUpdateSchema } from "@/models/categoryFull/dto/categoryFull";
 
 const categoryService = new CategoryService();
+const categoryFullService = new CategoryFullService();
 
 // Obtiene una categoría por ID
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -36,8 +38,8 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
         if (!categoryFounded) return NextResponse.json({ error: "Category not found" }, { status: 404 });
 
         const body = await request.json();
-        const dto = CategoryUpdateSchema.parse(body);
-        const updatedCategory = await categoryService.updateCategory(id, dto);
+        const dto = CategoryFullUpdateSchema.parse(body);
+        const updatedCategory = await categoryFullService.updateCategoryFull(id, dto);
 
         return NextResponse.json(updatedCategory, { status: 200 });
     } catch (error) {

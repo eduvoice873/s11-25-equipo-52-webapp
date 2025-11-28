@@ -3,11 +3,11 @@ import { auth } from "@/lib/auth";
 import { CategoryService } from "@/models/category/categoryService";
 import { OrganizationService } from "@/models/organization/organizationService";
 import { CategoryFullCreateSchema } from "@/models/categoryFull/dto/categoryFull";
-import { CreateCategoryFullService } from "@/models/categoryFull/createCategoryFullService";
+import { CategoryFullService } from "@/models/categoryFull/categoryFullService";
 
 const categoryService = new CategoryService();
 const organizationService = new OrganizationService();
-const categoryFullService = new CreateCategoryFullService();
+const categoryFullService = new CategoryFullService();
 
 // Crea una nueva categoría
 export async function POST(request: Request) {

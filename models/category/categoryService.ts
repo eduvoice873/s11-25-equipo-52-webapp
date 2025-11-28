@@ -2,13 +2,12 @@ import prisma from "@/lib/db";
 import { CategoryUpdateDto } from "./dto/category";
 
 export class CategoryService {
-
     async getAllCategories() {
         return prisma.categoria.findMany();
     }
 
     async getCategoryById(id: string) {
-        return prisma.categoria.findUnique({ where: { id } });
+        return prisma.categoria.findUnique({ where: { id }, include: { testimonios: true } });
     }
 
     async getCategoryByCreadoPorId(creadoPorId: string) {
