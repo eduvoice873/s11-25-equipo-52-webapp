@@ -1,8 +1,8 @@
-import type { CategoryInputDto } from "@/models/category/dto/category";
+import type { CategoryCreateDto } from "@/models/category/dto/category";
 import { QuestionCreateDto } from "@/models/question/dto/question";
 import type { GlobalContextAction, NewCategoryStep } from "@/types/category";
 
-export function setNewCategory(newCategory: CategoryInputDto): GlobalContextAction {
+export function setNewCategory(newCategory: CategoryCreateDto): GlobalContextAction {
   return { type: "SET_NEW_CATEGORY", payload: newCategory };
 }
 

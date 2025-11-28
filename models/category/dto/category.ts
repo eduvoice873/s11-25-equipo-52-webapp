@@ -1,8 +1,6 @@
 import { z } from "zod";
 
 export const CategoryCreateSchema = z.object({
-  organizacionId: z.string().uuid(),
-  creadoPorId: z.string().cuid(),
   nombre: z.string().min(1).max(100),
   titulo: z.string().min(1).max(100),
   mensaje: z.string().min(1).max(500),

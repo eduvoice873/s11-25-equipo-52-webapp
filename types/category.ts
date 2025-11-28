@@ -1,4 +1,4 @@
-import { CategoryInputDto } from "@/models/category/dto/category";
+import { CategoryCreateDto } from "@/models/category/dto/category";
 import type { CategoryFullDTO } from "@/models/categoryFull/dto/categoryFull";
 import { QuestionCreateDto } from "@/models/question/dto/question";
 
@@ -15,7 +15,7 @@ export interface GlobalContextState {
 }
 
 export type GlobalContextAction =
-  | { type: "SET_NEW_CATEGORY"; payload: CategoryInputDto }
+  | { type: "SET_NEW_CATEGORY"; payload: CategoryCreateDto }
   | { type: "CLEAR_NEW_CATEGORY" }
   | { type: "SET_NEW_CATEGORY_STEP"; payload: NewCategoryStep }
   | { type: "SET_NEW_CATEGORY_QUESTIONS"; payload: QuestionCreateDto[] };

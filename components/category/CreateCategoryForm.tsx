@@ -11,6 +11,7 @@ import slugify from "slugify";
 import { useGlobalContext } from "@/contexts/global/globalContext";
 import { setNewCategory, setNewCategoryStep } from "@/contexts/global/globalActions";
 import { Textarea } from "../ui/textarea";
+import { useRouter } from "next/navigation";
 
 export default function CreateCategoryForm() {
   const {
@@ -26,6 +27,7 @@ export default function CreateCategoryForm() {
     register,
     formState: { errors, isSubmitting },
   } = useForm({ resolver: zodResolver(CategoryInputSchema), defaultValues: { mensaje, titulo } });
+  const router = useRouter();
 
   const submit: SubmitHandler<CategoryInputDto> = (data) => {
     const nombre = slugify(data.titulo, { lower: true });
@@ -48,15 +50,14 @@ export default function CreateCategoryForm() {
           />
         </FormField>
 
-        <Button
-          type="submit"
-          variant="primary"
-          size="md"
-          disabled={Object.values(errors).length > 0 || isSubmitting}
-          className="w-full"
-        >
-          {isSubmitting ? "Cargando..." : "Siguiente"}
-        </Button>
+        <div className="flex gap-2">
+          <Button type="button" onClick={() => router.back()}>
+            Cancelar
+          </Button>
+          <Button type="submit" disabled={Object.values(errors).length > 0 || isSubmitting} className="w-full">
+            {isSubmitting ? "Cargando..." : "Siguiente"}
+          </Button>
+        </div>
       </form>
     </Card>
   );

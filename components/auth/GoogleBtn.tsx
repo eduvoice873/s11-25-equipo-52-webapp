@@ -3,14 +3,15 @@
 import { signIn } from "next-auth/react";
 
 import { FcGoogle } from "react-icons/fc";
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 
 export default function GoogleBtn() {
   return (
     <Button
+      type="button"
       variant="yellow"
       size="md"
-      onClick={() => signIn('google')}
+      onClick={() => signIn("google")}
       className="flex w-full  gap-2 m-1"
     >
       <FcGoogle fontSize="30px" />

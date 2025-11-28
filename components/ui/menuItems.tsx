@@ -1,12 +1,11 @@
-import { Home, Mail, FileText, Star, Users } from "lucide-react";
+import { Home, Mail, FileText, Star, Users, ChartBarStacked } from "lucide-react";
 
 export const menuItems = [
   {
     label: "Inbox",
     href: "/inbox",
-    icon: <Mail stroke="#B0BAD4" />,
-    badge: 32,
-    active: true,
+    icon: <Mail />,
+    badge: 21,
   },
   {
     label: "Video",
@@ -36,5 +35,10 @@ export const menuItems = [
     label: "Añadir colaborador",
     href: "/colaboradores",
     icon: <Users />,
+  },
+  {
+    label: "Categorias",
+    href: "/categories",
+    icon: <ChartBarStacked />,
   },
 ];

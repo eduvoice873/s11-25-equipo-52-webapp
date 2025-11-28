@@ -24,9 +24,6 @@ export default function NewCategoryPreview() {
 
     if (res.ok) {
       redirect("/categories");
-    } else {
-      const parsedRes = await res.json();
-      console.error(parsedRes.error);
     }
   }
 
@@ -39,10 +36,12 @@ export default function NewCategoryPreview() {
         <p key={i}>{question.texto}</p>
       ))}
       <div className="flex gap-2">
-        <Button onClick={handlePreviousStep} className="w-full">
+        <Button onClick={handlePreviousStep}>
           Atras
         </Button>
-        <Button className="w-full" onClick={createCategory}>Crear</Button>
+        <Button className="w-full" onClick={createCategory}>
+          Crear
+        </Button>
       </div>
     </Card>
   );

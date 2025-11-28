@@ -76,7 +76,7 @@ export default function CreateQuestionsForm() {
         </div>
 
         <div className="flex gap-2">
-          <Button type="button" variant="primary" className="w-full" onClick={handlePreviousStep}>
+          <Button type="button" variant="primary" onClick={handlePreviousStep}>
             Atras
           </Button>
           <Button
