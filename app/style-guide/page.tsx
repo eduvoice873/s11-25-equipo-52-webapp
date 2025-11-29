@@ -1,15 +1,5 @@
 import { TestimonialVisitor } from '@/components/ui/testimonial/Visitor';
 import { AdminTestimonial } from '@/components/ui/testimonial/Admin';
-import {
-  Button,
-  Card,
-  Input,
-  Alert,
-  Navbar,
-  Sidebar,
-  Typography,
-  FormField,
-} from '@/components/ui/design-system';
 import { Button, Card, Input, Alert, Typography } from "@/components/ui/design-system";
 
 export default function StyleGuide() {
