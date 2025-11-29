@@ -1,24 +1,36 @@
 "use client";
 
-import Link from "next/link";
+import React from "react";
+import { SidebarItem } from "./SidebarItem";
+import { menuItems } from "./menuItems";
+import { cn } from "@/lib/utils";
 
-export function Sidebar({ children }) {
-  return (
-    <aside className="w-64 bg-gray-100 h-screen p-6 border-r border-gray-300">
-      <nav className="flex flex-col gap-4">
-        <Link href="/dashboard" className="text-brand-blue font-semibold">
-          Dashboard
-        </Link>
-        <Link href="/spaces" className="text-brand-blue font-semibold">
-          Espacios
-        </Link>
-        <Link href="/settings" className="text-brand-blue font-semibold">
-          Ajustes
-        </Link>
-      </nav>
-
-      <div className="mt-10">{children}</div>
-    </aside>
-  );
+interface SidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+  topOffset?: number; // altura del navbar
 }
 
+export const Sidebar = ({ isOpen, onClose, topOffset = 64 }: SidebarProps) => {
+  return (
+    <>
+      {/* Overlay en móvil */}
+      {isOpen && <div onClick={onClose} className="fixed inset-0 bg-black/40 z-30 md:hidden" />}
+
+      <aside
+        className={cn(
+          `absolute left-0 top-0 h-full z-40 w-[260px]
+          bg-white shadow-xl p-4 rounded-tr-2xl rounded-br-2xl
+          transition-transform duration-300 md:translate-x-0 md:relative`,
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
+        <div className="flex flex-col  gap-2">
+          {menuItems.map((item) => (
+            <SidebarItem key={item.label} {...item} />
+          ))}
+        </div>
+      </aside>
+    </>
+  );
+};

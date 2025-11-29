@@ -1,14 +1,28 @@
 //components/ui/Card.tsx
 interface CardProps {
   title?: React.ReactNode; // Opcional
-  className?: string; // Estilo personalizable
+  bg?: string;
+  description?: string;
   children: React.ReactNode;
+  className?: string;
 }
 
-export function Card({ title, className="", children }: CardProps) {
+export function Card({ title, children, description, className }: CardProps) {
   return (
-    <div className={`shadow-md rounded-xl p-6 border border-brand-gray ${className}`}>
-      {title && <h3 className="text-xl font-nunito font-bold mb-4">{title}</h3>}
+    <div
+      className={`
+        bg-white shadow-sm rounded-2xl p-6 w-full max-w-md space-y-4 
+        ${className ?? ''}
+      `}
+    >
+      {title && (
+        <h2 className="text-xl text-center font-nunito  mb-4">{title}</h2>
+      )}
+      {description && (
+        <p className="text-sm text-center font-nunito font-bold mb-4">
+          {description}
+        </p>
+      )}
       {children}
     </div>
   );

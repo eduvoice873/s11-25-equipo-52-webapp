@@ -16,7 +16,6 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     Google,
     Credentials({
       credentials: {
-        name: {},
         email: {},
         password: {},
       },
@@ -24,11 +23,10 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         const zodResponse = LoginUserSchema.safeParse(credentials);
 
         if (zodResponse.success) {
-          const { name, email, password } = zodResponse.data;
+          const { email, password } = zodResponse.data;
 
           const dbUser = await prisma.user.findUnique({
             where: {
-              name,
               email,
             },
           });

@@ -1,6 +1,9 @@
 import prisma from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
+import { OrganizationService } from "@/models/organization/organizationService";
 import bcrypt from "bcrypt";
+
+const organizationService = new OrganizationService();
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
@@ -15,22 +18,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (foundUser) {
       return NextResponse.json({ error: "User already exists", field: "email" }, { status: 400 });
     }
-    
-    const foundOrganization = await prisma.organizacion.findUnique({
-      where: {
-        slug: organizacion_slug,
-      },
-    });
+
+    const foundOrganization = await organizationService.getOrganizationBySlug(organizacion_slug);
 
     if (foundOrganization) {
       return NextResponse.json({ error: "Organization already exists", field: "organization" }, { status: 400 });
     }
 
-    const newOrganization = await prisma.organizacion.create({
-      data: {
-        nombre: organizacion,
-        slug: organizacion_slug,
-      },
+    const newOrganization = await organizationService.createOrganization({
+      nombre: organizacion,
+      slug: organizacion_slug,
     });
 
     const saltOrRounds = 10;

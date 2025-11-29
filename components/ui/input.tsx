@@ -42,9 +42,9 @@ export interface InputProps
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, variant, size, state, leftIcon, withIcon, ...props }, ref) => {
     return (
-      <div className="relative w-full">
+      <div className="relative w-full p-1">
         {leftIcon && (
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-blue/60">
+          <span className=" absolute left-3 top-1/2 -translate-y-1/2 text-brand-blue/60">
             {leftIcon}
           </span>
         )}
@@ -52,6 +52,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           ref={ref}
           className={cn(
             inputVariants({
+              size,
               variant,
               state,
               withIcon: leftIcon ? true : withIcon,
