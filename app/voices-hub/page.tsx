@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import VoicesHub from "@/app/landing/components/VoicesHub";
 import { ALL_TESTIMONIALS, testimonialsData } from "@/app/landing/components/data";
-import { TestimonialRender } from "./testimonial_render";
+import { TestimonialRender } from "./testimonial_render-visitor";
 
 
 export default function VoicesHubPage() {

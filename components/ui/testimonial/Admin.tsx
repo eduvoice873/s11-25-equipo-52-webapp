@@ -5,7 +5,6 @@
 import { RatingStars } from "./ratingStars"
 import { theme } from "../theme"
 import { Heart, Share2 } from "lucide-react";
-import { coerce } from "zod";
 
 export type TestimonialStatus =
 | "borrador" 
@@ -42,6 +41,8 @@ export interface AdminTestimonialProps {
   }
   variant?: "mini" | "full"
   className?: string
+  onClick?: () => void
+  isActive?: boolean
 }
 
 const statusStyles: Record<TestimonialStatus, { border: string; text: string; label: string }> = {
@@ -96,15 +97,17 @@ export function AdminTestimonial({
     history = []
   },
   variant = "mini",
-  className = ""
+  className = "",
+  onClick,
+  isActive = false
 }: AdminTestimonialProps) {
   if (variant === "mini") {
     return (
-      <div className={`shadow-md rounded-xl p-4 border border-gray-200 bg-white ${className}`}>
+      <div onClick={onClick} className={`shadow-md rounded-xl p-4 border border-gray-200 bg-white
+      cursor-pointer hover:scale-[1.02]
+      ${isActive ? "border-blue-600 ring-2 ring-blue-300" : "border-gray-200"}
+       ${className}`}>
         <div className="flex justify-between items-center mb-3">
-          {destacado === true && (
-            <Heart className="w-4 h-4 text-red-500" fill="currentColor" />
-          )}
           {tags && tags.length > 0 && (
             <div className="flex flex-wrap gap-2 text-xs justify-center">
               {tags.map((tag) => (
@@ -124,6 +127,9 @@ export function AdminTestimonial({
                 {statusStyles[estado].label}
               </button>
             </div>
+          )}
+          {destacado === true && (
+            <Heart className="w-4 h-4 text-red-500" fill="currentColor" />
           )}
         </div>
 
