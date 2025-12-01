@@ -7,7 +7,7 @@ import UseCases from "./components/UseCases";
 import Stats from "./components/Stats";
 import Cta from "./components/Cta";
 import Footer from "./components/Footer";
-import WallOfLovePreview from "./components/WallOfLovePreview";
+import WallOfLovePreview from "./components/VoicesHubPreview";
 
 export default function Landing() {
   return (
