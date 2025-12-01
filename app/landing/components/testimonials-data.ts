@@ -1,4 +1,4 @@
-import { Testimonial } from "./WallofLove";
+import { Testimonial } from "./VoicesHub";
 
 export const ALL_TESTIMONIALS: Testimonial[] = [
   {
