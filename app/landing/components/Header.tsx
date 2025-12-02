@@ -19,7 +19,7 @@ export default function HeaderLanding() {
           <Link href="/#casos" className="hover:text-brand-light transition-colors">Casos de Uso</Link>
         </nav>
 
-        <Link href="/login" className="hidden md:block bg-brand-blue text-background px-6 py-2 rounded-xl shadow-md hover:bg-brand-blue/90 transition-colors font-bold font-lato">
+        <Link href="/signup" className="hidden md:block bg-brand-blue text-background px-6 py-2 rounded-xl shadow-md hover:bg-brand-blue/90 transition-colors font-bold font-lato">
           Empezar Gratis
         </Link>
 
