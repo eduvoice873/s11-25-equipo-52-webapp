@@ -1,8 +1,10 @@
 import prisma from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
+import { UserService } from "@/models/user/userService";
 import { OrganizationService } from "@/models/organization/organizationService";
 import bcrypt from "bcrypt";
 
+const userService = new UserService();
 const organizationService = new OrganizationService();
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
@@ -60,4 +62,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
+}
+
+export async function GET() {
+  const users = await userService.getAllUsers();
+  return NextResponse.json(users, { status: 200 });
 }

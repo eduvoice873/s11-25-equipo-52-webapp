@@ -59,7 +59,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
         if (!organizationFounded) return NextResponse.json({ error: "Organization not found" }, { status: 404 });
 
         await organizationService.deleteOrganization(id);
-        return NextResponse.json({ message: "Organization deleted successfully" }, { status: 204 });
+        return new NextResponse(null, { status: 204 });
     } catch (error) {
         if (error instanceof Error) return NextResponse.json({ error: error.message }, { status: 400 });
 

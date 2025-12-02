@@ -18,7 +18,6 @@ export async function GET(request: Request, { params }: { params: Promise<{ user
 
         const organization = await organizationService.getOrganizationById(userFounded.organizacionId);
 
-        if (!organization) return NextResponse.json({ error: "Organization not found" }, { status: 404 });
         return NextResponse.json(organization, { status: 200 });
     } catch (error) {
         if (error instanceof Error) return NextResponse.json({ error: error.message }, { status: 400 });
