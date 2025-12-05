@@ -22,23 +22,9 @@ export default async function HeaderLanding() {
           <Link href="/#casos" className="hover:text-brand-light transition-colors">Casos de Uso</Link>
         </nav>
 
-        {isLogged ? (
-
-          <Link
-            href="/home"
-            className="hidden md:block bg-green-600 text-white px-6 py-2 rounded-xl shadow-md hover:bg-green-700 transition-colors font-bold font-lato"
-          >
-            Bienvenido <span className="text-blue-900">{session.user.name}</span>
-          </Link>
-        ) : (
-
-          <Link
-            href="/signup"
-            className="hidden md:block bg-brand-blue text-background px-6 py-2 rounded-xl shadow-md hover:bg-brand-blue/90 transition-colors font-bold font-lato"
-          >
-            Empezar Gratis
-          </Link>
-        )}
+        <Link href="/signup" className="hidden md:block bg-brand-blue text-background px-6 py-2 rounded-xl shadow-md hover:bg-brand-blue/90 transition-colors font-bold font-lato">
+          Empezar Gratis
+        </Link>
 
         <button className="md:hidden p-2 text-brand-blue" aria-label="Abrir menú">
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
