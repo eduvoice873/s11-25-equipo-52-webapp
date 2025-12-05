@@ -1,25 +1,54 @@
 "use client";
 
-import CategoriesCards from "@/components/category/CategoriesCards";
+import { useCategories } from "@/hooks/swr/useCategories";
 import { Button } from "@/components/ui/button";
-import { clearNewCategory } from "@/contexts/global/globalActions";
-import { useGlobalContext } from "@/contexts/global/globalContext";
 import Link from "next/link";
-import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { CategoryCard } from "@/components/category/CategoryCard";
 
 export default function CategoriesPage() {
-  const { dispatch } = useGlobalContext();
+  const { categories, isLoading, error, mutate } = useCategories();
+  const router = useRouter();
 
-  useEffect(() => {
-    dispatch(clearNewCategory());
-  }, [dispatch]);
+  const handleDelete = async (id: string) => {
+    try {
+      const response = await fetch(`/api/categories/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Error al eliminar la categoría");
+      }
+
+      // Refresh the categories list
+      mutate();
+      router.refresh();
+    } catch (error) {
+      console.error("Error deleting category:", error);
+      throw error;
+    }
+  };
+
+  if (isLoading) return <div>Cargando categorías...</div>;
+  if (error) return <div>Error al cargar las categorías</div>;
 
   return (
-    <div className="flex flex-col items-start gap-4 h-full p-10">
-      <CategoriesCards />
-      <Button asChild>
-        <Link href="/categories/create">Crear categoría</Link>
-      </Button>
+    <div className="container mx-auto p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Categorías</h1>
+        <Button asChild>
+          <Link href="/categories/create">Crear Categoría</Link>
+        </Button>
+      </div>
+
+      <div className="grid gap-4">
+        {categories?.map((category) => (
+          <CategoryCard
+            key={category.id}
+            category={category}
+          />
+        ))}
+      </div>
     </div>
   );
 }
