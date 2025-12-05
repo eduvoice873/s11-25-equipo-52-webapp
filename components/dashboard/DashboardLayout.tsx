@@ -26,7 +26,7 @@ export default function DashboardLayout({
       <div className="flex flex-col flex-1">
         <Navbar onToggle={handleToggle} />
 
-        <main className="pt-36 md:pl-[260px]">{children}</main>
+        <main className="pt-20 ">{children}</main>
       </div>
     </div>
   );
