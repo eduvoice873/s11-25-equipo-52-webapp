@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { TestimonialService } from "@/models/testimonial/testimonialService";
 import { OrganizationService } from "@/models/organization/organizationService";
 import { TestimonialFullService } from "@/models/testimonialFull/testimonialFullService";
@@ -38,7 +38,7 @@ const createTestimonialFullService = new TestimonialFullService();
  *          description: Error interno
  */
 // Obtiene un testimonio por ID
-export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
         const { id } = await params;
 
@@ -54,7 +54,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 };
 
 // Actualiza un testimonio por ID
-export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
         const { id } = await params;
 
@@ -101,7 +101,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
  *          description: Error interno
  */
 // Elimina un testimonio por ID
-export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
         const { id } = await params;
 

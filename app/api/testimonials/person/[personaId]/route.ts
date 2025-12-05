@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { PersonService } from "@/models/person/personService";
 import { TestimonialService } from "@/models/testimonial/testimonialService";
 
@@ -34,7 +34,7 @@ const personService = new PersonService();
  *         description: Error interno
  */
 // Obtiene testimonios por personaId
-export async function GET(request: Request, { params }: { params: Promise<{ personaId: string }> }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ personaId: string }> }) {
     try {
         const { personaId } = await params;
 

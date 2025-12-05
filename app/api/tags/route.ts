@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { TagService } from "@/models/tag/tagService";
 import { TagCreateSchema } from "@/models/tag/dto/tag";
@@ -37,7 +37,7 @@ const tagService = new TagService();
  *         description: Error interno
  */
 // Crea una nueva etiqueta
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
     const session = await auth();
     if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 

@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { MedioService } from "@/models/medio/medioService";
 import { TestimonialService } from "@/models/testimonial/testimonialService";
 import { sanitizeBigInt } from "@/lib/sanitizeBigInt";
@@ -7,7 +7,7 @@ const medioService = new MedioService();
 const testimonialService = new TestimonialService();
 
 // Obtiene medios por testimonioId
-export async function GET(request: Request, { params }: { params: Promise<{ testimonioId: string }> }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ testimonioId: string }> }) {
     try {
         const { testimonioId } = await params;
 

@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { UserService } from "@/models/user/userService";
 import { OrganizationService } from "@/models/organization/organizationService";
@@ -9,7 +9,7 @@ const userService = new UserService();
 const organizationService = new OrganizationService();
 
 // Crear un editor
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
     const session = await auth();
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 

@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { MedioService } from "@/models/medio/medioService";
 import { MedioUpdateSchema } from "@/models/medio/dto/medio";
 import { sanitizeBigInt } from "@/lib/sanitizeBigInt";
@@ -6,7 +6,7 @@ import { sanitizeBigInt } from "@/lib/sanitizeBigInt";
 const medioService = new MedioService();
 
 // Obtiene un medio por su ID
-export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
         const { id } = await params;
 
@@ -22,7 +22,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 };
 
 // Actualiza un medio por su ID
-export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
         const { id } = await params;
 
@@ -42,7 +42,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 };
 
 // Elimina un medio por su ID
-export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
         const { id } = await params;
 

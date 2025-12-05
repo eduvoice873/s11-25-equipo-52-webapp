@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { TagService } from "@/models/tag/tagService";
 import { OrganizationService } from "@/models/organization/organizationService";
@@ -35,7 +35,7 @@ const organizationService = new OrganizationService();
  *         description: Error interno
  */
 // Obtiene etiquetas por el ID de la organización
-export async function GET(request: Request, { params }: { params: Promise<{ organizacionId: string }> }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ organizacionId: string }> }) {
     const session = await auth();
     if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 

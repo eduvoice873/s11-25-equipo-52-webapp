@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { CategoryService } from "@/models/category/categoryService";
 import { OrganizationService } from "@/models/organization/organizationService";
@@ -10,7 +10,7 @@ const organizationService = new OrganizationService();
 const categoryFullService = new CategoryFullService();
 
 // Crea una nueva categoría
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
     const session = await auth();
     if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 

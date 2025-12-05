@@ -1,11 +1,11 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { ReviewService } from "@/models/reviewer/reviewService";
 import { ReviewCreateSchema } from "@/models/reviewer/dto/review";
 
 const reviewService = new ReviewService();
 
 // Crea una nueva revision
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
         const dto = ReviewCreateSchema.parse(body);

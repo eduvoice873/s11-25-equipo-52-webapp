@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { OrganizationService } from "@/models/organization/organizationService";
 import { OrganizationCreateSchema } from "@/models/organization/dto/organization";
@@ -37,7 +37,7 @@ const organizationService = new OrganizationService();
  *         description: Error interno
  */
 // Crea una nueva organización
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
     const session = await auth();
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 

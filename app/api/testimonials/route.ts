@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { TestimonialService } from "@/models/testimonial/testimonialService";
 import { OrganizationService } from "@/models/organization/organizationService";
 import { TestimonialFullService } from "@/models/testimonialFull/testimonialFullService";
@@ -79,7 +79,7 @@ const testimonialFullService = new TestimonialFullService();
  *         description: Error interno
  */
 // Crea un nuevo testimonio
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
         const dto = TestimonialFullCreateSchema.parse(body);
