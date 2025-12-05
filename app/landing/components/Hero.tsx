@@ -80,7 +80,7 @@ export default function Hero() {
 
             {/* Botones */}
             <div className="flex gap-4 mt-8">
-              <Link href="/login">
+              <Link href="/signup">
                 <Button variant="yellow" size="lg" className="font-bold">Empezar Gratis</Button>
               </Link>
               <Link href="/#caracteristicas">
