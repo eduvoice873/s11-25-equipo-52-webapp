@@ -32,7 +32,7 @@ export default async function DashboardCategoryPage() {
         <section className="flex flex-col gap-2">
           <h1 className="text-3xl font-bold text-brand-light flex items-center gap-2">
             Bienvenid@, <span className="text-blue-900">{session.user.name}</span>
-            <span>{session.user.rol}</span>
+           
           </h1>
           <p className="text-gray-500">Aquí puedes gestionar todas tus categorías y ver tu rendimiento.</p>
         </section>
