@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { TestimonialService } from "@/models/testimonial/testimonialService";
 import { OrganizationService } from "@/models/organization/organizationService";
 import { TestimonialFullService } from "@/models/testimonialFull/testimonialFullService";
@@ -11,7 +11,7 @@ const testimonialFullService = new TestimonialFullService();
 
 /**
  * @openapi
- * /api/testimonios:
+ * /api/testimonials:
  *   post:
  *     summary: Crea un testimonio con persona incluida
  *     tags:
@@ -79,7 +79,7 @@ const testimonialFullService = new TestimonialFullService();
  *         description: Error interno
  */
 // Crea un nuevo testimonio
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
         const dto = TestimonialFullCreateSchema.parse(body);
@@ -89,7 +89,7 @@ export async function POST(request: Request) {
 
         const newTestimonial = await testimonialFullService.createTestimonialFull(dto, organizacionId);
 
-        return NextResponse.json(newTestimonial, { status: 201 });
+        return NextResponse.json(sanitizeBigInt(newTestimonial), { status: 201 });
     } catch (error) {
         if (error instanceof Error) return NextResponse.json({ message: error.message }, { status: 400 });
 
@@ -97,6 +97,17 @@ export async function POST(request: Request) {
     }
 };
 
+/**
+ * @openapi
+ * /api/testimonials:
+ *   get:
+ *     summary: Obtiene todos los testimonios
+ *     tags:
+ *       - Testimonios
+ *     responses:
+ *       200:
+ *         description: Testimonios obtenidos
+ */
 // Obtiene todos los testimonios
 export async function GET() {
     try {

@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { CategoryService } from "@/models/category/categoryService";
 import { TestimonialService } from "@/models/testimonial/testimonialService";
 
@@ -25,24 +25,16 @@ const categoryService = new CategoryService();
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   person:
- *                     $ref: '#/components/schemas/PersonCreateSchema'
- *                   testimonial:
- *                     $ref: '#/components/schemas/TestimonialCreateSchema'
+ *              $ref: '#/components/schemas/TestimonialCreateSchema'
  *       400:
  *         description: Error de validación
- *       401:
- *         description: No autorizado
+ *       404:
+ *         description: Categoría no encontrado
  *       500:
  *         description: Error interno
  */
-
 // Obtiene testimonios por categoriaId
-export async function GET(request: Request, { params }: { params: Promise<{ categoriaId: string }> }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ categoriaId: string }> }) {
     try {
         const { categoriaId } = await params;
 

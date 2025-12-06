@@ -1,12 +1,40 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { PersonService } from "@/models/person/personService";
 import { TestimonialService } from "@/models/testimonial/testimonialService";
 
 const testimonialService = new TestimonialService();
 const personService = new PersonService();
 
+/**
+ * @openapi
+ * /api/testimonials/person/{personaId}:
+ *   get:
+ *     summary: Obtiene testimonios por personaId
+ *     tags:
+ *       - Testimonios
+ *     parameters:
+ *       - in: path
+ *         name: personaId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID de la persona
+ *     responses:
+ *       200:
+ *         description: Testimonios obtenidos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/TestimonialCreateSchema'
+ *       400:
+ *         description: Error de validación
+ *       404:
+ *         description: Persona no encontrado
+ *       500:
+ *         description: Error interno
+ */
 // Obtiene testimonios por personaId
-export async function GET(request: Request, { params }: { params: Promise<{ personaId: string }> }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ personaId: string }> }) {
     try {
         const { personaId } = await params;
 

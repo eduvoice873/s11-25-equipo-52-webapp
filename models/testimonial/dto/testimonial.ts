@@ -6,7 +6,6 @@ export const TestimonialCreateSchema = z.object({
     texto: z.string().min(1).max(1000),
     modalidad: z.enum(['texto_imagen', 'video']),
     estado: z.enum(['borrador', 'en_revision', 'aprobado', 'publicado', 'rechazado', 'archivado']),
-    destacado: z.boolean(),
     calificacion: z.number().min(1).max(5).optional(),
 });
 

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { UserService } from "@/models/user/userService";
 import { UserUpdateSchema } from "@/models/user/dto/user";
 

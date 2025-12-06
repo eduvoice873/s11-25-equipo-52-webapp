@@ -13,9 +13,10 @@ export const MedioCreateSchema = z.object({
 export const MedioUpdateSchema = z.object({
     tipo: z.enum(['imagen', 'video']).optional(),
     url: z.string().url().optional(),
-    ancho: z.number().int().optional(),
-    alto: z.number().int().optional(),
+    ancho: z.number().int().nullable().optional(),
+    alto: z.number().int().nullable().optional(),
     duracionSegundos: z.number().int().nullable().optional(),
+    bytes: z.number().optional(),
     leyenda: z.string().nullable().optional()
 });
 

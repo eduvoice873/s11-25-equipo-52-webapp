@@ -1,10 +1,39 @@
 import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { TagService } from "@/models/tag/tagService";
 import { TagUpdateSchema } from "@/models/tag/dto/tag";
 
 const tagService = new TagService();
 
+/**
+ * @openapi
+ * /api/tags/{id}:
+ *   get:
+ *     summary: Obtiene una etiqueta por su ID
+ *     tags:
+ *       - Etiqueta
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID de la etiqueta
+ *     responses:
+ *       200:
+ *         description: Etiqueta obtenido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/TagCreateSchema'
+ *       400:
+ *         description: Error de validación
+ *       404:
+ *         description: Etiqueta no encontrada
+ *       500:
+ *         description: Error interno
+ */
 // Obtiene una etiqueta por ID
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }){
     const session = await auth();
@@ -24,6 +53,36 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     }
 };
 
+/**
+ * @openapi
+ * /api/tags/{id}:
+ *   put:
+ *     summary: Actualiza una etiqueta por su ID
+ *     tags:
+ *       - Etiqueta
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID de la etiqueta
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/TagUpdateSchema'
+ *     responses:
+ *       200:
+ *         description: Etiqueta actualizada
+ *       400:
+ *         description: Error de validación
+ *       401:
+ *         description: No autorizado
+ *       500:
+ *         description: Error interno
+ */
 // Actualiza una etiqueta por ID
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }){
     const session = await auth();
@@ -47,6 +106,30 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     }
 };
 
+/**
+ * @openapi
+ * /api/tags/{id}:
+ *   delete:
+ *     summary: Elimina una etiqueta por su ID
+ *     tags:
+ *       - Etiqueta
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID de la etiqueta
+ *     responses:
+ *       204:
+ *         description: Etiqueta eliminada
+ *       400:
+ *         description: Error de validación
+ *       404:
+ *          description: Etiqueta no encontrada
+ *       500:
+ *          description: Error interno
+ */
 // Elimina una etiqueta por ID
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }){
     const session = await auth();

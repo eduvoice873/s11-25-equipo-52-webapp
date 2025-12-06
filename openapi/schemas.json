@@ -8,6 +8,14 @@
     },
     "required": ["nombreCompleto", "correo", "fotoUrl"]
   },
+  "PersonUpdateSchema": {
+    "type": "object",
+    "properties": {
+      "nombreCompleto": { "type": "string", "minimum": 1, "maximum": 50 },
+      "correo": { "type": "string", "format": "email", "maximum": 100 },
+      "fotoUrl": { "type": "string", "format": "uri", "maximum": 200 }
+    }
+  },
   "TestimonialCreateSchema": {
     "type": "object",
     "properties": {
@@ -38,5 +46,55 @@
       "destacado",
       "calificacion"
     ]
+  },
+  "TestimonialUpdateSchema": {
+    "type": "object",
+    "properties": {
+      "titulo": { "type": "string" },
+      "texto": { "type": "string" },
+      "modalidad": { "type": "string", "enum": ["texto_imagen", "video"] },
+      "estado": {
+        "type": "string",
+        "enum": [
+          "borrador",
+          "en_revision",
+          "aprobado",
+          "publicado",
+          "rechazado",
+          "archivado"
+        ]
+      },
+      "destacado": { "type": "boolean" },
+      "calificacion": { "type": "integer", "minimum": 1, "maximum": 5 }
+    }
+  },
+  "TagCreateSchema": {
+    "type": "object",
+    "properties": {
+      "categoriaId": { "type": "string", "format": "uuid" },
+      "nombre": { "type": "string" }
+    },
+    "required": ["categoriaId", "nombre"]
+  },
+  "TagUpdateSchema": {
+    "type": "object",
+    "properties": {
+      "nombre": { "type": "string" }
+    }
+  },
+  "OrganizationCreateSchema": {
+    "type": "object",
+    "properties": {
+      "nombre": { "type": "string" },
+      "slug": { "type": "string" }
+    },
+    "required": ["nombre", "slug"]
+  },
+  "OrganizationUpdateSchema": {
+    "type": "object",
+    "properties": {
+      "nombre": { "type": "string" },
+      "slug": { "type": "string" }
+    }
   }
 }

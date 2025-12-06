@@ -12,7 +12,7 @@ export const TestimonialFullCreateSchema = z.object({
 export const TestimonialFullUpdateSchema = z.object({
     person: PersonUpdateSchema,
     testimonial: TestimonialUpdateSchema,
-    medio: MedioUpdateSchema.optional().nullable(),
+    medio: MedioUpdateSchema,
 });
 
 export type TestimonialFullCreateDto = z.infer<typeof TestimonialFullCreateSchema>;

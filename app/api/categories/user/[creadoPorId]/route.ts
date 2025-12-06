@@ -1,12 +1,15 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
-// import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 import { CategoryService } from "@/models/category/categoryService";
 
 const categoryService = new CategoryService();
 
 // Obtiene categorías por el ID del creador
-export async function GET(request: Request, { params }: { params: Promise<{ creadoPorId: string }> }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ creadoPorId: string }> }) {
+    const session = await auth();
+    if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
     try {
         const { creadoPorId } = await params;
         const userFounded = await prisma.user.findUnique({ where: { id: creadoPorId } });
