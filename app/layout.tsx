@@ -2,6 +2,7 @@ import "./globals.css";
 import { Nunito, Lato } from 'next/font/google';
 import { ReactNode } from 'react';
 import { Toaster } from 'sonner';
+import AuthSessionProvider from '@/components/auth/SessionProvider';
 
 const nunito = Nunito({
   subsets: ['latin'],
@@ -26,7 +27,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en" className={`${nunito.variable} ${lato.variable}`}>
       <body className="bg-gray-100" suppressHydrationWarning>
-        {children}
+        <AuthSessionProvider>
+          {children}
+        </AuthSessionProvider>
         <Toaster
           position="top-right"
           toastOptions={{
