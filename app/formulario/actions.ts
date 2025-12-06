@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import prisma from "@/lib/db"; // ← Cambiar de @/lib/db a @/lib/db
 
 export async function actualizarFormulario(id: string, data: any) {
   "use server";
