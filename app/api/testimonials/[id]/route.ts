@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { TestimonialService } from "@/models/testimonial/testimonialService";
 import { TestimonialFullService } from "@/models/testimonialFull/testimonialFullService";
 import { TestimonialFullUpdateSchema } from "@/models/testimonialFull/dto/testimonialFull";
@@ -8,7 +8,7 @@ const testimonialService = new TestimonialService();
 const createTestimonialFullService = new TestimonialFullService();
 
 // Obtiene un testimonio por ID
-export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }){
     try {
         const { id } = await params;
 
@@ -24,7 +24,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 };
 
 // Actualiza un testimonio por ID
-export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }){
     try {
         const { id } = await params;
 
@@ -44,7 +44,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 };
 
 // Elimina un testimonio por ID
-export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }){
     try {
         const { id } = await params;
 

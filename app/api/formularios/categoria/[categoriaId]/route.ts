@@ -4,7 +4,7 @@ import prisma from "@/lib/db";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { categoriaId: string } }
+  { params }: { params: Promise<{ categoriaId: string }> }
 ) {
   try {
     const session = await auth();
@@ -12,7 +12,7 @@ export async function GET(
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
-    const { categoriaId } = params;
+    const { categoriaId } = await params;
     if (!categoriaId) {
       return NextResponse.json(
         { error: "categoriaId no proporcionado" },
