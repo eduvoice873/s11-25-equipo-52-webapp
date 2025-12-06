@@ -1,5 +1,4 @@
 // pagina de terminos y condiciones para EduVoice CMS
-"use client";
 
 import HeaderLanding from "@/app/landing/components/Header";
 import Footer from "@/app/landing/components/Footer";
