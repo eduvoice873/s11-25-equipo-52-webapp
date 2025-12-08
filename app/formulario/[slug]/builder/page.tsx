@@ -1,6 +1,8 @@
-"use client";
+// Este archivo ya no se usa para /formulario/nuevo
+// La ruta /formulario/nuevo ahora usa directamente FormularioBuilderPage
+// Este wrapper se mantiene solo para otras rutas dinámicas si las hay
 
-import { useParams, useSearchParams } from "next/navigation";
+import { use } from "react";
 import FormularioBuilderPage from "./FormularioBuilderPage";
 
 interface PageProps {
@@ -8,26 +10,16 @@ interface PageProps {
   searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
-// Wrapper para modo creación - solo se usa con slug="nuevo"
+// Wrapper para rutas dinámicas con [slug]
 export default function FormularioBuilderPageWrapper({ params, searchParams }: PageProps) {
-  const resolvedParams = useParams();
-  const resolvedSearchParams = useSearchParams();
+  const resolvedParams = use(params);
+  const slug = resolvedParams?.slug || 'nuevo';
 
-  // En modo builder, siempre esperamos slug="nuevo" para creación
-  const slug = typeof resolvedParams?.slug === 'string' ? resolvedParams.slug : 'nuevo';
-
-  // Extraer categoriaId de searchParams (requerido para crear)
-  const categoriaId = resolvedSearchParams?.get('categoriaId') || undefined;
-
-  // Si el slug no es "nuevo", estamos en la ruta incorrecta
-  if (slug !== "nuevo") {
-    console.warn("⚠️ Builder page recibió slug diferente a 'nuevo':", slug);
-  }
-
+  // Este componente ya no maneja searchParams
   return (
     <FormularioBuilderPage
-      categoriaId={categoriaId}
-      mode="create"
+      formularioId={slug !== 'nuevo' ? slug : undefined}
+      mode={slug !== 'nuevo' ? 'edit' : 'create'}
     />
   );
 }

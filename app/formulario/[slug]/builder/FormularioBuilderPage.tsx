@@ -281,7 +281,17 @@ export default function FormularioBuilderPage({
   useEffect(() => {
     const fetchCategoria = async () => {
       const categoriaIdFinal = formularioExistente?.categoriaId ?? categoriaIdProp;
-      if (!categoriaIdFinal || formularioExistente) return;
+
+      console.log("📋 categoriaIdProp recibido:", categoriaIdProp);
+      console.log("📋 categoriaIdFinal calculado:", categoriaIdFinal);
+
+      if (!categoriaIdFinal || formularioExistente) {
+        if (!categoriaIdFinal && !formularioExistente) {
+          console.warn("⚠️ No se proporcionó categoriaId en los searchParams");
+          toast.error("Error: No se especificó la categoría para el formulario");
+        }
+        return;
+      }
 
       try {
         const response = await fetch(`/api/categories/${categoriaIdFinal}`);

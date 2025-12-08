@@ -1,6 +1,6 @@
 'use server';
 
-import prisma from '@/lib/prisma';
+import prisma from '@/lib/db';
 
 export async function getFormularioPorSlug(slug: string | undefined | null) {
   if (!slug) {
@@ -10,8 +10,8 @@ export async function getFormularioPorSlug(slug: string | undefined | null) {
 
   try {
     const formulario = await prisma.formulario.findUnique({
-      where: { 
-        slugPublico: slug 
+      where: {
+        slugPublico: slug
       },
       include: {
         preguntas: {

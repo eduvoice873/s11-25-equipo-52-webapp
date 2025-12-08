@@ -8,7 +8,7 @@ import bcrypt from "bcrypt";
 import { encode as defaultEncode } from "next-auth/jwt";
 import { v4 as uuid } from "uuid";
 
-// @ts-expect-error - Workaround para conflicto de versiones de @auth/core en NextAuth v5 beta
+// @ts-expect-error - Prisma adapter has type issues with complex schemas
 const adapter = PrismaAdapter(prisma);
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
@@ -36,10 +36,13 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           });
 
           if (dbUser && dbUser.password) {
-            const passwordMatch = await bcrypt.compare(password, dbUser.password);
+            const passwordMatch = await bcrypt.compare(
+              password,
+              dbUser.password
+            );
 
             if (passwordMatch) {
-              // ✅ Devuelve solo las propiedades que NextAuth espera
+              //  Devuelve solo las propiedades que NextAuth espera
               return {
                 id: dbUser.id,
                 name: dbUser.name,

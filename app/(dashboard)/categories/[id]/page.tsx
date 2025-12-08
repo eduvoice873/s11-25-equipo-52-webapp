@@ -1,11 +1,11 @@
 import CategoryDetails from "@/components/category/CategoryDetails";
 
 interface PageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export default async function CategoryPage({ params }: PageProps) {
-  const { id } = params;
+  const { id } = await params;
 
   console.log("ID de categoría resuelto:", id);
 

@@ -6,4 +6,5 @@ export * from "../navbar";
 export * from "../sidebar";
 export * from "../typography";
 export * from '../FormField';
+export * from '../Modal';
 
