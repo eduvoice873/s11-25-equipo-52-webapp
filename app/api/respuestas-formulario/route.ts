@@ -20,7 +20,15 @@ export async function POST(request: NextRequest) {
       organizacionId,
     } = body;
 
-    console.log(" Body recibido:", { formularioId, slugPublico, nombreCompleto, correo, titulo, organizacionId });
+    console.log(" Body recibido:", {
+      formularioId,
+      slugPublico,
+      nombreCompleto,
+      correo,
+      titulo,
+      organizacionId,
+      respuestas: body.respuestas,
+    });
 
     // Validación básica
     if (!formularioId && !slugPublico) {
@@ -30,13 +38,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!titulo?.trim() || !texto?.trim()) {
-      console.warn(" Validación fallida: titulo o texto vacío");
-      return NextResponse.json(
-        { error: "Título y texto son requeridos" },
-        { status: 400 }
-      );
-    }
+    // Ya no requerir título ni texto obligatoriamente
+    // El título tiene valor por defecto y el texto puede ser null si hay preguntas
+    // La validación real la hace el frontend según la configuración del formulario
 
     // Obtener formulario
     let formulario;
@@ -44,13 +48,23 @@ export async function POST(request: NextRequest) {
       console.log(" Buscando formulario por slug:", slugPublico);
       formulario = await prisma.formulario.findUnique({
         where: { slugPublico },
-        select: { id: true, categoriaId: true, estado: true, organizacionId: true },
+        select: {
+          id: true,
+          categoriaId: true,
+          estado: true,
+          organizacionId: true,
+        },
       });
     } else {
       console.log(" Buscando formulario por ID:", formularioId);
       formulario = await prisma.formulario.findUnique({
         where: { id: formularioId },
-        select: { id: true, categoriaId: true, estado: true, organizacionId: true },
+        select: {
+          id: true,
+          categoriaId: true,
+          estado: true,
+          organizacionId: true,
+        },
       });
     }
 
@@ -78,7 +92,7 @@ export async function POST(request: NextRequest) {
     let persona: Persona | null = null;
 
     if (correo?.trim()) {
-      console.log("👤 Buscando persona por email:", correo);
+      console.log(" Buscando persona por email:", correo);
 
       persona = await prisma.persona.findUnique({
         where: { correo: correo.trim() },
@@ -110,14 +124,15 @@ export async function POST(request: NextRequest) {
         personaId: persona?.id || null,
         nombreCompleto: nombreCompleto?.trim() || null,
         correo: correo?.trim() || null,
-        titulo: titulo.trim(),
-        texto: texto.trim(),
+        titulo: titulo?.trim() || "Testimonio sin título",
+        texto: texto?.trim() || null,
         calificacion: calificacion || 5,
         estado: "pendiente",
         imagenUrl: body.imagenUrl || null,
         videoUrl: body.videoUrl || null,
         imagenPublicId: body.imagenPublicId || null,
         videoPublicId: body.videoPublicId || null,
+        respuestasPreguntas: body.respuestas || null,
       },
       include: {
         formulario: {
@@ -129,7 +144,12 @@ export async function POST(request: NextRequest) {
           },
         },
         persona: {
-          select: { id: true, nombreCompleto: true, correo: true, fotoUrl: true },
+          select: {
+            id: true,
+            nombreCompleto: true,
+            correo: true,
+            fotoUrl: true,
+          },
         },
       },
     });

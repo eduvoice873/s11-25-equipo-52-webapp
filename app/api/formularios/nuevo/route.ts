@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     const {
-      titulo,                 // ← VIENE DEL BUILDER
+      titulo, // ← VIENE DEL BUILDER
       descripcion,
       categoriaId,
       pedirNombre,
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
       permitirVideo,
       mensajeGracias,
       slugPublico,
-      preguntas,              // ← [{ id, texto, tipo, requerida, opciones }]
+      preguntas, // ← [{ id, texto, tipo, requerida, opciones }]
     } = body;
 
     // Validaciones mínimas
@@ -46,7 +46,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Si no hay slugPublico, generar uno basado en el título
-    const slugFinal = slugPublico?.trim() || titulo.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
+    const slugFinal =
+      slugPublico?.trim() ||
+      titulo
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, "-")
+        .replace(/[^\w-]/g, "");
 
     if (!categoriaId) {
       return NextResponse.json(
@@ -101,22 +107,26 @@ export async function POST(request: NextRequest) {
         mensajeGracias: mensajeGracias?.trim() || "¡Gracias por tu testimonio!",
 
         // Solo crear preguntas si existen y tienen datos válidos
-        ...(preguntas && Array.isArray(preguntas) && preguntas.length > 0 && {
-          preguntas: {
-            create: preguntas
-              .filter((p: any) => p?.titulo?.trim()) // Filtrar preguntas vacías
-              .map((p: any, index: number) => ({
-                titulo: p.titulo.trim(),
-                tipo: p.tipo || 'texto',
-                requerida: p.requerida ?? false,
-                orden: index,
-                opciones:
-                  p.opciones && Array.isArray(p.opciones) && p.opciones.length > 0
-                    ? JSON.stringify(p.opciones)
-                    : null,
-              })),
-          },
-        }),
+        ...(preguntas &&
+          Array.isArray(preguntas) &&
+          preguntas.length > 0 && {
+            preguntas: {
+              create: preguntas
+                .filter((p: any) => p?.texto?.trim()) // Filtrar preguntas vacías
+                .map((p: any, index: number) => ({
+                  texto: p.texto.trim(),
+                  tipo: p.tipo || "texto",
+                  requerida: p.requerida ?? false,
+                  orden: index,
+                  opciones:
+                    p.opciones &&
+                    Array.isArray(p.opciones) &&
+                    p.opciones.length > 0
+                      ? JSON.stringify(p.opciones)
+                      : null,
+                })),
+            },
+          }),
       },
       include: {
         preguntas: true,
@@ -125,10 +135,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json(
-      { success: true, formulario },
-      { status: 201 }
-    );
+    return NextResponse.json({ success: true, formulario }, { status: 201 });
   } catch (error: any) {
     return NextResponse.json(
       { error: error.message || "Error interno del servidor" },
