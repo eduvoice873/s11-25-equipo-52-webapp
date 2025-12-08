@@ -6,4 +6,12 @@ export interface UserType {
   status: 'active' | 'pending' | 'inactive';
   avatar?: string;
   createdAt: string;
+
+  lastSeen: string;
+  category: string;
+  tags: string[];
+  testimonials: {
+    text: string;
+    createdAt: string;
+  }[];
 }
