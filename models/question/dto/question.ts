@@ -9,7 +9,7 @@ export const QuestionsCreateSchema = z.object({
 });
 
 export const QuestionUpdateSchema = z.object({
-  texto: z.string().min(1).max(500).optional(),
+    texto: z.string().min(1).max(500),
 });
 
 export type QuestionCreateDto = z.infer<typeof QuestionCreateSchema>;

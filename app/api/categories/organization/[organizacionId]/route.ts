@@ -17,7 +17,6 @@ export async function GET(request: Request, { params }: { params: Promise<{ orga
         if (!organizationFounded) return NextResponse.json({ error: "Organization not found" }, { status: 404 });
 
         const categories = await categoryService.getCategoryByOrganizacionId(organizacionId);
-        if (!categories) return NextResponse.json({ error: "Categories not found" }, { status: 404 });
 
         return NextResponse.json(categories, { status: 200 });
     } catch (error) {

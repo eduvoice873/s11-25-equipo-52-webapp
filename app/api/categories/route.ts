@@ -1,25 +1,33 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { CategoryService } from "@/models/category/categoryService";
-import { CategoryFullCreateSchema } from "@/models/categoryFull/dto/categoryFull";
-import { CreateCategoryFullService } from "@/models/categoryFull/createCategoryFullService";
+import { OrganizationService } from "@/models/organization/organizationService";
+import { CategoryCreateSchema } from "@/models/category/dto/category";
 
 const categoryService = new CategoryService();
-const createCategoryFullService = new CreateCategoryFullService();
+const organizationService = new OrganizationService();
 
 // Crea una nueva categoría
 export async function POST(request: Request) {
     const session = await auth();
     if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+    const userId = session.user.id;
+    if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
     try {
         const body = await request.json();
 
-        const dto = CategoryFullCreateSchema.parse(body);
+        // Extraer solo los datos de la categoría si vienen anidados
+        const categoryData = body.category || body;
+        const dto = CategoryCreateSchema.parse(categoryData);
 
-        const result = await createCategoryFullService.createCategoryFull(dto);
+        const organizacionId = await organizationService.getOrganizationIdByUserId(userId);
+        if (!organizacionId) return NextResponse.json({ error: "Organization not found for user" }, { status: 404 });
 
-        return NextResponse.json(result, { status: 201 });
+        const newCategory = await categoryService.createCategory(dto, userId, organizacionId);
+
+        return NextResponse.json(newCategory, { status: 201 });
     } catch (error) {
         if (error instanceof Error) return NextResponse.json({ error: error.message }, { status: 400 });
 

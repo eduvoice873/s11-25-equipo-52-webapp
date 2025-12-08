@@ -36,7 +36,11 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
         if (!categoryFounded) return NextResponse.json({ error: "Category not found" }, { status: 404 });
 
         const body = await request.json();
-        const dto = CategoryUpdateSchema.parse(body);
+
+        // Extraer solo los datos de la categoría si vienen anidados
+        const categoryData = body.category || body;
+        const dto = CategoryUpdateSchema.parse(categoryData);
+
         const updatedCategory = await categoryService.updateCategory(id, dto);
 
         return NextResponse.json(updatedCategory, { status: 200 });
@@ -45,6 +49,11 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
         return NextResponse.json({ error: "Internal server error" }, { status: 500 });
     }
+}
+
+// Alias para PATCH (mismo comportamiento que PUT)
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
+    return PUT(request, { params });
 }
 
 // Elimina una categoría por ID
@@ -59,7 +68,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
         if (!categoryFounded) return NextResponse.json({ error: "Category not found" }, { status: 404 });
 
         await categoryService.deleteCategory(id);
-        return NextResponse.json(null, { status: 204 });
+        return new NextResponse(null, { status: 204 });
     } catch (error) {
         if (error instanceof Error) return NextResponse.json({ error: error.message }, { status: 400 });
 

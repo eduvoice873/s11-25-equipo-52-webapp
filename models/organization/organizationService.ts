@@ -14,6 +14,22 @@ export class OrganizationService {
         return await prisma.organizacion.findUnique({ where: { id } });
     }
 
+    async getOrganizationIdByUserId(userId: string) {
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+            select: { organizacionId: true },
+        });
+        return user?.organizacionId || null;
+    }
+
+    async getOrganizationIdByCategoryId(categoriaId: string) {
+        const category = await prisma.categoria.findUnique({
+            where: { id: categoriaId },
+            select: { organizacionId: true }
+        });
+        return category?.organizacionId || null;
+    }
+
     async getOrganizationBySlug(slug: string) {
         return await prisma.organizacion.findUnique({ where: { slug } });
     }

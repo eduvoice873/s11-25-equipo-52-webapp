@@ -16,6 +16,7 @@ export const buttonVariants = cva(
         login: "bg-brand-blue hover:bg-blue-800 text-white disabled:bg-gray-300 disabled:text-gray-500",
         disabled: "bg-gray-300 text-gray-500 cursor-not-allowed cursor-default",
         ghost: "hover:bg-popover hover:text-accent-foreground dark:hover:bg-accent/50",
+        destructive: "bg-red-600 hover:bg-red-700 text-white disabled:bg-gray-300 disabled:text-gray-500",
       },
 
       size: {

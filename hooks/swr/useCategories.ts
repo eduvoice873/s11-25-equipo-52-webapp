@@ -5,7 +5,7 @@ import useSWR from "swr";
 export function useCategories() {
   const { data, ...args } = useSWR("/api/categories", fetcher);
 
-  const categories: Categoria[] = data;
+  const categories: Categoria[] = data ?? [];
 
   return {
     categories,

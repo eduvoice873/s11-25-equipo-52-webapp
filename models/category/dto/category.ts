@@ -1,9 +1,9 @@
 import { z } from "zod";
 
 export const CategoryCreateSchema = z.object({
-  nombre: z.string().min(1).max(100),
-  titulo: z.string().min(1).max(100),
-  mensaje: z.string().min(1).max(500),
+    nombre: z.string().min(1).max(100),
+    titulo: z.string().min(1).max(100),
+    mensaje: z.string().min(1).max(500),
 });
 
 export const CategoryInputSchema = z.object({

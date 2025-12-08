@@ -11,6 +11,17 @@ export const globalContextInitialState: GlobalContextState = {
     filledCategory: false,
     filledQuestions: false,
     step: "category",
+    formConfig: {
+      nombreFormulario: "",
+      descripcion: "Comparte tu experiencia en este espacio.",
+      slugPublico: "",
+      mensajeGracias: "Gracias por compartir tu testimonio.",
+      pedirNombre: true,
+      pedirCorreo: true,
+      permitirTexto: true,
+      permitirTextoImagen: false,
+      permitirVideo: false,
+    },
   },
 };
 
@@ -45,6 +56,14 @@ export function globalReducer(state: GlobalContextState, action: GlobalContextAc
           ...state.newCategory,
           questions: action.payload,
           filledQuestions: true,
+        },
+      };
+    case "SET_NEW_CATEGORY_FORM":
+      return {
+        ...state,
+        newCategory: {
+          ...state.newCategory,
+          formConfig: action.payload,
         },
       };
     default:

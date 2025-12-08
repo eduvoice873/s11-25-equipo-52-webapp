@@ -27,7 +27,23 @@ export default function RootLayout({ children }: RootLayoutProps) {
     <html lang="en" className={`${nunito.variable} ${lato.variable}`}>
       <body className="bg-gray-100" suppressHydrationWarning>
         {children}
-        <Toaster />
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            duration: 4000,
+            style: {
+              fontFamily: 'var(--font-nunito)',
+            },
+            classNames: {
+              toast: 'toast-custom',
+              success: 'toast-success',
+              error: 'toast-error',
+              warning: 'toast-warning',
+              info: 'toast-info',
+            },
+          }}
+          richColors
+        />
       </body>
     </html>
   );

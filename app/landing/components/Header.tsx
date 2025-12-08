@@ -1,14 +1,17 @@
-import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
+import { auth } from "@/lib/auth";
 
+export default async function HeaderLanding() {
+  const session = await auth();
+  const isLogged = !!session?.user;
 
-export default function HeaderLanding() {
   return (
     <header className="bg-background shadow-lg py-4 fixed top-0 left-0 w-full z-50">
       <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
+
         <Link href="/" className="flex items-center gap-2" aria-label="EduVoice CMS - Inicio">
-          <Image src="/EduVoiceCMS_logo.png" alt="EduVoice CMS Logo" width={40} height={40} className="h-8 w-auto md:h-10" />
+          <Image src="/EduVoiceCMS_logo-SN.png" alt="EduVoice CMS Logo" width={40} height={40} className="h-8 w-auto md:h-10" />
           <span className="text-2xl font-extrabold text-brand-blue">EduVoice CMS</span>
         </Link>
 
@@ -19,7 +22,7 @@ export default function HeaderLanding() {
           <Link href="/#casos" className="hover:text-brand-light transition-colors">Casos de Uso</Link>
         </nav>
 
-        <Link href="/login" className="hidden md:block bg-brand-blue text-background px-6 py-2 rounded-xl shadow-md hover:bg-brand-blue/90 transition-colors font-bold font-lato">
+        <Link href="/signup" className="hidden md:block bg-brand-blue text-background px-6 py-2 rounded-xl shadow-md hover:bg-brand-blue/90 transition-colors font-bold font-lato">
           Empezar Gratis
         </Link>
 

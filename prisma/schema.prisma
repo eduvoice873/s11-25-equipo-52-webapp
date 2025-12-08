@@ -27,6 +27,7 @@ model User {
   sessions            Session[]
   testimoniosEditados Testimonio[]
   organizacion        Organizacion @relation(fields: [organizacionId], references: [id], onDelete: Cascade)
+  formularios         Formulario[]
 
   @@index([organizacionId])
 }
@@ -76,6 +77,7 @@ model Organizacion {
   etiquetas  Etiqueta[]
   medios     Medio[]
   usuarios   User[]
+  formularios Formulario[]
 }
 
 model Persona {
@@ -84,6 +86,7 @@ model Persona {
   correo         String       @unique
   fotoUrl        String?
   testimonios    Testimonio[]
+  respuestas     RespuestaFormulario[]
 }
 
 model Categoria {
@@ -98,6 +101,7 @@ model Categoria {
   organizacion   Organizacion @relation(fields: [organizacionId], references: [id], onDelete: Cascade)
   preguntas      Pregunta[]
   testimonios    Testimonio[]
+  formularios    Formulario[]
 
   @@index([organizacionId])
   @@index([creadoPorId])
@@ -179,6 +183,80 @@ model Revision {
 
   @@index([testimonioId])
   @@index([revisorId])
+}
+
+model Formulario {
+  id                  String       @id @default(cuid())
+  organizacionId      String
+  categoriaId         String
+  creadoPorId         String
+  nombreFormulario    String
+  descripcion         String?
+  slugPublico         String       @unique
+  pedirNombre         Boolean      @default(true)
+  pedirCorreo         Boolean      @default(true)
+  permitirTexto       Boolean      @default(true)
+  permitirTextoImagen Boolean      @default(false)
+  permitirVideo       Boolean      @default(false)
+  mensajeGracias      String?
+  estado              EstadoFormulario      @default(publicado)
+  creadoEn            DateTime     @default(now())
+  actualizadoEn       DateTime     @updatedAt
+
+  // Relaciones
+  organizacion        Organizacion @relation(fields: [organizacionId], references: [id], onDelete: Cascade)
+  categoria           Categoria    @relation(fields: [categoriaId], references: [id], onDelete: Cascade)
+  creadoPor           User         @relation(fields: [creadoPorId], references: [id], onDelete: Cascade)
+  preguntas           PreguntaFormulario[]
+  respuestas          RespuestaFormulario[]
+
+  @@index([organizacionId])
+  @@index([categoriaId])
+  @@index([creadoPorId])
+  @@unique([slugPublico, organizacionId])
+}
+
+model PreguntaFormulario {
+  id            String   @id @default(cuid())
+  formularioId  String
+  titulo        String
+  tipo          String   @default("texto") // "texto", "seleccion", "si_no", etc
+  requerida     Boolean  @default(false)
+  orden         Int      @default(0)
+  opciones      String?  // JSON array como string
+  creadoEn      DateTime @default(now())
+
+  formulario    Formulario @relation(fields: [formularioId], references: [id], onDelete: Cascade)
+
+  @@index([formularioId])
+}
+
+model RespuestaFormulario {
+  id             String   @id @default(cuid())
+  formularioId   String
+  personaId      String?
+  nombreCompleto String?
+  correo         String?
+  titulo         String
+  texto          String
+  calificacion   Int      @default(5)
+  estado         String   @default("pendiente") // "pendiente", "aprobado", "rechazado"
+  creadoEn       DateTime @default(now())
+  imagenUrl String?
+  videoUrl  String?
+  imagenPublicId String?
+  videoPublicId  String?
+
+  formulario     Formulario @relation(fields: [formularioId], references: [id], onDelete: Cascade)
+  persona        Persona?   @relation(fields: [personaId], references: [id])
+
+  @@index([formularioId])
+  @@index([personaId])
+}
+
+enum EstadoFormulario {
+  borrador
+  publicado
 }
 
 enum EstadoTestimonio {
