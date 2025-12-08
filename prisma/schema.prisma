@@ -10,24 +10,25 @@ datasource db {
 }
 
 model User {
-  id                  String       @id @default(cuid())
+  id                  String                        @id @default(cuid())
   name                String?
-  email               String       @unique
+  email               String                        @unique
   password            String?
   emailVerified       DateTime?
   image               String?
-  activo              Boolean      @default(true)
-  rol                 Rol
+  createdAt           DateTime                      @default(now())
+  updatedAt           DateTime                      @updatedAt
+  activo              Boolean                       @default(true)
   organizacionId      String
-  createdAt           DateTime     @default(now())
-  updatedAt           DateTime     @updatedAt
+  rol                 Rol
   accounts            Account[]
   categorias          Categoria[]
-  revisiones          Revision[]
-  sessions            Session[]
-  testimoniosEditados Testimonio[]
-  organizacion        Organizacion @relation(fields: [organizacionId], references: [id], onDelete: Cascade)
   formularios         Formulario[]
+  revisiones          Revision[]
+  revisionesRespuesta RevisionRespuestaFormulario[]
+  sessions            Session[]
+  testimoniosEditados Testimonio[]                  @relation("TestimoniosEditados")
+  organizacion        Organizacion                  @relation(fields: [organizacionId], references: [id], onDelete: Cascade)
 
   @@index([organizacionId])
 }
@@ -69,39 +70,39 @@ model VerificationToken {
 }
 
 model Organizacion {
-  id         String      @id @default(uuid())
-  nombre     String
-  slug       String      @unique
-  creadoEn   DateTime    @default(now())
-  categorias Categoria[]
-  etiquetas  Etiqueta[]
-  medios     Medio[]
-  usuarios   User[]
+  id          String       @id @default(uuid())
+  nombre      String
+  slug        String       @unique
+  creadoEn    DateTime     @default(now())
+  categorias  Categoria[]
+  etiquetas   Etiqueta[]
   formularios Formulario[]
+  medios      Medio[]
+  usuarios    User[]
 }
 
 model Persona {
-  id             String       @id @default(uuid())
+  id             String                @id @default(uuid())
   nombreCompleto String
-  correo         String       @unique
+  correo         String                @unique
   fotoUrl        String?
-  testimonios    Testimonio[]
   respuestas     RespuestaFormulario[]
+  testimonios    Testimonio[]
 }
 
 model Categoria {
   id             String       @id @default(uuid())
   organizacionId String
-  creadoPorId    String
   nombre         String
-  titulo         String?
-  mensaje        String?
   creadoEn       DateTime     @default(now())
+  creadoPorId    String
+  mensaje        String?
+  titulo         String?
   creadoPor      User         @relation(fields: [creadoPorId], references: [id])
   organizacion   Organizacion @relation(fields: [organizacionId], references: [id], onDelete: Cascade)
+  formularios    Formulario[]
   preguntas      Pregunta[]
   testimonios    Testimonio[]
-  formularios    Formulario[]
 
   @@index([organizacionId])
   @@index([creadoPorId])
@@ -109,8 +110,8 @@ model Categoria {
 
 model Pregunta {
   id          String    @id @default(uuid())
-  categoriaId String
   texto       String
+  categoriaId String
   categoria   Categoria @relation(fields: [categoriaId], references: [id], onDelete: Cascade)
 
   @@index([categoriaId])
@@ -118,7 +119,6 @@ model Pregunta {
 
 model Testimonio {
   id               String              @id @default(uuid())
-  categoriaId      String
   personaId        String
   modalidad        ModalidadTestimonio @default(texto_imagen)
   titulo           String
@@ -130,9 +130,10 @@ model Testimonio {
   actualizadoPorId String?
   creadoEn         DateTime            @default(now())
   actualizadoEn    DateTime            @updatedAt
+  categoriaId      String
   medios           Medio[]
   revisiones       Revision[]
-  actualizadoPor   User?               @relation(fields: [actualizadoPorId], references: [id])
+  actualizadoPor   User?               @relation("TestimoniosEditados", fields: [actualizadoPorId], references: [id])
   categoria        Categoria           @relation(fields: [categoriaId], references: [id], onDelete: Cascade)
   persona          Persona             @relation(fields: [personaId], references: [id])
   etiquetas        Etiqueta[]          @relation("EtiquetaToTestimonio")
@@ -186,72 +187,84 @@ model Revision {
 }
 
 model Formulario {
-  id                  String       @id @default(cuid())
+  id                  String                @id @default(cuid())
   organizacionId      String
   categoriaId         String
   creadoPorId         String
   nombreFormulario    String
   descripcion         String?
-  slugPublico         String       @unique
-  pedirNombre         Boolean      @default(true)
-  pedirCorreo         Boolean      @default(true)
-  permitirTexto       Boolean      @default(true)
-  permitirTextoImagen Boolean      @default(false)
-  permitirVideo       Boolean      @default(false)
+  slugPublico         String                @unique
+  pedirNombre         Boolean               @default(true)
+  pedirCorreo         Boolean               @default(true)
+  permitirTexto       Boolean               @default(true)
+  permitirTextoImagen Boolean               @default(false)
+  permitirVideo       Boolean               @default(false)
   mensajeGracias      String?
+  creadoEn            DateTime              @default(now())
+  actualizadoEn       DateTime              @updatedAt
   estado              EstadoFormulario      @default(publicado)
-  creadoEn            DateTime     @default(now())
-  actualizadoEn       DateTime     @updatedAt
-
-  // Relaciones
-  organizacion        Organizacion @relation(fields: [organizacionId], references: [id], onDelete: Cascade)
-  categoria           Categoria    @relation(fields: [categoriaId], references: [id], onDelete: Cascade)
-  creadoPor           User         @relation(fields: [creadoPorId], references: [id], onDelete: Cascade)
+  categoria           Categoria             @relation(fields: [categoriaId], references: [id], onDelete: Cascade)
+  creadoPor           User                  @relation(fields: [creadoPorId], references: [id], onDelete: Cascade)
+  organizacion        Organizacion          @relation(fields: [organizacionId], references: [id], onDelete: Cascade)
   preguntas           PreguntaFormulario[]
   respuestas          RespuestaFormulario[]
 
+  @@unique([slugPublico, organizacionId])
   @@index([organizacionId])
   @@index([categoriaId])
   @@index([creadoPorId])
-  @@unique([slugPublico, organizacionId])
 }
 
 model PreguntaFormulario {
-  id            String   @id @default(cuid())
-  formularioId  String
-  titulo        String
-  tipo          String   @default("texto") // "texto", "seleccion", "si_no", etc
-  requerida     Boolean  @default(false)
-  orden         Int      @default(0)
-  opciones      String?  // JSON array como string
-  creadoEn      DateTime @default(now())
-
-  formulario    Formulario @relation(fields: [formularioId], references: [id], onDelete: Cascade)
+  id           String     @id @default(cuid())
+  formularioId String
+  texto        String
+  tipo         String     @default("texto")
+  requerida    Boolean    @default(false)
+  orden        Int        @default(0)
+  opciones     String?
+  creadoEn     DateTime   @default(now())
+  formulario   Formulario @relation(fields: [formularioId], references: [id], onDelete: Cascade)
 
   @@index([formularioId])
 }
 
 model RespuestaFormulario {
-  id             String   @id @default(cuid())
-  formularioId   String
-  personaId      String?
-  nombreCompleto String?
-  correo         String?
-  titulo         String
-  texto          String
-  calificacion   Int      @default(5)
-  estado         String   @default("pendiente") // "pendiente", "aprobado", "rechazado"
-  creadoEn       DateTime @default(now())
-  imagenUrl String?
-  videoUrl  String?
-  imagenPublicId String?
-  videoPublicId  String?
-
-  formulario     Formulario @relation(fields: [formularioId], references: [id], onDelete: Cascade)
-  persona        Persona?   @relation(fields: [personaId], references: [id])
+  id                  String                       @id @default(cuid())
+  formularioId        String
+  personaId           String?
+  nombreCompleto      String?
+  correo              String?
+  titulo              String
+  texto               String?
+  calificacion        Int                          @default(5)
+  estado              String                       @default("pendiente")
+  creadoEn            DateTime                     @default(now())
+  imagenPublicId      String?
+  imagenUrl           String?
+  videoPublicId       String?
+  videoUrl            String?
+  respuestasPreguntas Json?
+  formulario          Formulario                   @relation(fields: [formularioId], references: [id], onDelete: Cascade)
+  persona             Persona?                     @relation(fields: [personaId], references: [id])
+  revisiones          RevisionRespuestaFormulario[]
 
   @@index([formularioId])
   @@index([personaId])
+}
+
+model RevisionRespuestaFormulario {
+  id                    String              @id @default(uuid())
+  respuestaFormularioId String
+  revisorId             String
+  decision              String
+  notas                 String?
+  creadoEn              DateTime            @default(now())
+  revisor               User                @relation(fields: [revisorId], references: [id], onDelete: Cascade)
+  respuestaFormulario   RespuestaFormulario @relation(fields: [respuestaFormularioId], references: [id], onDelete: Cascade)
+
+  @@index([respuestaFormularioId])
+  @@index([revisorId])
 }
 
 enum EstadoFormulario {
@@ -284,6 +297,7 @@ enum TipoCategoria {
 enum DecisionRevision {
   aprobar
   rechazar
+  editar
 }
 
 enum ModalidadTestimonio {
