@@ -36,8 +36,12 @@ import {
   Video,
   Check,
   X,
+  User,
+  Mail,
+  Eye,
+  EyeIcon,
 } from "lucide-react";
-import { FormatOption } from '@/app/testimonios/components/TestimonioForm';
+import { FormatOption } from '@/app/(dashboard)/testimonios/components/TestimonioForm';
 
 // Tipos y definiciones
 type TipoPregunta =
@@ -169,7 +173,7 @@ export default function FormularioBuilderPage({
   const [categoriaNombre, setCategoriaNombre] = useState("");
 
   // Usar el formulario de SWR directamente
-  const formularioExistente = formulario;  const form = useForm<FormValues>({
+  const formularioExistente = formulario; const form = useForm<FormValues>({
     resolver: zodResolver(formSchema) as any,
     defaultValues: {
       titulo: "Nuevo Formulario",
@@ -189,7 +193,7 @@ export default function FormularioBuilderPage({
       calificacion: 5,
       preguntas: [],
     },
-  });  const [currentStep, setCurrentStep] = useState<Step>(1)
+  }); const [currentStep, setCurrentStep] = useState<Step>(1)
   const [copied, setCopied] = useState(false);
   const [origin, setOrigin] = useState("")
   const [preguntas, setPreguntas] = useState<Pregunta[]>([]);
@@ -282,8 +286,8 @@ export default function FormularioBuilderPage({
     const fetchCategoria = async () => {
       const categoriaIdFinal = formularioExistente?.categoriaId ?? categoriaIdProp;
 
-      console.log("📋 categoriaIdProp recibido:", categoriaIdProp);
-      console.log("📋 categoriaIdFinal calculado:", categoriaIdFinal);
+      console.log(" categoriaIdProp recibido:", categoriaIdProp);
+      console.log(" categoriaIdFinal calculado:", categoriaIdFinal);
 
       if (!categoriaIdFinal || formularioExistente) {
         if (!categoriaIdFinal && !formularioExistente) {
@@ -452,7 +456,7 @@ export default function FormularioBuilderPage({
         destacado: values.destacado,
         calificacion: values.calificacion,
         preguntas: values.preguntas.map((p, index) => ({
-          titulo: p.texto,
+          texto: p.texto,
           tipo: p.tipo,
           requerida: p.requerida,
           orden: index,
@@ -762,8 +766,9 @@ export default function FormularioBuilderPage({
       case 1:
         return (
           <div className="space-y-6">
-            <div>
-              <h2 className="text-2xl font-bold text-slate-900 mb-2">
+            <div className=" from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-100">
+              <h2 className="text-2xl font-bold text-slate-900 mb-2 flex items-center gap-2">
+                <MessageSquare className="w-6 h-6 text-indigo-600" />
                 Información Básica
               </h2>
               <p className="text-slate-600">
@@ -776,15 +781,27 @@ export default function FormularioBuilderPage({
               name="titulo"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Título del Formulario *</FormLabel>
+                  <FormLabel className="text-base font-semibold flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-indigo-600" />
+                    Título del Formulario *
+                  </FormLabel>
                   <FormControl>
                     <Input
                       placeholder="Ej: Testimonios de Clientes 2024"
+                      className="h-11 text-base"
                       {...field}
+                      onChange={(e) => {
+                        field.onChange(e);
+                        // Auto-generar slug si está vacío
+                        const currentSlug = form.getValues("slugPublico");
+                        if (!currentSlug || currentSlug === slugify(form.getValues("titulo"))) {
+                          form.setValue("slugPublico", slugify(e.target.value));
+                        }
+                      }}
                     />
                   </FormControl>
-                  <FormDescription>
-                    Un título descriptivo para identificar este formulario
+                  <FormDescription className="text-sm">
+                    💡 Un título descriptivo para identificar este formulario
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -796,16 +813,19 @@ export default function FormularioBuilderPage({
               name="descripcion"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Descripción *</FormLabel>
+                  <FormLabel className="text-base font-semibold flex items-center gap-2">
+                    <MessageSquare className="w-4 h-4 text-indigo-600" />
+                    Descripción *
+                  </FormLabel>
                   <FormControl>
                     <Textarea
                       placeholder="Ej: Comparte tu experiencia con nuestro servicio. Tu opinión es muy valiosa para nosotros."
-                      className="min-h-[120px]"
+                      className="min-h-[120px] text-base resize-none"
                       {...field}
                     />
                   </FormControl>
-                  <FormDescription>
-                    Este texto aparecerá en la parte superior del formulario
+                  <FormDescription className="text-sm">
+                    💡 Este texto aparecerá en la parte superior del formulario para guiar a los usuarios
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -817,12 +837,13 @@ export default function FormularioBuilderPage({
       case 2:
         return (
           <div className="space-y-6">
-            <div>
-              <h2 className="text-2xl font-bold text-slate-900 mb-2">
+            <div className=" from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
+              <h2 className="text-2xl font-bold text-slate-900 mb-2 flex items-center gap-2">
+                <FileText className="w-6 h-6 text-blue-600" />
                 Formatos de Respuesta
               </h2>
               <p className="text-slate-600">
-                Selecciona qué tipos de respuestas quieres permitir.
+                Selecciona qué tipos de respuestas quieres permitir y qué información solicitar.
               </p>
             </div>
 
@@ -831,12 +852,13 @@ export default function FormularioBuilderPage({
                 control={form.control}
                 name="pedirNombre"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border-2 border-slate-200 p-5 hover:border-indigo-300 transition-colors bg-white shadow-sm">
                     <div className="space-y-0.5">
-                      <FormLabel className="text-base">
+                      <FormLabel className="text-base font-semibold flex items-center gap-2">
+                        <User className="w-4 h-4 text-indigo-600" />
                         Solicitar Nombre
                       </FormLabel>
-                      <FormDescription>
+                      <FormDescription className="text-sm">
                         ¿Quieres pedir el nombre del usuario que envía el
                         testimonio?
                       </FormDescription>
@@ -855,12 +877,13 @@ export default function FormularioBuilderPage({
                 control={form.control}
                 name="pedirCorreo"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border-2 border-slate-200 p-5 hover:border-indigo-300 transition-colors bg-white shadow-sm">
                     <div className="space-y-0.5">
-                      <FormLabel className="text-base">
+                      <FormLabel className="text-base font-semibold flex items-center gap-2">
+                        <Mail className="w-4 h-4 text-indigo-600" />
                         Solicitar Correo Electrónico
                       </FormLabel>
-                      <FormDescription>
+                      <FormDescription className="text-sm">
                         ¿Quieres pedir el correo electrónico del usuario?
                       </FormDescription>
                     </div>
@@ -874,49 +897,46 @@ export default function FormularioBuilderPage({
                 )}
               />
 
-              <div className="pt-4">
-                <h3 className="text-lg font-semibold mb-4">
+              <div className="pt-4 bg-slate-50 rounded-xl p-6 border border-slate-200">
+                <h3 className="text-lg font-semibold mb-2 text-slate-900 flex items-center gap-2">
+                  <ImageIcon className="w-5 h-5 text-indigo-600" />
                   Formatos de respuesta permitidos
                 </h3>
+                <p className="text-sm text-slate-600 mb-6">
+                  Selecciona uno o más formatos que los usuarios podrán usar para compartir su testimonio
+                </p>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <FormatOption
-                    icon={() => <MessageSquare className="h-5 w-5" />}
+                    icon={() => <FileText className="h-5 w-5" />}
                     title="Solo Texto"
-                    description="Los usuarios pueden escribir su testimonio en texto plano."
-                    active={permitirTexto}
+                    description="Los usuarios escribirán su testimonio en texto plano."
+                    active={permitirTexto && !permitirTextoImagen}
                     onClick={() => {
-                      const next = !permitirTexto;
-                      form.setValue("permitirTexto", next);
-                      if (next) {
-                        form.setValue("permitirVideo", false);
-                      }
+                      form.setValue("permitirTexto", true);
+                      form.setValue("permitirTextoImagen", false);
+                      form.setValue("permitirVideo", false);
                     }}
                   />
                   <FormatOption
-                    icon={() => <MessageSquare className="h-5 w-5" />}
+                    icon={() => <ImageIcon className="h-5 w-5" />}
                     title="Texto + Imagen"
-                    description="Los usuarios pueden adjuntar una imagen con su testimonio."
+                    description="Los usuarios pueden adjuntar imagen con su testimonio."
                     active={permitirTextoImagen}
                     onClick={() => {
-                      const next = !permitirTextoImagen;
-                      form.setValue("permitirTextoImagen", next);
-                      if (next) {
-                        form.setValue("permitirVideo", false);
-                      }
+                      form.setValue("permitirTexto", false);
+                      form.setValue("permitirTextoImagen", true);
+                      form.setValue("permitirVideo", false);
                     }}
                   />
                   <FormatOption
-                    icon={() => <MessageSquare className="h-5 w-5" />}
+                    icon={() => <Video className="h-5 w-5" />}
                     title="Video"
-                    description="Los usuarios pueden grabar o subir un video testimonio."
+                    description="Los usuarios grabarán o subirán un video testimonio."
                     active={permitirVideo}
                     onClick={() => {
-                      const next = !permitirVideo;
-                      form.setValue("permitirVideo", next);
-                      if (next) {
-                        form.setValue("permitirTexto", false);
-                        form.setValue("permitirTextoImagen", false);
-                      }
+                      form.setValue("permitirTexto", false);
+                      form.setValue("permitirTextoImagen", false);
+                      form.setValue("permitirVideo", true);
                     }}
                   />
                 </div>
@@ -933,8 +953,9 @@ export default function FormularioBuilderPage({
       case 3:
         return (
           <div className="space-y-6">
-            <div>
-              <h2 className="text-2xl font-bold text-slate-900 mb-2">
+            <div className=" from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-100">
+              <h2 className="text-2xl font-bold text-slate-900 mb-2 flex items-center gap-2">
+                <ImageIcon className="w-6 h-6 text-purple-600" />
                 Configurar Contenido
               </h2>
               <p className="text-slate-600">
@@ -945,197 +966,289 @@ export default function FormularioBuilderPage({
 
             {esSoloVideo ? (
               <>
-                <div className="p-4 rounded-lg border border-blue-200 bg-blue-50">
-                  <h3 className="font-medium text-blue-900 mb-1">
-                    Este formulario será solo para video
-                  </h3>
-                  <p className="text-sm text-blue-800">
-                    Has configurado el formulario para recopilar únicamente
-                    testimonios en video. El usuario final no verá preguntas de
-                    texto, solo un bloque para subir o grabar su video.
-                  </p>
-                </div>
-
-                <div className="mt-6 p-6 bg-white rounded-lg border">
-                  <h4 className="text-xl font-semibold mb-2">
-                    {form.watch("titulo") || "Título del formulario"}
-                  </h4>
-                  <p className="text-gray-600 mb-6">
-                    {form.watch("descripcion") || "Descripción del formulario"}
-                  </p>
-
-                  <div className="mt-4 flex flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed border-slate-300 px-6 py-8 bg-slate-50">
-                    <Video className="w-8 h-8 text-purple-500" />
-                    <p className="text-sm text-slate-600 text-center">
-                      Aquí el usuario podrá subir o grabar su video testimonio
-                      usando Cloudinary en el formulario público.
-                    </p>
-                    <div className="inline-flex items-center rounded-md bg-purple-50 px-3 py-1 text-xs font-medium text-purple-700">
-                      Vista previa del componente de subida de video
+                <div className="p-4 rounded-lg border-2 border-blue-200 bg-blue-50">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 bg-blue-100 rounded-lg">
+                      <Video className="w-5 h-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-blue-900 mb-1">
+                        Formulario de Video Testimonio
+                      </h3>
+                      <p className="text-sm text-blue-800">
+                        Los usuarios podrán subir o grabar un video con su testimonio.
+                        También pueden agregar una descripción de texto opcional.
+                      </p>
                     </div>
                   </div>
                 </div>
+
+                <FormField
+                  control={form.control}
+                  name="mensajeGracias"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Mensaje de Agradecimiento *</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="¡Gracias por compartir tu video! Tu testimonio nos ayuda a mejorar."
+                          className="min-h-[100px]"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Este mensaje se mostrará después de que el usuario envíe su video
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </>
             ) : (
               <>
-                <div className="space-y-4">
-                  {preguntas.map((pregunta, index) => (
-                    <div
-                      key={pregunta.id}
-                      className="border rounded-lg p-4 bg-white"
-                    >
-                      <div className="flex justify-between items-start mb-3">
-                        <div className="flex-1">
-                          <input
-                            type="text"
-                            value={pregunta.texto}
-                            onChange={(event) =>
-                              actualizarPregunta(pregunta.id, {
-                                texto: event.target.value,
-                              })
-                            }
-                            placeholder="Escribe tu pregunta aquí"
-                            className="w-full p-2 border-b border-gray-200 focus:border-blue-500 focus:outline-none text-base font-medium"
-                          />
-                          <p className="text-xs text-slate-500 mt-1">
-                            Formato: {formatoEtiquetas[pregunta.tipo]}
-                          </p>
-                        </div>
-                        <div className="flex space-x-2 ml-2">
-                          <button
-                            type="button"
-                            onClick={() =>
-                              moverPregunta(pregunta.id, "arriba")
-                            }
-                            disabled={index === 0}
-                            className="p-1 text-gray-500 hover:text-gray-700 disabled:opacity-30"
-                          >
-                            <MoveUp className="w-4 h-4" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              moverPregunta(pregunta.id, "abajo")
-                            }
-                            disabled={index === preguntas.length - 1}
-                            className="p-1 text-gray-500 hover:text-gray-700 disabled:opacity-30"
-                          >
-                            <MoveDown className="w-4 h-4" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => eliminarPregunta(pregunta.id)}
-                            className="p-1 text-red-500 hover:text-red-700"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
+                {/* Sección de Caja de Texto Principal (cuando es formato texto) */}
+                {(permitirTexto || permitirTextoImagen) && (
+                  <div className=" from-green-50 to-emerald-50 rounded-xl p-6 border-2 border-green-200">
+                    <div className="flex items-start gap-3 mb-4">
+                      <div className="p-2 bg-green-100 rounded-lg">
+                        <FileText className="w-5 h-5 text-green-600" />
                       </div>
-
-                      <div className="mt-3 ml-2">
-                        {renderTipoPregunta(pregunta)}
-                      </div>
-
-                      <div className="mt-3 pt-2 border-t flex justify-between items-center">
-                        <div className="flex items-center">
-                          <select
-                            value={pregunta.tipo}
-                            onChange={(event) => {
-                              const nuevoTipo =
-                                event.target.value as TipoPregunta;
-                              const cambios: Partial<Pregunta> = {
-                                tipo: nuevoTipo,
-                              };
-
-                              if (
-                                nuevoTipo === "opcion_unica" ||
-                                nuevoTipo === "opcion_multiple"
-                              ) {
-                                cambios.opciones = pregunta.opciones?.length
-                                  ? pregunta.opciones
-                                  : ["Opción 1", "Opción 2"];
-                                cambios.minimo = undefined;
-                                cambios.maximo = undefined;
-                                cambios.formatoArchivo = undefined;
-                              } else if (nuevoTipo === "escala") {
-                                cambios.minimo = pregunta.minimo ?? 1;
-                                cambios.maximo = pregunta.maximo ?? 5;
-                                cambios.opciones = undefined;
-                                cambios.formatoArchivo = undefined;
-                              } else if (nuevoTipo === "archivo") {
-                                cambios.formatoArchivo =
-                                  pregunta.formatoArchivo || "imagen";
-                                cambios.opciones = undefined;
-                                cambios.minimo = undefined;
-                                cambios.maximo = undefined;
-                              } else {
-                                cambios.opciones = undefined;
-                                cambios.minimo = undefined;
-                                cambios.maximo = undefined;
-                                cambios.formatoArchivo = undefined;
-                              }
-
-                              actualizarPregunta(pregunta.id, cambios);
-                            }}
-                            className="text-sm border rounded p-1"
-                          >
-                            <option value="texto">Texto corto</option>
-                            <option value="opcion_unica">Opción única</option>
-                            <option value="opcion_multiple">
-                              Opción múltiple
-                            </option>
-                            <option value="escala">Escala</option>
-                            <option value="fecha">Fecha</option>
-                            <option value="archivo">Archivo</option>
-                          </select>
-                        </div>
-                        <label className="flex items-center text-sm text-gray-600">
-                          <input
-                            type="checkbox"
-                            checked={pregunta.requerida}
-                            onChange={(event) =>
-                              actualizarPregunta(pregunta.id, {
-                                requerida: event.target.checked,
-                              })
-                            }
-                            className="mr-2"
-                          />
-                          Requerida
-                        </label>
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-green-900 mb-1 flex items-center gap-2">
+                          Campo de Texto Principal
+                          <span className="text-xs bg-green-200 text-green-700 px-2 py-0.5 rounded-full">Obligatorio</span>
+                        </h3>
+                        <p className="text-sm text-green-800">
+                          Los usuarios escribirán su testimonio en este campo de texto principal.
+                          {permitirTextoImagen && " También podrán adjuntar una imagen."}
+                        </p>
                       </div>
                     </div>
-                  ))}
-                </div>
 
-                <div className="mt-6">
-                  <h3 className="text-sm font-medium text-gray-700 mb-3">
-                    Agregar pregunta:
-                  </h3>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
-                    <button
-                      type="button"
-                      onClick={() => agregarPregunta("texto")}
-                      className="flex flex-col items-center justify-center p-4 border rounded-lg hover:bg-gray-50 transition-colors"
-                    >
-                      <FileText className="w-6 h-6 text-blue-500 mb-1" />
-                      <span className="text-sm">Texto</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => agregarPregunta("archivo")}
-                      className="flex flex-col items-center justify-center p-4 border rounded-lg hover:bg-gray-50 transition-colors"
-                    >
-                      <ImageIcon className="w-6 h-6 text-blue-500 mb-1" />
-                      <span className="text-sm">Archivo</span>
-                    </button>
+                    <div className="bg-white rounded-lg p-4 border border-green-200">
+                      <label className="block text-sm font-medium text-slate-700 mb-2">
+                        Título del campo de texto
+                      </label>
+                      <Input
+                        placeholder="Ej: Cuéntanos tu experiencia"
+                        className="mb-3"
+                        defaultValue="Comparte tu testimonio"
+                      />
+                      <label className="block text-sm font-medium text-slate-700 mb-2">
+                        Placeholder (texto de ayuda)
+                      </label>
+                      <Textarea
+                        placeholder="Ej: Describe tu experiencia, qué te gustó más, qué mejorarías..."
+                        className="min-h-20 resize-none"
+                        defaultValue="Escribe aquí tu testimonio..."
+                      />
+                      <p className="text-xs text-slate-500 mt-2">
+                        💡 Este es el campo principal donde los usuarios escribirán su testimonio
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Sección de Preguntas Adicionales */}
+                <div className="bg-slate-50 rounded-xl p-6 border border-slate-200">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                        <MessageSquare className="w-5 h-5 text-indigo-600" />
+                        Preguntas Adicionales
+                        <span className="text-xs bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full">Opcional</span>
+                      </h3>
+                      <p className="text-sm text-slate-600 mt-1">
+                        Agrega preguntas específicas para obtener información más detallada (opcional)
+                      </p>
+                    </div>
+                    <div className="text-sm font-medium text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full">
+                      {preguntas.length} {preguntas.length === 1 ? 'pregunta' : 'preguntas'}
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    {preguntas.length === 0 ? (
+                      <div className="text-center py-8 bg-white rounded-lg border-2 border-dashed border-slate-300">
+                        <MessageSquare className="w-12 h-12 text-slate-400 mx-auto mb-3" />
+                        <p className="text-slate-600 font-medium">No hay preguntas adicionales</p>
+                        <p className="text-sm text-slate-500 mt-1">Agrega preguntas para obtener información específica</p>
+                      </div>
+                    ) : (
+                      preguntas.map((pregunta, index) => (
+                        <div
+                          key={pregunta.id}
+                          className="border-2 rounded-xl p-5 bg-white hover:border-indigo-300 transition-colors shadow-sm"
+                        >
+                          <div className="flex justify-between items-start mb-3">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <span className="text-xs font-semibold bg-indigo-100 text-indigo-700 px-2 py-1 rounded">
+                                  Pregunta {index + 1}
+                                </span>
+                                {pregunta.requerida && (
+                                  <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded">
+                                    Obligatoria
+                                  </span>
+                                )}
+                              </div>
+                              <input
+                                type="text"
+                                value={pregunta.texto}
+                                onChange={(event) =>
+                                  actualizarPregunta(pregunta.id, {
+                                    texto: event.target.value,
+                                  })
+                                }
+                                placeholder="Escribe tu pregunta aquí"
+                                className="w-full p-3 border-2 border-slate-200 rounded-lg focus:border-indigo-500 focus:outline-none text-base font-medium"
+                              />
+                              <p className="text-xs text-slate-500 mt-2 flex items-center gap-1">
+                                <FileText className="w-3 h-3" />
+                                Formato: {formatoEtiquetas[pregunta.tipo]}
+                              </p>
+                            </div>
+                            <div className="flex space-x-1 ml-3">
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  moverPregunta(pregunta.id, "arriba")
+                                }
+                                disabled={index === 0}
+                                className="p-2 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg disabled:opacity-30 transition-colors"
+                                title="Mover arriba"
+                              >
+                                <MoveUp className="w-4 h-4" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  moverPregunta(pregunta.id, "abajo")
+                                }
+                                disabled={index === preguntas.length - 1}
+                                className="p-2 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg disabled:opacity-30 transition-colors"
+                                title="Mover abajo"
+                              >
+                                <MoveDown className="w-4 h-4" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => eliminarPregunta(pregunta.id)}
+                                className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                                title="Eliminar"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+
+                          <div className="mt-3 ml-2">
+                            {renderTipoPregunta(pregunta)}
+                          </div>
+
+                          <div className="mt-3 pt-2 border-t flex justify-between items-center">
+                            <div className="flex items-center">
+                              <select
+                                value={pregunta.tipo}
+                                onChange={(event) => {
+                                  const nuevoTipo =
+                                    event.target.value as TipoPregunta;
+                                  const cambios: Partial<Pregunta> = {
+                                    tipo: nuevoTipo,
+                                  };
+
+                                  if (
+                                    nuevoTipo === "opcion_unica" ||
+                                    nuevoTipo === "opcion_multiple"
+                                  ) {
+                                    cambios.opciones = pregunta.opciones?.length
+                                      ? pregunta.opciones
+                                      : ["Opción 1", "Opción 2"];
+                                    cambios.minimo = undefined;
+                                    cambios.maximo = undefined;
+                                    cambios.formatoArchivo = undefined;
+                                  } else if (nuevoTipo === "escala") {
+                                    cambios.minimo = pregunta.minimo ?? 1;
+                                    cambios.maximo = pregunta.maximo ?? 5;
+                                    cambios.opciones = undefined;
+                                    cambios.formatoArchivo = undefined;
+                                  } else if (nuevoTipo === "archivo") {
+                                    cambios.formatoArchivo =
+                                      pregunta.formatoArchivo || "imagen";
+                                    cambios.opciones = undefined;
+                                    cambios.minimo = undefined;
+                                    cambios.maximo = undefined;
+                                  } else {
+                                    cambios.opciones = undefined;
+                                    cambios.minimo = undefined;
+                                    cambios.maximo = undefined;
+                                    cambios.formatoArchivo = undefined;
+                                  }
+
+                                  actualizarPregunta(pregunta.id, cambios);
+                                }}
+                                className="text-sm border rounded p-1"
+                              >
+                                <option value="texto">Texto corto</option>
+                                <option value="opcion_unica">Opción única</option>
+                                <option value="opcion_multiple">
+                                  Opción múltiple
+                                </option>
+                                <option value="escala">Escala</option>
+                                <option value="fecha">Fecha</option>
+                                <option value="archivo">Archivo</option>
+                              </select>
+                            </div>
+                            <label className="flex items-center text-sm text-gray-600">
+                              <input
+                                type="checkbox"
+                                checked={pregunta.requerida}
+                                onChange={(event) =>
+                                  actualizarPregunta(pregunta.id, {
+                                    requerida: event.target.checked,
+                                  })
+                                }
+                                className="mr-2"
+                              />
+                              Requerida
+                            </label>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                  <div className="mt-6 bg-white rounded-xl p-6 border-2 border-dashed border-indigo-200">
+                    <h3 className="text-sm font-semibold text-slate-700 mb-4 flex items-center gap-2">
+                      <Plus className="w-4 h-4 text-indigo-600" />
+                      Agregar nueva pregunta:
+                    </h3>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                      <button
+                        type="button"
+                        onClick={() => agregarPregunta("texto")}
+                        className="flex flex-col items-center justify-center p-4 border-2 border-slate-200 rounded-xl hover:bg-indigo-50 hover:border-indigo-400 transition-all group"
+                      >
+                        <FileText className="w-7 h-7 text-indigo-500 mb-2 group-hover:scale-110 transition-transform" />
+                        <span className="text-sm font-medium text-slate-700">Texto</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => agregarPregunta("archivo")}
+                        className="flex flex-col items-center justify-center p-4 border-2 border-slate-200 rounded-xl hover:bg-purple-50 hover:border-purple-400 transition-all group"
+                      >
+                        <ImageIcon className="w-7 h-7 text-purple-500 mb-2 group-hover:scale-110 transition-transform" />
+                        <span className="text-sm font-medium text-slate-700">Archivo</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
 
-                <div className="mt-8 p-6 bg-gray-50 rounded-lg border">
-                  <h3 className="text-lg font-medium mb-4">
-                    Vista previa del formulario
-                  </h3>
-                  <div className="bg-white p-6 rounded border">
+                <div className="mt-8 p-6  from-slate-50 to-slate-100 rounded-xl border-2 border-slate-200">        <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-slate-800">
+                  <EyeIcon className="w-5 h-5 text-slate-600" />
+                  Vista previa del formulario
+                </h3>
+                  <div className="bg-white p-6 rounded-lg border-2 border-slate-200 shadow-sm">
                     <h4 className="text-xl font-semibold mb-2">
                       {form.watch("titulo") || "Título del formulario"}
                     </h4>
@@ -1352,7 +1465,22 @@ export default function FormularioBuilderPage({
 
       {/* Formulario principal */}
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            // Solo permitir submit explícito desde el botón final
+            if (currentStep === 4) {
+              form.handleSubmit(onSubmit)(e);
+            }
+          }}
+          onKeyDown={(e) => {
+            // Prevenir submit con Enter
+            if (e.key === 'Enter' && e.target instanceof HTMLInputElement) {
+              e.preventDefault();
+            }
+          }}
+          className="space-y-8"
+        >
           {renderStep()}
 
           {/* Navegación entre pasos */}

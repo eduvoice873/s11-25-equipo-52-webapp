@@ -4,4 +4,5 @@ export interface SidebarItemType {
   icon: React.ReactNode;
   badge?: number;
   active?: boolean;
+  subItems?: {label: string; href: string}[];
 }

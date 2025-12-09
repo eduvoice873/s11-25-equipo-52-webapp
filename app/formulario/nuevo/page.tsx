@@ -10,7 +10,7 @@ export default async function NewFormularioPage({ searchParams }: NewFormularioP
   const resolvedSearchParams = await searchParams;
   const categoriaId = resolvedSearchParams?.categoriaId;
 
-  console.log("🔍 [SERVER] categoriaId desde searchParams:", categoriaId);
+  console.log(" [SERVER] categoriaId desde searchParams:", categoriaId);
 
   return (
     <FormularioBuilderPage

@@ -18,15 +18,16 @@ export default function DashboardLayout({
   const handleClose = () => setIsSidebarOpen(false);
   const items = role === 'admin' ? adminMenu : editorMenu;
 
-  console.log(role);
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex h-screen bg-gray-100 overflow-hidden">
       <Sidebar isOpen={isSidebarOpen} onClose={handleClose} items={items} />
 
-      <div className="flex flex-col flex-1">
+      <div className="flex-1 flex flex-col overflow-hidden">
         <Navbar onToggle={handleToggle} />
 
-        <main className="pt-36 md:pl-[100px]">{children}</main>
+        <main className="flex-1 overflow-y-auto px-6 py-9">
+          {children}
+        </main>
       </div>
     </div>
   );

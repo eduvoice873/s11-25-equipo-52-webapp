@@ -5,16 +5,13 @@ import prisma from "@/lib/db";
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params:  Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Verificar autenticación
     const session = await auth();
     if (!session?.user?.email) {
-      return NextResponse.json(
-        { error: "No autorizado" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
     // Obtener usuario
@@ -87,7 +84,10 @@ export async function GET(
     });
 
     if (!usuario) {
-      return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Usuario no encontrado" },
+        { status: 404 }
+      );
     }
 
     const { id } = await params;
@@ -232,7 +232,7 @@ export async function PATCH(
       await prisma.preguntaFormulario.createMany({
         data: preguntas.map((p: any, index: number) => ({
           formularioId: id,
-          titulo: p.texto.trim(),
+          texto: p.texto.trim(),
           tipo: p.tipo,
           requerida: p.requerida ?? false,
           orden: index,

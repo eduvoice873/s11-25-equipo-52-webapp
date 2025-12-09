@@ -41,6 +41,8 @@ export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps
   const [videoUrl, setVideoUrl] = useState<string>("");
   const [imagenPublicId, setImagenPublicId] = useState<string>("");
   const [videoPublicId, setVideoPublicId] = useState<string>("");
+  const [fotoPerfilUrl, setFotoPerfilUrl] = useState<string>("");
+  const [fotoPerfilPublicId, setFotoPerfilPublicId] = useState<string>("");
   const [subiendoArchivo, setSubiendoArchivo] = useState(false);
 
   // Cargar formulario al montar
@@ -83,13 +85,17 @@ export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps
     correo: "",
     texto: "",
     calificacion: 5,
-    fotoUrl: "image.png",
+    fotoFile: "image.png",
     respuestas: {} as Record<string, any>,
   });
 
-  const [previewFoto, setPreviewFoto] = useState<string | null>(null);
+  const [previewFotoPerfil, setPreviewFotoPerfil] = useState<string | null>(null);
+  const [previewImagenPrincipal, setPreviewImagenPrincipal] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [fotoPerfilFile, setFotoPerfilFile] = useState<File | null>(null);
+  const [imagenPrincipalFile, setImagenPrincipalFile] = useState<File | null>(null);
+  const [videoPreview, setVideoPreview] = useState<string | null>(null);
   interface CloudinaryResponse {
     secure_url: string;
     width: number;
@@ -114,31 +120,32 @@ export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps
     }));
   };
 
-  const handleFotoChange = (e: any) => {
+  const handleFotoPerfilChange = (e: any) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      // El error se manejará por el estado del hook
+      setFormError("Por favor selecciona una imagen válida");
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      // El error se manejará por el estado del hook
+      setFormError("La imagen no debe superar 5MB");
       return;
     }
 
+    // Solo preview local, NO subir aún
+    setFotoPerfilFile(file);
     const reader = new FileReader();
     reader.onloadend = () => {
-      setPreviewFoto(reader.result as string);
-      setFormData((p) => ({ ...p, fotoUrl: reader.result as string }));
+      setPreviewFotoPerfil(reader.result as string);
     };
     reader.readAsDataURL(file);
   };
 
-  const handleEliminarFoto = () => {
-    setPreviewFoto(null);
-    setFormData((p) => ({ ...p, fotoUrl: "image.png" }));
+  const handleEliminarFotoPerfil = () => {
+    setPreviewFotoPerfil(null);
+    setFotoPerfilFile(null);
   };
 
   const handleVideoFileChange = (e: any) => {
@@ -252,32 +259,30 @@ export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps
       const tieneTexto = formData.texto.trim().length > 0;
       const tieneImagen = imagenUrl.length > 0;
       const tieneVideo = videoUrl.length > 0;
+      const tienePreguntas = formulario.preguntas && formulario.preguntas.length > 0;
 
-      // Si SOLO permite texto, el texto es obligatorio
-      if (formulario.permitirTexto && !formulario.permitirTextoImagen && !formulario.permitirVideo) {
-        if (!tieneTexto) {
-          throw new Error("El texto del testimonio es requerido");
-        }
-      }
-
-      // Si permite texto + imagen, debe tener al menos uno
-      if (formulario.permitirTextoImagen && !formulario.permitirVideo) {
-        if (!tieneTexto && !tieneImagen) {
-          throw new Error("Debes proporcionar texto o una imagen");
-        }
-      }
-
-      // Si permite video, el video es obligatorio SOLO si no permite otras opciones
+      // Si SOLO permite video, el video es obligatorio
       if (formulario.permitirVideo && !formulario.permitirTexto && !formulario.permitirTextoImagen) {
         if (!tieneVideo) {
           throw new Error("Debes subir un video");
         }
       }
 
-      // Si permite múltiples formatos, debe tener al menos uno
-      if ((formulario.permitirTexto || formulario.permitirTextoImagen || formulario.permitirVideo)) {
-        if (!tieneTexto && !tieneImagen && !tieneVideo) {
-          throw new Error("Debes proporcionar al menos un contenido (texto, imagen o video)");
+      // Si permite texto o texto+imagen (pero tiene preguntas), no requiere el campo de texto general
+      // Solo valida las preguntas requeridas más abajo
+      if (!tienePreguntas) {
+        // Si NO hay preguntas configuradas, entonces sí requerir contenido
+        if (formulario.permitirTexto && !formulario.permitirTextoImagen && !formulario.permitirVideo) {
+          if (!tieneTexto) {
+            throw new Error("El testimonio es requerido");
+          }
+        }
+
+        // Si permite texto + imagen, debe tener al menos uno
+        if (formulario.permitirTextoImagen && !formulario.permitirVideo) {
+          if (!tieneTexto && !tieneImagen) {
+            throw new Error("Debes proporcionar texto o una imagen");
+          }
         }
       }
 
@@ -285,6 +290,41 @@ export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps
       for (const pregunta of formulario.preguntas || []) {
         if (pregunta.requerida && !formData.respuestas[pregunta.id]) {
           throw new Error(`La pregunta "${pregunta.texto}" es requerida`);
+        }
+      }
+
+      // SUBIR ARCHIVOS A CLOUDINARY AHORA
+      let urlFotoPerfil: string | null = null;
+      let publicIdFotoPerfil: string | null = null;
+      let urlImagenPrincipal: string | null = null;
+      let publicIdImagenPrincipal: string | null = null;
+      let urlVideo: string | null = null;
+      let publicIdVideo: string | null = null;
+
+      // Subir foto de perfil si existe
+      if (fotoPerfilFile) {
+        const resultado = await subirArchivo(fotoPerfilFile, "imagen");
+        if (resultado) {
+          urlFotoPerfil = imagenUrl;
+          publicIdFotoPerfil = imagenPublicId;
+        }
+      }
+
+      // Subir imagen principal si existe
+      if (imagenPrincipalFile) {
+        const resultado = await subirArchivo(imagenPrincipalFile, "imagen");
+        if (resultado) {
+          urlImagenPrincipal = imagenUrl;
+          publicIdImagenPrincipal = imagenPublicId;
+        }
+      }
+
+      // Subir video si existe
+      if (videoFile) {
+        const resultado = await subirArchivo(videoFile, "video");
+        if (resultado) {
+          urlVideo = videoUrl;
+          publicIdVideo = videoPublicId;
         }
       }
 
@@ -301,10 +341,12 @@ export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps
           titulo: "Testimonio sin título", // ← Valor por defecto
           texto: formData.texto.trim() || null,
           calificacion: formData.calificacion || 5,
-          imagenUrl: imagenUrl || null,
-          videoUrl: videoUrl || null,
-          imagenPublicId: imagenPublicId || null,
-          videoPublicId: videoPublicId || null,
+          fotoPerfilUrl: urlFotoPerfil, // Foto de perfil
+          imagenUrl: urlImagenPrincipal, // Imagen principal
+          videoUrl: urlVideo,
+          fotoPerfilPublicId: publicIdFotoPerfil,
+          imagenPublicId: publicIdImagenPrincipal,
+          videoPublicId: publicIdVideo,
           respuestas: formData.respuestas,
         }),
       });
@@ -325,13 +367,19 @@ export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps
         correo: "",
         texto: "",
         calificacion: 5,
-        fotoUrl: "image.png",
+        fotoFile: "image.png",
         respuestas: {},
       });
 
       setVideoFile(null);
-      setPreviewFoto(null);
+      setFotoPerfilFile(null);
+      setImagenPrincipalFile(null);
+      setPreviewFotoPerfil(null);
+      setPreviewImagenPrincipal(null);
+      setVideoPreview(null);
       setCloudinaryVideo(null);
+      setFotoPerfilUrl("");
+      setFotoPerfilPublicId("");
       setImagenUrl("");
       setVideoUrl("");
       setImagenPublicId("");
@@ -349,20 +397,20 @@ export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps
   // ============================================================
   // UI LOADING & ERROR
   // ============================================================
- if (loading)
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      <Loader className="w-8 h-8 animate-spin" />
-    </div>
-  );
+  if (loading)
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader className="w-8 h-8 animate-spin" />
+      </div>
+    );
   if (isError)
-  return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 text-center">
-      <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-      <h1 className="text-xl font-bold">Error al cargar el formulario</h1>
-      <p>{errorMessage || "No se pudo cargar el formulario. Por favor, inténtalo de nuevo."}</p>
-    </div>
-  );
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center px-4 text-center">
+        <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+        <h1 className="text-xl font-bold">Error al cargar el formulario</h1>
+        <p>{errorMessage || "No se pudo cargar el formulario. Por favor, inténtalo de nuevo."}</p>
+      </div>
+    );
 
   if (!formulario)
     return (
@@ -390,40 +438,48 @@ export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps
     formulario.permitirTexto || formulario.permitirTextoImagen;
 
   // LÓGICA: ¿Mostrar preguntas adicionales?
-  // Solo si es texto o texto+imagen (NO si es solo video)
+  // Mostrar preguntas si permite texto o texto+imagen
   const mostrarPreguntas =
-    (formulario.permitirTexto || formulario.permitirTextoImagen) &&
-    !formulario.permitirVideo;
+    formulario.permitirTexto || formulario.permitirTextoImagen;
 
   const formatoEtiqueta = soloVideo
     ? "Video"
     : soloTexto
       ? "Texto"
-      : "Flexible";
+      : formulario.permitirTextoImagen && formulario.permitirVideo
+        ? "Multimedia"
+        : formulario.permitirTextoImagen
+          ? "Texto e Imagen"
+          : "Flexible";
 
   const formatoDescripcion = soloVideo
-    ? "Comparte un video y un breve resumen."
+    ? "Comparte un video con tu testimonio."
     : soloTexto
-      ? "Escribe tu testimonio."
-      : "Completa preguntas y/o agrega imagen.";
+      ? "Escribe tu testimonio en texto."
+      : formulario.permitirTextoImagen && formulario.permitirVideo
+        ? "Puedes compartir texto, imagen o video."
+        : formulario.permitirTextoImagen
+          ? "Comparte tu testimonio con texto y/o imagen."
+          : "Comparte tu experiencia.";
 
   //===============================================================
   //Verificacion del estado del formulario del testimonio
   //===============================================================
   if (formulario.estado !== "publicado") {
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-center p-6 max-w-md mx-auto bg-white rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold text-gray-800 mb-2">
-          Formulario no disponible
-        </h2>
-        <p className="text-gray-600">
-          Este formulario no está disponible actualmente.
-        </p>
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center p-6 max-w-md mx-auto bg-white rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">
+            Formulario no disponible
+          </h2>
+          <p className="text-gray-600">
+            Este formulario no está disponible actualmente.
+          </p>
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+    throw new Error("Function not implemented.");
+  }
 
   // ============================================================
   // RENDER
@@ -464,47 +520,48 @@ export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps
             </div>
           )}
 
-          {/* FOTO PERFIL */}
-          {formulario.permitirTextoImagen && (
-            <div>
-              <label className="font-medium text-sm">Foto opcional</label>
-              <div className="flex items-center gap-4 mt-2">
-                {previewFoto ? (
-                  <div className="relative">
-                    <img
-                      src={previewFoto}
-                      className="w-16 h-16 rounded-full object-cover border"
-                    />
-                    <button
-                      type="button"
-                      onClick={handleEliminarFoto}
-                      className="absolute -top-2 -right-2 bg-red-500 text-white p-1 rounded-full"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                ) : (
-                  <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center">
-                    <Upload className="text-gray-400" />
-                  </div>
-                )}
+          {/* FOTO PERFIL (Avatar circular) */}
+          <div className="space-y-3">
+            <label className="block text-sm font-medium text-slate-700">
+              Foto de Perfil (opcional)
+            </label>
+            <p className="text-xs text-slate-500">Esta será tu foto de perfil (avatar circular)</p>
 
-                <label className="cursor-pointer">
-                  <input
-                    type="file"
-                    className="hidden"
-                    accept="image/*"
-                    onChange={handleFotoChange}
+            <div className="flex items-center gap-4">
+              {previewFotoPerfil ? (
+                <div className="relative">
+                  <img
+                    src={previewFotoPerfil}
+                    className="w-20 h-20 rounded-full object-cover border-2 border-slate-300"
+                    alt="Foto de perfil"
                   />
-                  <div className="px-4 py-2 border rounded-lg bg-gray-50 hover:bg-gray-100">
-                    {previewFoto ? "Cambiar Foto" : "Subir Foto"}
-                  </div>
-                </label>
-              </div>
-            </div>
-          )}
+                  <button
+                    type="button"
+                    onClick={handleEliminarFotoPerfil}
+                    className="absolute -top-2 -right-2 bg-red-500 text-white p-1.5 rounded-full hover:bg-red-600 transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <div className="w-20 h-20 rounded-full bg-slate-100 flex items-center justify-center border-2 border-dashed border-slate-300">
+                  <Upload className="text-slate-400 w-6 h-6" />
+                </div>
+              )}
 
-          {/* NOMBRE */}
+              <label className="cursor-pointer">
+                <input
+                  type="file"
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handleFotoPerfilChange}
+                />
+                <div className="px-4 py-2 border border-slate-300 rounded-lg bg-white hover:bg-slate-50 text-sm font-medium transition-colors">
+                  {previewFotoPerfil ? "Cambiar Foto" : "Seleccionar Foto"}
+                </div>
+              </label>
+            </div>
+          </div>          {/* NOMBRE */}
           {formulario.pedirNombre && (
             <div>
               <label className="font-medium text-sm">
@@ -541,26 +598,49 @@ export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps
 
           {/* ELIMINAR COMPLETAMENTE EL CAMPO DE TÍTULO */}
 
-          {/* TEXTO / RESUMEN */}
-          <div className="space-y-2">
-            <label className="font-medium text-sm">
-              {soloVideo ? "Resumen del Video" : "Testimonio"}
-              <span className="text-red-500 ml-1">*</span>
-            </label>
+          {/* CAJA DE TEXTO PRINCIPAL - Para formatos de texto o texto+imagen */}
+          {(formulario.permitirTexto || formulario.permitirTextoImagen) && (
+            <div className="space-y-2">
+              <label className="font-medium text-sm flex items-center gap-2">
+                Comparte tu testimonio
+                <span className="text-red-500">*</span>
+              </label>
+              <Textarea
+                name="texto"
+                value={formData.texto}
+                rows={6}
+                onChange={handleInputChange}
+                placeholder="Escribe aquí tu testimonio..."
+                required
+                className="resize-none"
+              />
+              <p className="text-xs text-slate-500">
+                Comparte tu experiencia de manera detallada
+              </p>
+            </div>
+          )}
 
-            <Textarea
-              name="texto"
-              value={formData.texto}
-              rows={soloVideo ? 3 : 5}
-              onChange={handleInputChange}
-              placeholder={
-                soloVideo
-                  ? "Escribe un breve resumen del video..."
-                  : "Comparte tu experiencia..."
-              }
-              required={permiteTexto}
-            />
-          </div>
+          {/* TEXTO / RESUMEN - Solo mostrar si permite video */}
+          {formulario.permitirVideo && (
+            <div className="space-y-2">
+              <label className="font-medium text-sm">
+                Descripción del Video
+                {(soloVideo && !formulario.permitirTextoImagen) && (
+                  <span className="text-red-500 ml-1">*</span>
+                )}
+              </label>
+
+              <Textarea
+                name="texto"
+                value={formData.texto}
+                rows={3}
+                onChange={handleInputChange}
+                placeholder="Describe brevemente lo que compartes en el video..."
+                required={soloVideo && !formulario.permitirTextoImagen}
+                className="resize-none"
+              />
+            </div>
+          )}
 
           {/* CALIFICACIÓN */}
           <div>
@@ -584,49 +664,52 @@ export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps
             </div>
           </div>
 
-          {/* IMAGEN */}
+
+
+          {/* IMAGEN PRINCIPAL */}
           {formulario.permitirTextoImagen && (
             <div className="space-y-3">
               <label className="block text-sm font-medium text-slate-700">
-                Imagen
+                Imagen del Testimonio
                 {!formulario.permitirTexto && !formulario.permitirVideo && (
                   <span className="text-red-500"> *</span>
                 )}
               </label>
+              <p className="text-xs text-slate-500">Sube una imagen de ti con el producto o solo del producto</p>
+
               <input
                 type="file"
-                accept="image/jpeg,image/png,image/gif,image/webp"
-                onChange={async (e) => {
+                accept="image/*"
+                onChange={(e) => {
                   const file = e.target.files?.[0];
                   if (file) {
-                    await subirArchivo(file, "imagen");
+                    setImagenPrincipalFile(file);
+                    const reader = new FileReader();
+                    reader.onloadend = () => setPreviewImagenPrincipal(reader.result as string);
+                    reader.readAsDataURL(file);
                   }
                 }}
-                disabled={subiendoArchivo}
                 className="block w-full text-sm text-slate-500
                   file:mr-4 file:py-2 file:px-4
                   file:rounded-lg file:border-0
                   file:text-sm file:font-semibold
-                  file:bg-brand-blue file:text-white
-                  hover:file:bg-brand-blue/90
-                  disabled:opacity-50 disabled:cursor-not-allowed
+                  file:bg-indigo-600 file:text-white
+                  hover:file:bg-indigo-700
                   cursor-pointer"
               />
-              <p className="text-xs text-slate-500">
-                JPG, PNG, GIF, WEBP. Máximo 10MB.
-              </p>
-              {imagenUrl && (
+
+              {previewImagenPrincipal && (
                 <div className="relative mt-3">
                   <img
-                    src={imagenUrl}
-                    alt="Vista previa"
+                    src={previewImagenPrincipal}
+                    alt="Vista previa de la imagen"
                     className="max-w-full h-auto rounded-lg shadow-md"
                   />
                   <button
                     type="button"
                     onClick={() => {
-                      setImagenUrl("");
-                      setImagenPublicId("");
+                      setPreviewImagenPrincipal(null);
+                      setImagenPrincipalFile(null);
                     }}
                     className="absolute top-2 right-2 bg-red-500 text-white w-8 h-8 rounded-full hover:bg-red-600 flex items-center justify-center"
                   >
@@ -641,45 +724,43 @@ export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps
           {formulario.permitirVideo && (
             <div className="space-y-3">
               <label className="block text-sm font-medium text-slate-700">
-                Video
+                Video del Testimonio
                 {!formulario.permitirTexto && !formulario.permitirTextoImagen && (
                   <span className="text-red-500"> *</span>
                 )}
               </label>
+
               <input
                 type="file"
                 accept="video/mp4,video/webm,video/quicktime"
-                onChange={async (e) => {
+                onChange={(e) => {
                   const file = e.target.files?.[0];
                   if (file) {
-                    await subirArchivo(file, "video");
+                    setVideoFile(file);
+                    setVideoPreview(URL.createObjectURL(file));
                   }
                 }}
-                disabled={subiendoArchivo}
                 className="block w-full text-sm text-slate-500
                   file:mr-4 file:py-2 file:px-4
                   file:rounded-lg file:border-0
                   file:text-sm file:font-semibold
-                  file:bg-brand-blue file:text-white
-                  hover:file:bg-brand-blue/90
-                  disabled:opacity-50 disabled:cursor-not-allowed
+                  file:bg-indigo-600 file:text-white
+                  hover:file:bg-indigo-700
                   cursor-pointer"
               />
-              <p className="text-xs text-slate-500">
-                MP4, WEBM, MOV. Máximo 100MB.
-              </p>
-              {videoUrl && (
+
+              {videoPreview && (
                 <div className="relative mt-3">
                   <video
-                    src={videoUrl}
+                    src={videoPreview}
                     controls
                     className="max-w-full h-auto rounded-lg shadow-md"
                   />
                   <button
                     type="button"
                     onClick={() => {
-                      setVideoUrl("");
-                      setVideoPublicId("");
+                      setVideoPreview(null);
+                      setVideoFile(null);
                     }}
                     className="absolute top-2 right-2 bg-red-500 text-white w-8 h-8 rounded-full hover:bg-red-600 flex items-center justify-center"
                   >
@@ -689,6 +770,9 @@ export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps
               )}
             </div>
           )}
+
+
+
 
           {/* PREGUNTAS DINÁMICAS - SOLO SI ES TEXTO O TEXTO+IMAGEN */}
           {mostrarPreguntas && formulario.preguntas && formulario.preguntas.length > 0 && (
@@ -700,9 +784,9 @@ export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps
               {formulario.preguntas.map((p) => (
                 <div key={p.id}>
                   <label className="block text-sm font-medium mb-1">
-                    {p.titulo}
+                    {p.texto}
                     {p.requerida && (
-                      <span className="text-red-500">*</span>
+                      <span className="text-red-500"> *</span>
                     )}
                   </label>
 
@@ -769,11 +853,10 @@ export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps
                           key={num}
                           type="button"
                           onClick={() => handlePreguntaChange(p.id, num)}
-                          className={`w-10 h-10 rounded-full border-2 font-semibold transition-all ${
-                            formData.respuestas[p.id] === num
-                              ? "bg-indigo-600 text-white border-indigo-600"
-                              : "bg-white text-slate-700 border-slate-300 hover:border-indigo-400"
-                          }`}
+                          className={`w-10 h-10 rounded-full border-2 font-semibold transition-all ${formData.respuestas[p.id] === num
+                            ? "bg-indigo-600 text-white border-indigo-600"
+                            : "bg-white text-slate-700 border-slate-300 hover:border-indigo-400"
+                            }`}
                         >
                           {num}
                         </button>

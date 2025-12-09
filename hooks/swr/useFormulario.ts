@@ -1,21 +1,26 @@
 // hooks/useFormulario.ts
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
-import useSWR from 'swr';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import useSWR from "swr";
 
-const fetcher = (url: string) => fetch(url).then(res => {
-  if (!res.ok) throw new Error('Error al cargar');
-  return res.json();
-});
+const fetcher = (url: string) =>
+  fetch(url).then((res) => {
+    if (!res.ok) throw new Error("Error al cargar");
+    return res.json();
+  });
 
 export function useFormulario(formularioId?: string) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   // Solo hacer fetch si tenemos un ID válido (no "nuevo")
-  const shouldFetch = formularioId && formularioId !== 'nuevo';
-  const { data: formularioData, error, mutate } = useSWR(
+  const shouldFetch = formularioId && formularioId !== "nuevo";
+  const {
+    data: formularioData,
+    error,
+    mutate,
+  } = useSWR(
     shouldFetch ? `/api/formularios/admin/${formularioId}` : null,
     fetcher,
     {
@@ -30,11 +35,12 @@ export function useFormulario(formularioId?: string) {
       setLoading(true);
       const res = await fetch(`/api/formularios/admin/${id}`);
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Error al cargar el formulario');
+      if (!res.ok)
+        throw new Error(data.error || "Error al cargar el formulario");
       return data;
     } catch (error) {
-      console.error('Error al obtener el formulario:', error);
-      toast.error('No se pudo cargar el formulario');
+      console.error("Error al obtener el formulario:", error);
+      toast.error("No se pudo cargar el formulario");
       throw error;
     } finally {
       setLoading(false);
@@ -44,21 +50,26 @@ export function useFormulario(formularioId?: string) {
   const crearFormulario = async (formData: any) => {
     try {
       setLoading(true);
-      const res = await fetch('/api/formularios/nuevo', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/formularios/nuevo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Error al crear el formulario');
+      if (!res.ok)
+        throw new Error(data.error || "Error al crear el formulario");
 
-      toast('Formulario creado correctamente');
+      toast("Formulario creado correctamente");
 
-      router.push(`/formulario/${data.id}/edit`);
-      return data;
+      // El endpoint retorna { success: true, formulario: {...} }
+      const formularioId = data.formulario?.id;
+      if (formularioId) {
+        router.push(`/formulario/${formularioId}/edit`);
+      }
+      return data.formulario;
     } catch (error) {
-      console.error('Error al crear el formulario:', error);
-      toast('No se pudo crear el formulario');
+      console.error("Error al crear el formulario:", error);
+      toast("No se pudo crear el formulario");
       throw error;
     } finally {
       setLoading(false);
@@ -69,19 +80,20 @@ export function useFormulario(formularioId?: string) {
     try {
       setLoading(true);
       const res = await fetch(`/api/formularios/admin/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Error al actualizar el formulario');
+      if (!res.ok)
+        throw new Error(data.error || "Error al actualizar el formulario");
 
-      toast('Formulario actualizado correctamente');
+      toast("Formulario actualizado correctamente");
 
       return data;
     } catch (error) {
-      console.error('Error al actualizar el formulario:', error);
-      toast('No se pudo actualizar el formulario');
+      console.error("Error al actualizar el formulario:", error);
+      toast("No se pudo actualizar el formulario");
       throw error;
     } finally {
       setLoading(false);

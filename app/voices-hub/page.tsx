@@ -3,14 +3,14 @@
 
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import VoicesHub from "@/app/landing/components/VoicesHub";
-import { ALL_TESTIMONIALS, testimonialsData } from "@/app/landing/components/data";
+import VoicesHub from "@/app/(public)/landing/components/VoicesHub";
+import { ALL_TESTIMONIALS, testimonialsData } from "@/app/(public)/landing/components/data";
 import { TestimonialRender } from "./testimonial_render-visitor";
 
 
 export default function VoicesHubPage() {
   return (
-    <main className="min-h-screen bg-brand-blue from-gray-50 to-white">
+    <main className="min-h-screen">
       {/* Header Navigation */}
       <div className="sticky top-0 bg-white/80 backdrop-blur-sm border-b border-gray-200 z-40">
         <div className="container mx-auto max-w-7xl px-6 py-4">
@@ -30,7 +30,7 @@ export default function VoicesHubPage() {
           {/* HEADER */}
           <div className="text-center mb-20">
             <span className="inline-block bg-blue-100 text-blue-600 font-bold text-xs uppercase tracking-wide px-3 py-1 rounded-full">
-              Comunidad de EduVoice
+              Comunidad de EduVoice CMS
             </span>
 
             <h1 className="text-5xl md:text-6xl font-black text-gray-900 mt-6">

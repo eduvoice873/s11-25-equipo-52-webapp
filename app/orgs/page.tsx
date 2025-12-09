@@ -1,5 +1,5 @@
 import OrgWallOfLove from "./components/OrgVoicesHub";
-import { ORG_TESTIMONIALS } from "@/app/landing/components/data"; // o la ruta donde los tengas
+import { ORG_TESTIMONIALS } from "@/app/(public)/landing/components/data"; // o la ruta donde los tengas
 
 export default function OrgSpacePage({ params }) {
   const { spaceId } = params;

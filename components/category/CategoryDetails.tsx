@@ -6,6 +6,7 @@ import { useCategory } from "@/hooks/swr/useCategory";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+;
 import { Badge } from "@/components/ui/badge";
 import {
   AlertCircle,
@@ -117,7 +118,7 @@ function FormularioCard({ formulario, onDelete, onEdit, onDuplicate }: {
 
   return (
     <>
-      <Card className="h-full transition-all duration-300 hover:shadow-lg hover:border-brand-blue/30 flex flex-col">
+      <Card className="h-full transition-all duration-300 hover:shadow-lg hover:border-brand-blue/30 flex flex-col border-gray-200">
         <CardHeader className="pb-3">
           <div className="flex justify-between items-start gap-2">
             <div className="flex-1 min-w-0">
@@ -126,7 +127,7 @@ function FormularioCard({ formulario, onDelete, onEdit, onDuplicate }: {
               </CardTitle>
             </div>
             <div className="flex items-center gap-2 shrink-0">
-              <Badge variant="outline" className="bg-brand-blue/10 text-brand-blue border-brand-blue/30">
+              <Badge variant="outline" className="bg-blue-50 text-brand-blue border-blue-200">
                 {modalidad}
               </Badge>
               <DropdownMenu>
@@ -140,47 +141,47 @@ function FormularioCard({ formulario, onDelete, onEdit, onDuplicate }: {
                     <DropdownMenuLabel>Acciones</DropdownMenuLabel>
                     <DropdownMenuSeparator />
 
-                  <DropdownMenuItem onClick={() => router.push(`/f/${formulario.slugPublico}`)}>
-                    <Eye className="mr-2 h-4 w-4" />
-                    Vista previa
-                  </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => router.push(`/f/${formulario.slugPublico}`)}>
+                      <Eye className="mr-2 h-4 w-4" />
+                      Vista previa
+                    </DropdownMenuItem>
 
-                  <DropdownMenuItem onClick={() => onEdit(formulario.id)}>
-                    <Edit className="mr-2 h-4 w-4" />
-                    Editar
-                  </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onEdit(formulario.id)}>
+                      <Edit className="mr-2 h-4 w-4" />
+                      Editar
+                    </DropdownMenuItem>
 
-                  <DropdownMenuItem onClick={() => onDuplicate(formulario.id)}>
-                    <Copy className="mr-2 h-4 w-4" />
-                    Duplicar
-                  </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onDuplicate(formulario.id)}>
+                      <Copy className="mr-2 h-4 w-4" />
+                      Duplicar
+                    </DropdownMenuItem>
 
-                  <DropdownMenuItem onClick={handleCopyLink}>
-                    <LinkIcon className="mr-2 h-4 w-4" />
-                    Copiar enlace
-                  </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleCopyLink}>
+                      <LinkIcon className="mr-2 h-4 w-4" />
+                      Copiar enlace
+                    </DropdownMenuItem>
 
-                  <DropdownMenuItem onClick={handleShare}>
-                    <Share2 className="mr-2 h-4 w-4" />
-                    Compartir
-                  </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleShare}>
+                      <Share2 className="mr-2 h-4 w-4" />
+                      Compartir
+                    </DropdownMenuItem>
 
-                  <DropdownMenuItem
-                    onClick={() => router.push(`/formulario/${formulario.id}/respuestas`)}
-                  >
-                    <BarChart2 className="mr-2 h-4 w-4" />
-                    Ver respuestas ({totalRespuestas})
-                  </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => router.push(`/formulario/${formulario.id}/respuestas`)}
+                    >
+                      <BarChart2 className="mr-2 h-4 w-4" />
+                      Ver respuestas ({totalRespuestas})
+                    </DropdownMenuItem>
 
-                  <DropdownMenuSeparator />
+                    <DropdownMenuSeparator />
 
-                  <DropdownMenuItem
-                    onClick={() => setShowDeleteDialog(true)}
-                    className="text-red-600 focus:text-red-600"
-                  >
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Eliminar
-                  </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => setShowDeleteDialog(true)}
+                      className="text-red-600 focus:text-red-600"
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Eliminar
+                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenuPortal>
               </DropdownMenu>
@@ -273,15 +274,15 @@ function TestimonioCard({ item, onApprove, onReject, onDelete }: {
 
   return (
     <>
-      <Card className="h-full transition-all duration-300 hover:shadow-lg flex flex-col">
-        <CardContent className="p-4 flex-1">
+      <Card className="h-full transition-all duration-300 hover:shadow-lg hover:border-brand-blue/30 flex flex-col border-gray-200">
+        <CardContent className="p-5 flex-1">
           <div className="flex items-start justify-between gap-2 mb-3">
             <div className="flex flex-wrap items-center gap-2 flex-1">
               {item.formularioNombre && (
-                <span className="text-xs font-medium text-brand-blue/80">{item.formularioNombre}</span>
+                <span className="text-xs font-medium text-brand-blue">{item.formularioNombre}</span>
               )}
               {item.modalidad && (
-                <Badge variant="outline" className="text-xs bg-brand-blue/5 text-brand-blue border-brand-blue/20">
+                <Badge variant="outline" className="text-xs bg-blue-50 text-brand-blue border-blue-200">
                   {item.modalidad}
                 </Badge>
               )}
@@ -298,37 +299,37 @@ function TestimonioCard({ item, onApprove, onReject, onDelete }: {
                   <DropdownMenuLabel>Acciones</DropdownMenuLabel>
                   <DropdownMenuSeparator />
 
-                <DropdownMenuItem onClick={() => router.push(`/testimonio/${item.id}`)}>
-                  <Eye className="mr-2 h-4 w-4" />
-                  Ver detalle
-                </DropdownMenuItem>
-
-                {item.estado === "pendiente" && onApprove && (
-                  <DropdownMenuItem onClick={() => onApprove(item.id)} className="text-green-600">
-                    <CheckCircle className="mr-2 h-4 w-4" />
-                    Aprobar
+                  <DropdownMenuItem onClick={() => router.push(`/gestionTestimonio`)}>
+                    <Eye className="mr-2 h-4 w-4" />
+                    Ver detalle
                   </DropdownMenuItem>
-                )}
 
-                {item.estado === "pendiente" && onReject && (
-                  <DropdownMenuItem onClick={() => onReject(item.id)} className="text-amber-600">
-                    <XCircle className="mr-2 h-4 w-4" />
-                    Rechazar
-                  </DropdownMenuItem>
-                )}
-
-                {onDelete && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={() => setShowDeleteDialog(true)}
-                      className="text-red-600 focus:text-red-600"
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Eliminar
+                  {item.estado === "pendiente" && onApprove && (
+                    <DropdownMenuItem onClick={() => onApprove(item.id)} className="text-green-600">
+                      <CheckCircle className="mr-2 h-4 w-4" />
+                      Aprobar
                     </DropdownMenuItem>
-                  </>
-                )}
+                  )}
+
+                  {item.estado === "pendiente" && onReject && (
+                    <DropdownMenuItem onClick={() => onReject(item.id)} className="text-amber-600">
+                      <XCircle className="mr-2 h-4 w-4" />
+                      Rechazar
+                    </DropdownMenuItem>
+                  )}
+
+                  {onDelete && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={() => setShowDeleteDialog(true)}
+                        className="text-red-600 focus:text-red-600"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Eliminar
+                      </DropdownMenuItem>
+                    </>
+                  )}
                 </DropdownMenuContent>
               </DropdownMenuPortal>
             </DropdownMenu>
@@ -389,14 +390,14 @@ function StatsCard({ title, value, icon: Icon, color = "blue" }: { title: string
   };
 
   return (
-    <Card className="overflow-hidden">
-      <CardContent className="p-4">
+    <Card className="overflow-hidden border-gray-200">
+      <CardContent className="p-5">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm font-medium text-slate-500">{title}</p>
             <p className="text-2xl font-bold text-slate-900 mt-1">{value}</p>
           </div>
-          <div className={`p-3 rounded-full ${colorClasses[color as keyof typeof colorClasses]}`}>
+          <div className={`p-3 rounded-lg ${colorClasses[color as keyof typeof colorClasses]}`}>
             <Icon className="w-5 h-5" />
           </div>
         </div>
@@ -575,17 +576,17 @@ export default function CategoryDetails({ id }: { id: string }) {
   const handleCrearFormulario = () => router.push(`/formulario/nuevo?categoriaId=${id}`);
 
   return (
-    <div className="space-y-8">
+    <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
       {/* Header Section */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
+      <div className="bg-white rounded-lg p-8 border border-gray-200">
         <h1 className="text-2xl md:text-3xl font-bold text-slate-900">{category.titulo}</h1>
         {category.mensaje && (
-          <p className="text-slate-600 mt-2 max-w-3xl">{category.mensaje}</p>
+          <p className="text-slate-600 mt-3 max-w-3xl leading-relaxed">{category.mensaje}</p>
         )}
       </div>
 
       {/* Stats Section */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <StatsCard
           title="Formularios"
           value={category.formularios?.length || 0}
@@ -621,8 +622,13 @@ export default function CategoryDetails({ id }: { id: string }) {
           icon={MessageSquare}
         />
 
+        <Button onClick={handleCrearFormulario} className="mb-6 bg-brand-blue hover:bg-brand-blue/90">
+          <PlusCircle className="w-4 h-4 mr-2" />
+          Crear nuevo formulario
+        </Button>
+
         {category.formularios && category.formularios.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {category.formularios.map((formulario) => (
               <FormularioCard
                 key={formulario.id}
@@ -634,12 +640,12 @@ export default function CategoryDetails({ id }: { id: string }) {
             ))}
           </div>
         ) : (
-          <Card>
-            <CardContent className="p-8 text-center">
-              <MessageSquare className="w-10 h-10 text-slate-300 mx-auto mb-4" />
+          <Card className="border-gray-200">
+            <CardContent className="p-12 text-center">
+              <MessageSquare className="w-12 h-12 text-slate-300 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-slate-900 mb-2">Sin formularios</h3>
               <p className="text-slate-500 mb-6">Aún no has creado formularios para esta categoría.</p>
-              <Button onClick={handleCrearFormulario}>
+              <Button onClick={handleCrearFormulario} className="bg-brand-blue hover:bg-brand-blue/90">
                 <PlusCircle className="w-4 h-4 mr-2" />
                 Crear formulario
               </Button>
@@ -657,7 +663,7 @@ export default function CategoryDetails({ id }: { id: string }) {
         />
 
         {testimonios.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {testimonios.slice(0, 6).map((testimonio, index) => (
               <TestimonioCard
                 key={index}
@@ -669,9 +675,9 @@ export default function CategoryDetails({ id }: { id: string }) {
             ))}
           </div>
         ) : (
-          <Card>
-            <CardContent className="p-8 text-center">
-              <Users className="w-10 h-10 text-slate-300 mx-auto mb-4" />
+          <Card className="border-gray-200">
+            <CardContent className="p-12 text-center">
+              <Users className="w-12 h-12 text-slate-300 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-slate-900 mb-2">Sin testimonios</h3>
               <p className="text-slate-500 mb-6">
                 {category.formularios?.length
@@ -679,7 +685,7 @@ export default function CategoryDetails({ id }: { id: string }) {
                   : "Crea un formulario para comenzar a recibir testimonios."}
               </p>
               {!category.formularios?.length && (
-                <Button onClick={handleCrearFormulario}>
+                <Button onClick={handleCrearFormulario} className="bg-brand-blue hover:bg-brand-blue/90">
                   <PlusCircle className="w-4 h-4 mr-2" />
                   Crear formulario
                 </Button>
