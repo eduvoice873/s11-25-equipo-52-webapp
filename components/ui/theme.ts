@@ -8,6 +8,11 @@ export const theme = {
     gray: "#F3F4F6",
     white: "#FFFFFF",
     black: "#000000",
+    orange: "#F59E0B",
+    green: "#10B981",
+    red: "#EF4444",
+    darkgray: "#4B5563",
+    mediumgray: "#9CA3AF",
   },
   typography: {
     fontPrimary: "var(--font-nunito)",

@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export interface SidebarItemProps {
   icon: React.ReactNode;
@@ -17,17 +18,19 @@ export const SidebarItem = ({
   badge,
   active,
 }: SidebarItemProps) => {
+  const pathname = usePathname();
+
   return (
     <Link
       href={href}
-      className={`flex items-center gap-3 p-3 rounded-xl transition
+      className={`flex items-center gap-3 p-3 rounded-xl transition-colors
       ${
         active
-          ? "bg-blue-900 text-gray-100"
-          : "bg-white text-black hover:bg-gray-100"
+          ? 'bg-blue-900 text-gray-100'
+          : 'bg-white text-black hover:bg-blue-200'
       }`}
     >
-      <div className="w-6 h-6 flex-shrink-0">{icon}</div>
+      <div className="w-6 h-6 shrink-0">{icon}</div>
 
       <p className={`flex-1 text-base font-medium`}>{label}</p>
 

@@ -1,12 +1,12 @@
 import { z } from "zod";
 
 export const OrganizationCreateSchema = z.object({
-    nombre: z.string().min(1).max(50),
+    nombre: z.string().regex(/^[a-zA-Z0-9 ]+$/).min(1).max(50),
     slug: z.string().min(1).max(100),
 });
 
 export const OrganizationUpdateSchema = z.object({
-    nombre: z.string().min(1).max(50).optional(),
+    nombre: z.string().regex(/^[a-zA-Z0-9 ]+$/).min(1).max(50).optional(),
     slug: z.string().min(1).max(100).optional(),
 });
 

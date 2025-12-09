@@ -1,5 +1,15 @@
 import LoginForm from "@/components/auth/LoginForm";
+import { Metadata } from "next";
 import Link from 'next/link';
+
+
+export const metadata: Metadata = {
+  title: "Login - EduVoice CMS",
+  description: "Inicia sesión en tu cuenta de EduVoice CMS",
+  icons: {
+    icon: '/EduVoiceCMS_logo-SN.png',
+  },
+};
 
 export default function LoginPage() {
   return (

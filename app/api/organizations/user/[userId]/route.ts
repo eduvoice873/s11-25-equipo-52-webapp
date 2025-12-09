@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/db";
 import { OrganizationService } from "@/models/organization/organizationService";
@@ -6,7 +6,7 @@ import { OrganizationService } from "@/models/organization/organizationService";
 const organizationService = new OrganizationService();
 
 // Obtiene una organización por el ID del usuario
-export async function GET(request: Request, { params }: { params: Promise<{ userId: string }> }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ userId: string }> }) {
     try {
         const session = await auth();
         if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -18,7 +18,6 @@ export async function GET(request: Request, { params }: { params: Promise<{ user
 
         const organization = await organizationService.getOrganizationById(userFounded.organizacionId);
 
-        if (!organization) return NextResponse.json({ error: "Organization not found" }, { status: 404 });
         return NextResponse.json(organization, { status: 200 });
     } catch (error) {
         if (error instanceof Error) return NextResponse.json({ error: error.message }, { status: 400 });

@@ -52,6 +52,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           ref={ref}
           className={cn(
             inputVariants({
+              size,
               variant,
               state,
               withIcon: leftIcon ? true : withIcon,

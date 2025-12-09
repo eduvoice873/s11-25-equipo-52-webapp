@@ -1,11 +1,7 @@
 import prisma from "@/lib/db";
-import { PersonCreateDto, PersonUpdateDto } from './dto/person';
+import { PersonUpdateDto } from './dto/person';
 
 export class PersonService {
-    async createPerson(data: PersonCreateDto) {
-        return await prisma.persona.create({ data });
-    }
-
     async getAllPersons() {
         return await prisma.persona.findMany();
     }

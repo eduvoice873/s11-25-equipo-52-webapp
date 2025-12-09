@@ -43,8 +43,8 @@ export default function LoginForm() {
         setError('root', { message: 'Error desconocido' });
       }
     } else {
-      toast.success('Bienvenida 😄');
-      router.push('/home');
+      toast.success('Bienvenido/a');
+      router.push("/home");
     }
   };
 

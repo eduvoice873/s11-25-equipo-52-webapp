@@ -1,8 +1,16 @@
 import SignupForm from "@/components/auth/SignupForm";
 import Link from 'next/link';
 import { Card } from '@/components/ui/card';
+import { Metadata } from "next";
+export const metadata: Metadata = {
+  title: "Regístrate - EduVoice CMS",
+  description: "Crea una cuenta en EduVoice CMS",
+  icons: {
+    icon: '/EduVoiceCMS_logo-SN.png',
+  },
+};
 
-export default function LoginPage() {
+export default function SignupPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-md flex flex-col gap-4">

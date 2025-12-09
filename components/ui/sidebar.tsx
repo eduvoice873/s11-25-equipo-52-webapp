@@ -1,19 +1,24 @@
 "use client";
 
 import React from 'react';
+import { usePathname } from 'next/navigation';
 import { SidebarItem } from './SidebarItem';
-import { menuItems } from './menuItems';
+import { SidebarItemType } from '@/types/sidebar';
+import SignoutBtn from '@/components/auth/SignoutBtn';
 
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
-  topOffset?: number; // altura del navbar
+  topOffset?: number;
+  items: SidebarItemType[];
 }
 
-export const Sidebar = ({ isOpen, onClose, topOffset = 64 }: SidebarProps) => {
+export const Sidebar = ({ items, isOpen, onClose }: SidebarProps) => {
+  const pathname = usePathname();
+
   return (
     <>
-      {/* Overlay en móvil */}
+      {/* Overlay móvil */}
       {isOpen && (
         <div
           onClick={onClose}
@@ -23,17 +28,23 @@ export const Sidebar = ({ isOpen, onClose, topOffset = 64 }: SidebarProps) => {
 
       <aside
         className={`
-          fixed left-0 z-40 w-[260px] h-screen top-0 
+          fixed left-0 top-20 z-40 h-screen w-[260px]
           bg-white shadow-xl p-4 rounded-tr-2xl rounded-br-2xl
           transition-transform duration-300
-          ${isOpen ? 'translate-x-0' : '-translate-x-full'} 
-          md:translate-x-0
+          md:translate-x-0 md:relative
+          ${isOpen ? 'translate-x-0' : '-translate-x-full'}
         `}
       >
-        <div className="flex flex-col  gap-2">
-          {menuItems.map((item) => (
-            <SidebarItem key={item.label} {...item} />
+        <div className="flex flex-col gap-2">
+          {items.map((item) => (
+            <SidebarItem
+              key={item.label}
+              {...item}
+              active={pathname.startsWith(item.href)}
+            />
           ))}
+
+          <SignoutBtn />
         </div>
       </aside>
     </>
