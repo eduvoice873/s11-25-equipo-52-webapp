@@ -64,11 +64,11 @@ export default function CreateCategoryPage() {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div>
               <label htmlFor="nombre" className="block text-sm font-medium mb-1">
-                Nombre Interno *
+                Nombre Interno para identificar la categoría *
               </label>
               <Input
                 id="nombre"
-                placeholder="Ej: graduacion-2025"
+                placeholder="Este nombre sera usado para identificar la categoría"
                 {...register("nombre")}
               />
               {errors.nombre && (
@@ -80,11 +80,11 @@ export default function CreateCategoryPage() {
 
             <div>
               <label htmlFor="titulo" className="block text-sm font-medium mb-1">
-                Título Público *
+                Título Público para la categoría *
               </label>
               <Input
                 id="titulo"
-                placeholder="Ej: Graduación 2025"
+                placeholder="Título que verán los usuarios al acceder al formulario"
                 {...register("titulo")}
               />
               {errors.titulo && (
@@ -99,11 +99,11 @@ export default function CreateCategoryPage() {
                 htmlFor="mensaje"
                 className="block text-sm font-medium mb-1"
               >
-                Mensaje de Bienvenida *
+                Mensaje de Acceso *
               </label>
               <Textarea
                 id="mensaje"
-                placeholder="Escribe un mensaje de bienvenida para esta categoría"
+                placeholder="Mensaje que verán los usuarios al acceder al formulario"
                 rows={4}
                 {...register("mensaje")}
               />

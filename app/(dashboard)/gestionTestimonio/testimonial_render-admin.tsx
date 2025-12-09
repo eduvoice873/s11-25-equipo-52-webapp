@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { AdminTestimonial, AdminTestimonialProps } from "@/components/ui/testimonial/Admin";
 import { X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface TestimonialRenderAdminProps {
   initialTestimonials: any[];
@@ -156,7 +157,10 @@ export function TestimonialRender_admin({
   if (testimonials.length === 0) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-500">No se encontraron testimonios</p>
+        <p className="text-gray-500">No se encontraron testimonios.</p>
+        <Button variant="primary" asChild>
+          <a href="/categories">Crear Formulario</a>
+        </Button>
       </div>
     );
   }

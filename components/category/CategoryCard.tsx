@@ -90,7 +90,7 @@ export function CategoryCard({
         >
           <Link href={`/categories/${category.id}`} className="flex items-center gap-1.5">
             <Eye className="h-4 w-4" />
-            Ver detalle
+            <span className="hidden sm:inline">Ver tus formularios </span>
           </Link>
         </Button>
 
@@ -103,7 +103,7 @@ export function CategoryCard({
           >
             <Link href={`/categories/${category.id}/edit`} className="flex items-center gap-1.5">
               <Pencil className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Editar</span>
+              <span className="hidden sm:inline">Editar Categoria</span>
             </Link>
           </Button>
           <Button

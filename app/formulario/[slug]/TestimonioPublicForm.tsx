@@ -670,13 +670,11 @@ export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps
           {formulario.permitirTextoImagen && (
             <div className="space-y-3">
               <label className="block text-sm font-medium text-slate-700">
-                Imagen del Testimonio
+                Sube una imagen que ilustre tu testimonio
                 {!formulario.permitirTexto && !formulario.permitirVideo && (
                   <span className="text-red-500"> *</span>
                 )}
               </label>
-              <p className="text-xs text-slate-500">Sube una imagen de ti con el producto o solo del producto</p>
-
               <input
                 type="file"
                 accept="image/*"

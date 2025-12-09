@@ -433,6 +433,10 @@ export default function FormularioBuilderPage({
         return;
       }
 
+      console.log("categoriaIdParaCrear:", categoriaIdParaCrear);
+      console.log("formularioExistente?.categoriaId:", formularioExistente?.categoriaId);
+      console.log("categoriaIdProp:", categoriaIdProp);
+
       const titulo = values.titulo.trim();
       if (!titulo) {
         toast.error("El título del formulario no puede estar vacío");
@@ -480,20 +484,14 @@ export default function FormularioBuilderPage({
           throw new Error('Error al actualizar el formulario');
         }
         toast.success("Formulario actualizado correctamente");
-
-        setTimeout(() => {
-          router.push(`/categories/${categoriaIdParaCrear}`);
-        }, 1000);
+        router.push(`/categories/${categoriaIdParaCrear}`);
       } else {
         const result = await crearFormulario(payload);
         if (!result) {
           throw new Error('Error al crear el formulario');
         }
         toast.success("Formulario creado correctamente");
-
-        setTimeout(() => {
-          router.push(`/categories/${categoriaIdParaCrear}`);
-        }, 1000);
+        router.push(`/categories/${categoriaIdParaCrear}`);
       }
     } catch (error: any) {
       console.error("Error al guardar el formulario:", error);
