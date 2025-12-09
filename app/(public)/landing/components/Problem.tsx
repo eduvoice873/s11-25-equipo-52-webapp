@@ -7,7 +7,7 @@ export default function Problem() {
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-16">
           <span className="text-brand-light font-extrabold text-sm uppercase tracking-wider">El Desafío</span>
-          <h2 className="text-4xl md:text-5xl font-black text-gray-900 mt-4 mb-6">
+          <h2 className="text-4xl md:text-5xl font-black text-gray-900 mt-4 mb-6 font-nunito">
             ¿Por qué necesitas un CMS especializado en testimonios?
           </h2>
         </div>
@@ -19,7 +19,7 @@ export default function Problem() {
                 <XCircle size={32} />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Testimonios Dispersos</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-2 font-nunito">Testimonios Dispersos</h3>
                 <p className="text-gray-600 font-lato">Videos en YouTube, textos en emails, imágenes en carpetas. Sin organización central ni capacidad de búsqueda.</p>
               </div>
             </div>
@@ -29,7 +29,7 @@ export default function Problem() {
                 <XCircle size={32} />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Sin Control de Calidad</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-2 font-nunito">Sin Control de Calidad</h3>
                 <p className="text-gray-600 font-lato">Publicar testimonios sin revisión previa arriesga la imagen institucional y la autenticidad del contenido.</p>
               </div>
             </div>
@@ -39,7 +39,7 @@ export default function Problem() {
                 <XCircle size={32} />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Integración Compleja</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-2 font-nunito">Integración Compleja</h3>
                 <p className="text-gray-600 font-lato">Mostrar testimonios en tu web requiere desarrollo custom, sin APIs ni widgets listos para usar.</p>
               </div>
             </div>
@@ -51,7 +51,7 @@ export default function Problem() {
                 <CheckCircle size={32} />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Gestión Centralizada</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-2 font-nunito">Gestión Centralizada</h3>
                 <p className="text-gray-600 font-lato">Todos tus testimonios en un solo lugar. Búsqueda inteligente por tags, categorías, programas y más.</p>
               </div>
             </div>
@@ -61,7 +61,7 @@ export default function Problem() {
                 <CheckCircle size={32} />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Moderación Avanzada</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-2 font-nunito">Moderación Avanzada</h3>
                 <p className="text-gray-600 font-lato">Revisa, edita y aprueba testimonios antes de publicar. Control total sobre tu contenido social proof.</p>
               </div>
             </div>
@@ -71,7 +71,7 @@ export default function Problem() {
                 <CheckCircle size={32} />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">API REST Completa</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-2 font-nunito">API REST Completa</h3>
                 <p className="text-gray-600 font-lato">Integra testimonios en cualquier plataforma con nuestra API documentada. Widgets embebibles listos para usar.</p>
               </div>
             </div>

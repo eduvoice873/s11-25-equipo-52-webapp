@@ -776,20 +776,21 @@ export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps
 
           {/* PREGUNTAS DINÁMICAS - SOLO SI ES TEXTO O TEXTO+IMAGEN */}
           {mostrarPreguntas && formulario.preguntas && formulario.preguntas.length > 0 && (
-            <div className="space-y-4 pt-4 border-t border-slate-200">
+            <div className="space-y-6 pt-6 border-t border-slate-200">
               <h3 className="font-semibold text-lg text-slate-900">
                 Preguntas adicionales
               </h3>
 
-              {formulario.preguntas.map((p) => (
-                <div key={p.id}>
-                  <label className="block text-sm font-medium mb-1">
-                    {p.texto}
+              {formulario.preguntas.map((p, index) => (
+                <div key={p.id} className="space-y-3 p-4 bg-slate-50 rounded-lg">
+                  <label className="block text-base font-semibold text-slate-900">
+                    {index + 1}. {p.texto}
                     {p.requerida && (
-                      <span className="text-red-500"> *</span>
+                      <span className="text-red-500 ml-1">*</span>
                     )}
                   </label>
 
+                  {/* TEXTO CORTO */}
                   {p.tipo === "texto" && (
                     <Input
                       value={formData.respuestas[p.id] || ""}
@@ -798,13 +799,21 @@ export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps
                       }
                       required={p.requerida}
                       placeholder="Tu respuesta..."
+                      className="w-full"
                     />
                   )}
 
+                  {/* OPCIÓN ÚNICA (RADIO) */}
                   {p.tipo === "opcion_unica" && (
-                    <div className="space-y-2">
+                    <div className="flex flex-wrap gap-2">
                       {p.opciones?.map((opcion: string, idx: number) => (
-                        <label key={idx} className="flex items-center gap-2 p-2 border rounded-lg cursor-pointer hover:bg-slate-50">
+                        <label
+                          key={idx}
+                          className={`flex items-center gap-2 px-4 py-2 border-2 rounded-lg cursor-pointer transition-all ${formData.respuestas[p.id] === opcion
+                              ? "bg-indigo-600 text-white border-indigo-600"
+                              : "bg-white text-slate-700 border-slate-300 hover:border-indigo-400"
+                            }`}
+                        >
                           <input
                             type="radio"
                             name={`pregunta-${p.id}`}
@@ -814,18 +823,22 @@ export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps
                             required={p.requerida}
                             className="w-4 h-4"
                           />
-                          <span className="text-sm">{opcion}</span>
+                          <span className="font-medium">{opcion}</span>
                         </label>
                       ))}
                     </div>
                   )}
 
+                  {/* OPCIÓN MÚLTIPLE (CHECKBOX) */}
                   {p.tipo === "opcion_multiple" && (
                     <div className="space-y-2">
                       {p.opciones?.map((opcion: string, idx: number) => {
                         const seleccionadas = formData.respuestas[p.id] || [];
                         return (
-                          <label key={idx} className="flex items-center gap-2 p-2 border rounded-lg cursor-pointer hover:bg-slate-50">
+                          <label
+                            key={idx}
+                            className="flex items-center gap-3 p-3 border-2 border-slate-300 rounded-lg cursor-pointer hover:bg-slate-100 transition-colors"
+                          >
                             <input
                               type="checkbox"
                               value={opcion}
@@ -836,49 +849,103 @@ export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps
                                   : seleccionadas.filter((o: string) => o !== opcion);
                                 handlePreguntaChange(p.id, nuevas);
                               }}
-                              className="w-4 h-4"
+                              className="w-5 h-5 text-indigo-600"
                             />
-                            <span className="text-sm">{opcion}</span>
+                            <span className="text-sm font-medium text-slate-700">
+                              {opcion}
+                            </span>
                           </label>
                         );
                       })}
                     </div>
                   )}
 
+                  {/* ESCALA (NÚMEROS) */}
                   {p.tipo === "escala" && (
-                    <div className="flex gap-2 items-center justify-center py-2">
-                      <span className="text-xs text-slate-500">{p.minimo || 1}</span>
-                      {Array.from({ length: (p.maximo || 5) - (p.minimo || 1) + 1 }, (_, i) => i + (p.minimo || 1)).map((num) => (
+                    <div className="flex flex-wrap gap-2 items-center justify-start">
+                      <span className="text-xs text-slate-500 font-medium mr-2">
+                        {p.minimo || 1}
+                      </span>
+                      {Array.from(
+                        {
+                          length:
+                            (p.maximo || 5) - (p.minimo || 1) + 1,
+                        },
+                        (_, i) => i + (p.minimo || 1)
+                      ).map((num) => (
                         <button
                           key={num}
                           type="button"
                           onClick={() => handlePreguntaChange(p.id, num)}
-                          className={`w-10 h-10 rounded-full border-2 font-semibold transition-all ${formData.respuestas[p.id] === num
-                            ? "bg-indigo-600 text-white border-indigo-600"
-                            : "bg-white text-slate-700 border-slate-300 hover:border-indigo-400"
+                          className={`w-12 h-12 rounded-full border-2 font-bold transition-all ${formData.respuestas[p.id] === num
+                              ? "bg-indigo-600 text-white border-indigo-600"
+                              : "bg-white text-slate-700 border-slate-300 hover:border-indigo-400"
                             }`}
                         >
                           {num}
                         </button>
                       ))}
-                      <span className="text-xs text-slate-500">{p.maximo || 5}</span>
+                      <span className="text-xs text-slate-500 font-medium ml-2">
+                        {p.maximo || 5}
+                      </span>
                     </div>
                   )}
 
+                  {/* FECHA */}
                   {p.tipo === "fecha" && (
                     <Input
                       type="date"
                       value={formData.respuestas[p.id] || ""}
                       onChange={(e) => handlePreguntaChange(p.id, e.target.value)}
                       required={p.requerida}
+                      className="w-full"
                     />
                   )}
 
+                  {/* ARCHIVO MEJORADO */}
                   {p.tipo === "archivo" && (
-                    <div>
-                      <Input
+                    <label className="block cursor-pointer">
+                      <div
+                        className={`border-2 border-dashed rounded-lg p-6 text-center transition ${formData.respuestas[p.id]
+                            ? "border-green-500 bg-green-50"
+                            : "border-slate-300 hover:border-indigo-500 hover:bg-indigo-50"
+                          }`}
+                      >
+                        <svg
+                          className="mx-auto h-10 w-10 mb-2"
+                          stroke="currentColor"
+                          fill="none"
+                          viewBox="0 0 48 48"
+                        >
+                          <path
+                            d="M28 8H12a4 4 0 00-4 4v20a4 4 0 004 4h24a4 4 0 004-4V20m-14-12l6 6m0 0l-6 6m6-6H8"
+                            strokeWidth={2}
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                        <p className="font-semibold text-slate-700">
+                          {formData.respuestas[p.id]
+                            ? `Archivo: ${formData.respuestas[p.id]}`
+                            : "Haz clic para seleccionar archivo"}
+                        </p>
+                        <p className="text-xs text-slate-500 mt-1">
+                          {p.formatoArchivo === "imagen"
+                            ? "PNG, JPG, GIF hasta 10MB"
+                            : p.formatoArchivo === "video"
+                              ? "MP4, WebM hasta 100MB"
+                              : "Cualquier formato hasta 50MB"}
+                        </p>
+                      </div>
+                      <input
                         type="file"
-                        accept={p.formatoArchivo === "imagen" ? "image/*" : p.formatoArchivo === "video" ? "video/*" : "*/*"}
+                        accept={
+                          p.formatoArchivo === "imagen"
+                            ? "image/*"
+                            : p.formatoArchivo === "video"
+                              ? "video/*"
+                              : "*/*"
+                        }
                         onChange={(e) => {
                           const file = e.target.files?.[0];
                           if (file) {
@@ -886,11 +953,9 @@ export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps
                           }
                         }}
                         required={p.requerida}
+                        className="hidden"
                       />
-                      {formData.respuestas[p.id] && (
-                        <p className="text-xs text-slate-500 mt-1">Archivo: {formData.respuestas[p.id]}</p>
-                      )}
-                    </div>
+                    </label>
                   )}
                 </div>
               ))}

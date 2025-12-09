@@ -4,11 +4,20 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import VoicesHub from "@/app/(public)/landing/components/VoicesHub";
-import { ALL_TESTIMONIALS, testimonialsData } from "@/app/(public)/landing/components/data";
+import { ALL_TESTIMONIALS } from "@/app/(public)/landing/components/data";
+
+
+
+
+
 import { TestimonialRender } from "./testimonial_render-visitor";
 
 
+
+
+
 export default function VoicesHubPage() {
+
   return (
     <main className="min-h-screen">
       {/* Header Navigation */}
@@ -46,8 +55,12 @@ export default function VoicesHubPage() {
 
           {/* VOICES HUB COMPLETO */}
           <div className="mt-16">
-            <TestimonialRender testimonials={testimonialsData} />
+
             <VoicesHub testimonials={ALL_TESTIMONIALS} />
+
+
+
+
           </div>
 
 

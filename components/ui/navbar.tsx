@@ -31,7 +31,7 @@ export const Navbar = ({ onToggle }: { onToggle: () => void }) => {
             priority
           />
           <div className="hidden sm:block">
-            <h1 className="text-xl md:text-2xl font-bold text-indigo-600">
+            <h1 className="text-xl md:text-2xl font-bold text-brand-blue">
               EduVoice CMS
             </h1>
             <p className="text-xs text-slate-500 hidden md:block">

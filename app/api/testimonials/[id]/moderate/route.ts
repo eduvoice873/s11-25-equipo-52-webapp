@@ -40,6 +40,25 @@ export async function PATCH(
       );
     }
 
+    // Verificar que el usuario sea admin
+    const usuario = await prisma.user.findUnique({
+      where: { id: session.user.id },
+    });
+
+    if (!usuario) {
+      return NextResponse.json(
+        { error: "Usuario no encontrado" },
+        { status: 404 }
+      );
+    }
+
+    if (usuario.rol !== "admin") {
+      return NextResponse.json(
+        { error: "Solo los admins pueden moderar testimonios" },
+        { status: 403 }
+      );
+    }
+
     if (decision === "aprobar") {
       const modalidad = respuestaFormulario.videoUrl ? "video" : "texto_imagen";
 

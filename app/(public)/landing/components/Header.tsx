@@ -22,7 +22,7 @@ export default function HeaderLanding() {
             height={40}
             className="h-8 w-auto md:h-10"
           />
-          <span className="text-2xl font-extrabold text-brand-blue">
+          <span className="text-2xl font-extrabold text-brand-blue font-nunito">
             EduVoice CMS
           </span>
         </Link>
@@ -33,7 +33,7 @@ export default function HeaderLanding() {
         >
           <Link
             href="/"
-            className="hover:text-brand-light transition-colors"
+            className="hover:text-brand-light font-nunito transition-colors"
           >
             Inicio
           </Link>
@@ -43,8 +43,8 @@ export default function HeaderLanding() {
           >
             Características
           </Link>
-          <Link href="/#api" className="hover:text-brand-light transition-colors">
-            API
+          <Link href="/#widgets" className="hover:text-brand-light transition-colors">
+            Widgets
           </Link>
           <Link
             href="/#casos"

@@ -6,8 +6,8 @@ export default function Features() {
     <section id="caracteristicas" className="py-24 bg-gray-50">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-16">
-          <span className="text-brand-light font-extrabold text-sm uppercase tracking-wider">Características</span>
-          <h2 className="text-4xl md:text-5xl font-black text-gray-900 mt-4 mb-6">
+          <span className="text-brand-light font-bold font-lato text-2xl uppercase tracking-wider">Características</span>
+          <h2 className="text-4xl md:text-5xl font-black font-nunito text-gray-900 mt-4 mb-6">
             Todo lo que necesitas para <span className="bg-clip-text text-transparent bg-linear-to-br from-brand-blue to-brand-light">gestionar testimonios</span>
           </h2>
           <p className="text-gray-600 text-xl max-w-3xl mx-auto font-lato">
@@ -23,7 +23,7 @@ export default function Features() {
             <div className="mb-4 text-brand-blue">
               <Video size={48} strokeWidth={1.5} />
             </div>
-            <h3 className="text-2xl font-extrabold text-brand-blue mb-3">Multimedia Completo</h3>
+            <h3 className="text-2xl font-extrabold font-nunito text-brand-blue mb-3">Multimedia Completo</h3>
             <p className="text-gray-600 text-lg mb-4 font-lato">
               Soporta video, texto e imagen. Integración nativa con YouTube y Cloudinary para
               almacenamiento optimizado.
@@ -47,7 +47,7 @@ export default function Features() {
             <div className="mb-4 text-brand-blue">
               <ShieldCheck size={48} strokeWidth={1.5} />
             </div>
-            <h3 className="text-2xl font-extrabold text-brand-blue mb-3">Moderación Avanzada</h3>
+            <h3 className="text-2xl font-extrabold font-nunito text-brand-blue mb-3">Moderación Avanzada</h3>
             <p className="text-gray-600 text-lg mb-4 font-lato">
               Sistema de revisión y aprobación antes de publicación. Control total sobre el contenido
               publicado.
@@ -71,7 +71,7 @@ export default function Features() {
             <div className="mb-4 text-brand-blue">
               <Tag size={48} strokeWidth={1.5} />
             </div>
-            <h3 className="text-2xl font-extrabold text-brand-blue mb-3">Clasificación Inteligente</h3>
+            <h3 className="text-2xl font-extrabold font-nunito text-brand-blue mb-3">Clasificación Inteligente</h3>
             <p className="text-gray-600 text-lg mb-4 font-lato">
               Organiza por categorías: producto, evento, cliente, industria. Sistema de tags
               personalizado.
@@ -95,7 +95,7 @@ export default function Features() {
             <div className="mb-4 text-brand-blue">
               <Plug size={48} strokeWidth={1.5} />
             </div>
-            <h3 className="text-2xl font-extrabold text-brand-blue mb-3">API REST Documentada</h3>
+            <h3 className="text-2xl font-extrabold font-nunito text-brand-blue mb-3">API REST Documentada</h3>
             <p className="text-gray-600 text-lg mb-4 font-lato">
               API pública completa con documentación Swagger. Integra testimonios en cualquier plataforma.
             </p>
@@ -118,7 +118,7 @@ export default function Features() {
             <div className="mb-4 text-brand-blue">
               <BarChart3 size={48} strokeWidth={1.5} />
             </div>
-            <h3 className="text-2xl font-extrabold text-brand-blue mb-3">Analytics de Engagement</h3>
+            <h3 className="text-2xl font-extrabold font-nunito text-brand-blue mb-3">Analytics de Engagement</h3>
             <p className="text-gray-600 text-lg mb-4 font-lato">
               Mide el impacto de tus testimonios. Visualizaciones, clics y engagement en tiempo real.
             </p>
@@ -141,7 +141,7 @@ export default function Features() {
             <div className="mb-4 text-brand-blue">
               <Palette size={48} strokeWidth={1.5} />
             </div>
-            <h3 className="text-2xl font-extrabold text-brand-blue mb-3">Widgets Embebibles</h3>
+            <h3 className="text-2xl font-extrabold font-nunito text-brand-blue mb-3">Widgets Embebibles</h3>
             <p className="text-gray-600 text-lg mb-4 font-lato">
               Widgets listos para integrar en tu web. Personaliza diseño y comportamiento sin código.
             </p>

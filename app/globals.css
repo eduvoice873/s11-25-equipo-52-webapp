@@ -45,6 +45,8 @@
   --color-brand-blue: var(--brand-blue);
   --color-brand-light: var(--brand-light);
   --color-brand-yellow: var(--brand-yellow);
+  --font-nunito: var(--font-nunito);
+  --font-lato: var(--font-lato);
 }
 
 :root {
