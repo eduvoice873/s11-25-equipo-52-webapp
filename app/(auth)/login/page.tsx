@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 
 export const metadata: Metadata = {
-  title: "Login - EduVoice CMS",
+  title: "Login",
   description: "Inicia sesión en tu cuenta de EduVoice CMS",
   icons: {
     icon: '/EduVoiceCMS_logo-SN.png',
