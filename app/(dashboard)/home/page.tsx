@@ -11,7 +11,7 @@ import DashboardCategoryPage from "@/components/dashboard-category/page";
 
 export const metadata: Metadata =
 {
-title: "Home - EduVoice CMS",
+title: "Home",
 description: "Panel de control principal de EduVoice CMS",
 icons: {
     icon: '/EduVoiceCMS_logo-SN.png',
