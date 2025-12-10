@@ -2,7 +2,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Trash2, Pencil, Eye, MessageSquare, Calendar } from "lucide-react";
+import { Trash2, Pencil, Eye, MessageSquare, Calendar, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import {
@@ -31,6 +31,9 @@ export function CategoryCard({
 
   const { deleteCategory } = useCategory(category.id);
 
+  const testimonioCount = category._count?.testimonios || 0;
+  const tieneTestimonios = testimonioCount > 0;
+
   const handleDelete = async () => {
     try {
       setIsDeleting(true);
@@ -50,6 +53,13 @@ export function CategoryCard({
       "group relative bg-white rounded-xl border border-gray-200 p-6 flex flex-col h-full hover:shadow-lg hover:border-brand-blue/40 transition-all duration-300",
       className
     )}>
+      {/* Indicador visual de testimonios */}
+      {tieneTestimonios && (
+        <div className="absolute -top-3 -right-3 bg-green-500 text-white rounded-full p-1.5 shadow-lg">
+          <CheckCircle2 className="h-5 w-5" />
+        </div>
+      )}
+
       {/* Header con título y badge */}
       <div className="mb-4">
         <div className="flex justify-between items-start gap-3 mb-3">

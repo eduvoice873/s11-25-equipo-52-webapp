@@ -53,9 +53,16 @@ export default function ProfileCard() {
     setIsSubmitting(true);
 
     try {
+      // Validar que el nombre no esté vacío
+      if (!formData.name || formData.name.trim().length < 2) {
+        setSubmitError("El nombre debe tener al menos 2 caracteres");
+        setIsSubmitting(false);
+        return;
+      }
+
       // Solo enviar campos que no estén vacíos
       const dataToUpdate: any = {
-        name: formData.name,
+        name: formData.name.trim(),
         activo: formData.activo,
       };
 
@@ -71,8 +78,19 @@ export default function ProfileCard() {
       // Limpiar mensaje de éxito después de 3 segundos
       setTimeout(() => setSubmitSuccess(false), 3000);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Error al actualizar el perfil";
+      let errorMessage = "Error al actualizar el perfil";
+
+      if (err instanceof Error) {
+        errorMessage = err.message;
+
+        // Si el error contiene detalles de validación, mejorar el mensaje
+        if (errorMessage.includes("Datos inválidos")) {
+          errorMessage = "Por favor verifica los datos ingresados. Si cambias la contraseña, debe incluir mayúscula, minúscula, número y carácter especial.";
+        }
+      }
+
       setSubmitError(errorMessage);
+      console.error("Error al actualizar perfil:", err);
     } finally {
       setIsSubmitting(false);
     }

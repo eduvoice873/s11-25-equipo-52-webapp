@@ -58,6 +58,12 @@ export async function GET(request: NextRequest) {
             nombre: true,
           },
         },
+        etiquetas: {
+          select: {
+            id: true,
+            nombre: true,
+          },
+        },
       },
       orderBy: [{ destacado: "desc" }, { publicadoEn: "desc" }],
       take: limit,
@@ -83,6 +89,10 @@ export async function GET(request: NextRequest) {
       medios: t.medios.map((m) => ({
         tipo: m.tipo,
         url: m.url,
+      })),
+      etiquetas: t.etiquetas.map((e) => ({
+        id: e.id,
+        nombre: e.nombre,
       })),
       categoria: t.categoria
         ? {

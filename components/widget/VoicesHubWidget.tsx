@@ -1,7 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Star, Loader2, Quote } from 'lucide-react';
+import { useEffect, useMemo } from 'react';
+import useSWR from 'swr';
+import { Star, Loader2, Quote, Heart } from 'lucide-react';
+
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 interface Testimonio {
   id: string;
@@ -18,6 +21,10 @@ interface Testimonio {
   medios: Array<{
     tipo: string;
     url: string;
+  }>;
+  etiquetas?: Array<{
+    id: string;
+    nombre: string;
   }>;
   categoria: {
     id: string;
@@ -140,13 +147,41 @@ export default function VoicesHubWidget({
   orderBy = 'fecha',
   orderDirection = 'desc',
 }: VoicesHubWidgetProps) {
-  const [testimonios, setTestimonios] = useState<Testimonio[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    loadTestimonios();
+  const queryString = useMemo(() => {
+    const params = new URLSearchParams();
+    if (categoriaId) params.append('categoriaId', categoriaId);
+    if (organizacionId) params.append('organizacionId', organizacionId);
+    params.append('limit', limit.toString());
+    if (destacados) params.append('destacados', 'true');
+    return params.toString();
   }, [categoriaId, organizacionId, limit, destacados]);
+
+  const { data: rawData, error, isLoading } = useSWR(
+    `/api/public/testimonials?${queryString}`,
+    fetcher,
+    {
+      refreshInterval: 5000,
+      revalidateOnFocus: false,
+    }
+  );
+
+  const testimonios = useMemo(() => {
+    if (!rawData || !Array.isArray(rawData)) return [];
+
+    const sorted = [...rawData];
+    sorted.sort((a: Testimonio, b: Testimonio) => {
+      const multiplier = orderDirection === 'asc' ? 1 : -1;
+      if (orderBy === 'calificacion') {
+        return (a.calificacion - b.calificacion) * multiplier;
+      } else if (orderBy === 'destacado') {
+        return (Number(a.destacado) - Number(b.destacado)) * multiplier;
+      } else {
+        return (new Date(a.fecha).getTime() - new Date(b.fecha).getTime()) * multiplier;
+      }
+    });
+
+    return sorted;
+  }, [rawData, orderBy, orderDirection]);
 
   useEffect(() => {
     const updateHeight = () => {
@@ -157,48 +192,18 @@ export default function VoicesHubWidget({
       );
     };
 
-    updateHeight();
+    // Small delay to ensure rendering is complete
+    const timer = setTimeout(updateHeight, 100);
     window.addEventListener('resize', updateHeight);
-    return () => window.removeEventListener('resize', updateHeight);
-  }, [testimonios]);
 
-  const loadTestimonios = async () => {
-    try {
-      setLoading(true);
-      setError(null);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', updateHeight);
+    };
+  }, [testimonios, isLoading]);
 
-      const params = new URLSearchParams();
-      if (categoriaId) params.append('categoriaId', categoriaId);
-      if (organizacionId) params.append('organizacionId', organizacionId);
-      params.append('limit', limit.toString());
-      if (destacados) params.append('destacados', 'true');
+  const loading = isLoading;
 
-      const response = await fetch(`/api/public/testimonials?${params.toString()}`);
-      if (!response.ok) throw new Error(`Error: ${response.status}`);
-
-      let data = await response.json();
-      data = Array.isArray(data) ? data : [];
-
-      // Ordenar testimonios
-      data.sort((a: Testimonio, b: Testimonio) => {
-        const multiplier = orderDirection === 'asc' ? 1 : -1;
-        if (orderBy === 'calificacion') {
-          return (a.calificacion - b.calificacion) * multiplier;
-        } else if (orderBy === 'destacado') {
-          return (Number(a.destacado) - Number(b.destacado)) * multiplier;
-        } else {
-          return (new Date(a.fecha).getTime() - new Date(b.fecha).getTime()) * multiplier;
-        }
-      });
-
-      setTestimonios(data);
-    } catch (err) {
-      console.error('Error:', err);
-      setError('No se pudieron cargar los testimonios');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // Estilos dinámicos según tema
   const isDark = theme === 'dark';
@@ -344,8 +349,8 @@ export default function VoicesHubWidget({
               className={`
                 ${radiusClasses[borderRadius]}
                 ${cardStyleClasses[cardStyle]}
-                p-6 flex flex-col
-                ${hoverEffect ? 'hover:shadow-2xl hover:-translate-y-2' : ''}
+                p-6 flex flex-col relative
+                ${hoverEffect ? 'hover:shadow-2xl hover:-translate-y-1' : ''}
                 ${animateOnScroll ? 'opacity-0 animate-fade-in' : ''}
               `}
               style={{
@@ -360,28 +365,40 @@ export default function VoicesHubWidget({
                 animationDelay: animateOnScroll ? `${index * 100}ms` : undefined,
               }}
             >
-              {/* Header con autor */}
-              {showAvatar && (
-                <div className="flex items-center gap-3 mb-4">
-                  <img
-                    src={testimonio.autor.avatar}
-                    alt={testimonio.autor.nombre}
-                    className={`${avatarSizeClasses[avatarSize]} rounded-full object-cover`}
-                    style={{ border: `2px solid ${styles.primary}` }}
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = '/default-avatar.png';
-                    }}
-                  />
-                  <div className="flex-1 min-w-0">
-                    <p
-                      className="font-bold truncate"
+              {/* Header: Avatar/Info + Badge */}
+              <div className="flex justify-between items-start mb-4">
+                <div className="flex items-center gap-3">
+                  {showAvatar && (
+                    <div
+                      className={`${avatarSizeClasses[avatarSize]} rounded-full object-cover shrink-0 flex items-center justify-center font-bold text-white overflow-hidden`}
+                      style={{ backgroundColor: styles.primary }}
+                    >
+                      {testimonio.autor.avatar ? (
+                        <img
+                          src={testimonio.autor.avatar}
+                          alt={testimonio.autor.nombre}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        testimonio.autor.nombre
+                          .split(' ')
+                          .map(n => n[0])
+                          .join('')
+                          .toUpperCase()
+                          .slice(0, 2)
+                      )}
+                    </div>
+                  )}
+                  <div>
+                    <h3
+                      className="font-bold leading-tight"
                       style={{ color: styles.text, fontSize: textSizeClasses[textSize] }}
                     >
                       {testimonio.autor.nombre}
-                    </p>
+                    </h3>
                     {testimonio.autor.cargo && (
                       <p
-                        className="text-xs truncate opacity-70"
+                        className="text-xs opacity-60 mt-0.5"
                         style={{ color: styles.text }}
                       >
                         {testimonio.autor.cargo}
@@ -389,7 +406,28 @@ export default function VoicesHubWidget({
                     )}
                   </div>
                 </div>
-              )}
+
+                {/* Badge Tipo Testimonio */}
+                <div
+                  className="px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1.5"
+                  style={{
+                    backgroundColor: `${styles.primary}10`,
+                    color: styles.primary
+                  }}
+                >
+                  {testimonio.medios.some(m => m.tipo === 'video') ? (
+                    <>
+                      <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
+                      Video
+                    </>
+                  ) : (
+                    <>
+                      <Quote className="w-3 h-3" />
+                      Testimonio
+                    </>
+                  )}
+                </div>
+              </div>
 
               {/* Calificación */}
               {showRating && (
@@ -397,7 +435,7 @@ export default function VoicesHubWidget({
                   {[...Array(5)].map((_, i) => (
                     <Star
                       key={i}
-                      className="w-5 h-5"
+                      className="w-4 h-4"
                       style={{
                         color: i < testimonio.calificacion ? styles.star : styles.border,
                         fill: i < testimonio.calificacion ? styles.star : 'none',
@@ -407,38 +445,51 @@ export default function VoicesHubWidget({
                 </div>
               )}
 
-              {/* Título */}
-              {showTitle && testimonio.titulo && (
-                <h3
-                  className="font-semibold mb-2"
+              {/* Texto */}
+              <div className="flex-1 mb-4">
+                {showTitle && testimonio.titulo && (
+                  <h4
+                    className="font-semibold mb-2 text-sm"
+                    style={{ color: styles.text }}
+                  >
+                    {testimonio.titulo}
+                  </h4>
+                )}
+
+                {/* Etiquetas */}
+                {testimonio.etiquetas && testimonio.etiquetas.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {testimonio.etiquetas.map((etiqueta) => (
+                      <span
+                        key={etiqueta.id}
+                        className="text-xs px-2.5 py-1 rounded-full font-medium"
+                        style={{
+                          backgroundColor: `${styles.primary}15`,
+                          color: styles.primary,
+                        }}
+                      >
+                        #{etiqueta.nombre}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                <p
+                  className={`${textSizeClasses[textSize]} leading-relaxed opacity-90 line-clamp-4`}
                   style={{ color: styles.text }}
                 >
-                  {testimonio.titulo}
-                </h3>
-              )}
-
-              {/* Quote icon decorativo */}
-              <Quote
-                className="w-8 h-8 opacity-20 mb-2"
-                style={{ color: styles.primary }}
-              />
-
-              {/* Texto */}
-              <p
-                className={`mb-4 flex-1 ${textSizeClasses[textSize]} leading-relaxed`}
-                style={{ color: styles.text }}
-              >
-                {testimonio.texto}
-              </p>
+                  {testimonio.texto}
+                </p>
+              </div>
 
               {/* Medios */}
               {showMedia && testimonio.medios.length > 0 && (
-                <div className="mb-4">
+                <div className="mb-4 rounded-lg overflow-hidden border border-opacity-10" style={{ borderColor: styles.border }}>
                   {testimonio.medios[0].tipo === 'imagen' && (
                     <img
                       src={testimonio.medios[0].url}
                       alt="Media"
-                      className={`w-full h-48 object-cover ${radiusClasses[borderRadius]}`}
+                      className="w-full h-40 object-cover"
                       onError={(e) => {
                         (e.target as HTMLImageElement).style.display = 'none';
                       }}
@@ -448,55 +499,54 @@ export default function VoicesHubWidget({
                     <video
                       src={testimonio.medios[0].url}
                       controls
-                      className={`w-full ${radiusClasses[borderRadius]}`}
+                      className="w-full h-40 object-cover bg-black"
                     />
                   )}
                 </div>
               )}
 
-              {/* Footer */}
+              {/* Footer: Fecha + Likes */}
               <div
-                className="flex justify-between items-center pt-3 border-t border-opacity-20"
+                className="flex justify-between items-center pt-4 mt-auto border-t border-opacity-10"
                 style={{ borderColor: styles.border }}
               >
                 {showDate && (
                   <span
-                    className="text-xs opacity-60"
+                    className="text-xs opacity-50 font-medium"
                     style={{ color: styles.text }}
                   >
-                    {new Date(testimonio.fecha).toLocaleDateString('es-ES', {
-                      year: 'numeric',
-                      month: 'short',
-                      day: 'numeric'
-                    })}
+                    {/* Calcular "Hace X tiempo" de forma simple */}
+                    {(() => {
+                      const diff = Date.now() - new Date(testimonio.fecha).getTime();
+                      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                      if (days === 0) return 'Hoy';
+                      if (days === 1) return 'Ayer';
+                      if (days < 30) return `Hace ${days} días`;
+                      return new Date(testimonio.fecha).toLocaleDateString('es-ES', {
+                        month: 'short',
+                        day: 'numeric'
+                      });
+                    })()}
                   </span>
                 )}
-                {showHighlight && testimonio.destacado && (
-                  <span
-                    className="text-xs font-semibold px-2 py-1 rounded-full"
-                    style={{
-                      backgroundColor: `${styles.primary}20`,
-                      color: styles.primary
-                    }}
-                  >
-                    ⭐ Destacado
-                  </span>
-                )}
-              </div>
 
-              {/* Categoría */}
-              {showCategory && testimonio.categoria && (
-                <div className="mt-3">
-                  <span
-                    className={`inline-block px-3 py-1 ${radiusClasses[borderRadius]} text-xs font-medium`}
-                    style={{
-                      backgroundColor: `${styles.primary}15`,
-                      color: styles.primary
-                    }}
-                  >
-                    {testimonio.categoria.nombre}
+                <div className="flex items-center gap-1.5 opacity-60 hover:opacity-100 transition-opacity cursor-default">
+                  <Heart
+                    className={`w-4 h-4 ${testimonio.destacado ? 'fill-red-500 text-red-500' : ''}`}
+                    style={{ color: testimonio.destacado ? undefined : styles.text }}
+                  />
+                  <span className="text-xs font-medium" style={{ color: styles.text }}>
+                    {testimonio.destacado ? '12' : '0'}
                   </span>
                 </div>
+              </div>
+
+              {/* Etiqueta Destacado (Opcional, si se quiere mantener visualmente distinto) */}
+              {showHighlight && testimonio.destacado && (
+                <div
+                  className="absolute -top-2 -right-2 w-4 h-4 bg-yellow-400 rounded-full border-2 border-white shadow-sm z-10"
+                  title="Destacado"
+                />
               )}
             </div>
           ))}

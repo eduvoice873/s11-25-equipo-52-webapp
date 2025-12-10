@@ -145,17 +145,6 @@ function FormularioCard({ formulario, onDelete, onEdit, onDuplicate }: {
                       <Eye className="mr-2 h-4 w-4" />
                       Vista previa
                     </DropdownMenuItem>
-
-                    <DropdownMenuItem onClick={() => onEdit(formulario.id)}>
-                      <Edit className="mr-2 h-4 w-4" />
-                      Editar
-                    </DropdownMenuItem>
-
-                    <DropdownMenuItem onClick={() => onDuplicate(formulario.id)}>
-                      <Copy className="mr-2 h-4 w-4" />
-                      Duplicar
-                    </DropdownMenuItem>
-
                     <DropdownMenuItem onClick={handleCopyLink}>
                       <LinkIcon className="mr-2 h-4 w-4" />
                       Copiar enlace
@@ -269,7 +258,9 @@ function TestimonioCard({ item, onApprove, onReject, onDelete }: {
 
   const handleDelete = () => {
     setShowDeleteDialog(false);
-    onDelete?.(item.id);
+    // Usar testimonioId si existe (para respuestas de formulario), sino usar id (para testimonios directos)
+    const idAEliminar = item.testimonioId || item.id;
+    onDelete?.(idAEliminar);
   };
 
   return (
@@ -493,59 +484,80 @@ export default function CategoryDetails({ id }: { id: string }) {
   // Handlers para testimonios
   const handleApproveTestimonio = async (testimonioId: string) => {
     try {
-      const response = await fetch(`/api/testimonios/${testimonioId}/approve`, {
-        method: "POST",
+      const response = await fetch(`/api/testimonials/${testimonioId}/moderate`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          decision: "aprobar",
+          notas: "Aprobado desde la vista de categoría",
+        }),
       });
 
       if (!response.ok) {
-        throw new Error("Error al aprobar el testimonio");
+        const error = await response.json();
+        throw new Error(error.error || "Error al aprobar el testimonio");
       }
 
       toast.success("Testimonio aprobado");
       mutate();
     } catch (error) {
       console.error("Error al aprobar:", error);
-      toast.error("Error al aprobar el testimonio");
+      toast.error(error instanceof Error ? error.message : "Error al aprobar el testimonio");
     }
   };
 
   const handleRejectTestimonio = async (testimonioId: string) => {
     try {
-      const response = await fetch(`/api/testimonios/${testimonioId}/reject`, {
-        method: "POST",
+      const response = await fetch(`/api/testimonials/${testimonioId}/moderate`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          decision: "rechazar",
+          notas: "Rechazado desde la vista de categoría",
+        }),
       });
 
       if (!response.ok) {
-        throw new Error("Error al rechazar el testimonio");
+        const error = await response.json();
+        throw new Error(error.error || "Error al rechazar el testimonio");
       }
 
       toast.success("Testimonio rechazado");
       mutate();
     } catch (error) {
       console.error("Error al rechazar:", error);
-      toast.error("Error al rechazar el testimonio");
+      toast.error(error instanceof Error ? error.message : "Error al rechazar el testimonio");
     }
   };
 
   const handleDeleteTestimonio = async (testimonioId: string) => {
     try {
-      const response = await fetch(`/api/testimonios/${testimonioId}`, {
+      // Si no tiene formato de UUID típico, es un ID de respuesta de formulario
+      const isUUID = testimonioId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
+      const endpoint = isUUID
+        ? `/api/testimonials/${testimonioId}`
+        : `/api/respuestas-formulario/${testimonioId}`;
+
+      const response = await fetch(endpoint, {
         method: "DELETE",
       });
 
       if (!response.ok) {
-        throw new Error("Error al eliminar el testimonio");
+        const error = await response.json();
+        throw new Error(error.error || "Error al eliminar el testimonio");
       }
 
       toast.success("Testimonio eliminado");
       mutate();
     } catch (error) {
       console.error("Error al eliminar:", error);
-      toast.error("Error al eliminar el testimonio");
+      toast.error(error instanceof Error ? error.message : "Error al eliminar el testimonio");
     }
-  };
-
-  if (isLoading) {
+  };  if (isLoading) {
     return (
       <div className="space-y-6">
         <Skeleton className="h-10 w-64" />

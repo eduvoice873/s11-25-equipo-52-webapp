@@ -54,7 +54,16 @@ export class CategoryService {
   }
 
   async getCategoryByOrganizacionId(organizacionId: string) {
-    return await prisma.categoria.findMany({ where: { organizacionId } });
+    return await prisma.categoria.findMany({
+      where: { organizacionId },
+      include: {
+        _count: {
+          select: {
+            testimonios: true,
+          },
+        },
+      },
+    });
   }
 
   async createCategory(

@@ -30,10 +30,12 @@ export function TestimonialRender_admin({
     if (filter !== 'all') params.append("filter", filter);
     if (search) params.append("search", search);
 
-    fetch(`/api/respuestas-formulario/list?${params.toString()}`)
-      .then(res => res.json())
-      .then(data => {
-        const transformed = data.map((item: any) => ({
+    // Pequeño delay para asegurar que los cambios en BD se hayan propagado
+    setTimeout(() => {
+      fetch(`/api/respuestas-formulario/list?${params.toString()}`)
+        .then(res => res.json())
+        .then(data => {
+          const transformed = data.map((item: any) => ({
           person: {
             nombreCompleto: item.nombreCompleto || item.persona?.nombreCompleto || 'Sin nombre',
             correo: item.correo || item.persona?.correo || '',
@@ -53,7 +55,7 @@ export function TestimonialRender_admin({
             destacado: false,
             calificacion: item.calificacion,
             date: item.creadoEn,
-            tags: [],
+            tags: item.testimonio?.etiquetas || [],
             history: item.revisiones?.map((rev: any) => ({
               user: rev.revisor?.name || rev.revisor?.email || 'Usuario',
               message: rev.decision === 'aprobar' ? 'aprobó el testimonio' :
@@ -71,11 +73,24 @@ export function TestimonialRender_admin({
           },
           id: item.id,
           testimonioId: item.testimonioId,
+          categoria: item.formulario?.categoria ? {
+            id: item.formulario.categoria.id,
+            titulo: item.formulario.categoria.titulo
+          } : undefined,
           preguntas: item.formulario?.preguntas || [],
           respuestasPreguntas: item.respuestasPreguntas || null
         }));
         setTestimonials(transformed);
+
+        // Actualizar selected si existe
+        if (selected) {
+          const updatedSelected = transformed.find(t => t.id === selected.id);
+          if (updatedSelected) {
+            setSelected(updatedSelected);
+          }
+        }
       });
+    }, 300);
   };
 
   useEffect(() => {
@@ -114,7 +129,7 @@ export function TestimonialRender_admin({
               destacado: false,
               calificacion: item.calificacion,
               date: item.creadoEn,
-              tags: [],
+              tags: item.testimonio?.etiquetas || [],
               history: item.revisiones?.map((rev: any) => ({
                 user: rev.revisor?.name || rev.revisor?.email || 'Usuario',
                 message: rev.decision === 'aprobar' ? 'aprobó el testimonio' :
@@ -132,6 +147,10 @@ export function TestimonialRender_admin({
             },
             id: item.id,
             testimonioId: item.testimonioId,
+            categoria: item.formulario?.categoria ? {
+              id: item.formulario.categoria.id,
+              titulo: item.formulario.categoria.titulo
+            } : undefined,
             preguntas: item.formulario?.preguntas || [],
             respuestasPreguntas: item.respuestasPreguntas || null
           };
@@ -176,6 +195,7 @@ export function TestimonialRender_admin({
             testimonial={item.testimonial}
             variant="mini"
             onClick={() => setSelected(item)}
+            categoria={item.categoria}
           />
         ))}
       </div>
@@ -195,6 +215,7 @@ export function TestimonialRender_admin({
             variant="mini"
             onClick={() => setSelected(item)}
             isActive={item.person.correo === selected.person.correo}
+            categoria={item.categoria}
           />
         ))}
       </div>
@@ -220,11 +241,17 @@ export function TestimonialRender_admin({
             respuestasPreguntas={selected.respuestasPreguntas}
             onApprove={() => {
               setSelected(null);
-              refreshTestimonials();
+              // Pequeño delay para asegurar que la BD esté actualizada
+              setTimeout(() => {
+                refreshTestimonials();
+              }, 300);
             }}
             onReject={() => {
               setSelected(null);
-              refreshTestimonials();
+              // Pequeño delay para asegurar que la BD esté actualizada
+              setTimeout(() => {
+                refreshTestimonials();
+              }, 300);
             }}
           />
         </div>

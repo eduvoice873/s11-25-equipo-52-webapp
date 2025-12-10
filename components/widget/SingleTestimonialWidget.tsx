@@ -152,7 +152,7 @@ export function SingleTestimonialWidget({ testimonioId, theme = 'light' }: Singl
             rel="noopener noreferrer"
             className="text-blue-600 hover:underline font-medium"
           >
-            VoicesHub
+           EduVoice Hub
           </a>
         </p>
       </div>

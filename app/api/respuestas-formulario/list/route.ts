@@ -111,16 +111,24 @@ export async function GET(request: NextRequest) {
     const respuestasConTestimonio = await Promise.all(
       respuestas.map(async (respuesta) => {
         let testimonioId: string | null = null;
+        let testimonio: any = null;
 
         if (respuesta.estado === "aprobado" && respuesta.personaId) {
-          // Buscar el testimonio más reciente de esta persona que coincida con los datos
-          const testimonio = await prisma.testimonio.findFirst({
+          // Buscar el testimonio más reciente de esta persona
+          // Usar personaId y texto como criterio (el titulo puede cambiar)
+          testimonio = await prisma.testimonio.findFirst({
             where: {
               personaId: respuesta.personaId,
-              titulo: respuesta.titulo,
               texto: respuesta.texto,
             },
-            select: { id: true },
+            include: {
+              etiquetas: {
+                select: {
+                  id: true,
+                  nombre: true,
+                },
+              },
+            },
             orderBy: { creadoEn: "desc" },
           });
 
@@ -132,6 +140,11 @@ export async function GET(request: NextRequest) {
         return {
           ...respuesta,
           testimonioId,
+          testimonio: testimonio
+            ? {
+                etiquetas: testimonio.etiquetas.map((e: any) => e.nombre),
+              }
+            : null,
         };
       })
     );

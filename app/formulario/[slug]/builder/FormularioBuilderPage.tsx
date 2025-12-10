@@ -40,6 +40,7 @@ import {
   Mail,
   Eye,
   EyeIcon,
+  Lightbulb,
 } from "lucide-react";
 import { FormatOption } from '@/app/(dashboard)/testimonios/components/TestimonioForm';
 
@@ -314,24 +315,6 @@ export default function FormularioBuilderPage({
     fetchCategoria();
   }, [categoriaIdProp, formularioExistente]);
 
-  // Limpiar preguntas automáticamente cuando el formulario queda en modo SOLO VIDEO
-  useEffect(() => {
-    const esSoloVideo =
-      permitirVideo && !permitirTexto && !permitirTextoImagen;
-
-    if (esSoloVideo && preguntas.length > 0) {
-      syncPreguntas([]);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [permitirVideo, permitirTexto, permitirTextoImagen]);
-
-  // Este useEffect ya no es necesario, lo manejamos arriba
-  // useEffect(() => {
-  //   if (categoriaNombre && !formularioExistente) {
-  //     form.setValue("titulo", `Formulario de ${categoriaNombre}`);
-  //   }
-  // }, [categoriaNombre, formularioExistente]);
-
   // Obtener el origen para construir URLs
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -432,10 +415,6 @@ export default function FormularioBuilderPage({
         toast.error("Debes asociar una categoría antes de guardar este formulario");
         return;
       }
-
-      console.log("categoriaIdParaCrear:", categoriaIdParaCrear);
-      console.log("formularioExistente?.categoriaId:", formularioExistente?.categoriaId);
-      console.log("categoriaIdProp:", categoriaIdProp);
 
       const titulo = values.titulo.trim();
       if (!titulo) {
@@ -550,7 +529,16 @@ export default function FormularioBuilderPage({
       case "opcion_unica":
       case "opcion_multiple":
         return (
-          <div className="space-y-2">
+          <div className="space-y-2 bg-slate-50 p-3 rounded-lg border border-slate-200">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-sm font-medium text-slate-700">
+                {pregunta.tipo === "opcion_unica" ? "Opciones (selecciona una)" : "Opciones (selecciona varias)"}
+              </span>
+              <span className="text-xs bg-slate-200 text-slate-600 px-2 py-0.5 rounded">
+                {opciones.length} opción{opciones.length !== 1 ? "es" : ""}
+              </span>
+            </div>
+
             {opciones.map((opcion, index) => (
               <div
                 key={`${pregunta.id}-opcion-${index}`}
@@ -562,23 +550,26 @@ export default function FormularioBuilderPage({
                   onChange={(event) =>
                     handleActualizarOpcion(index, event.target.value)
                   }
-                  className="flex-1 rounded border border-slate-200 px-2 py-1 text-sm"
+                  className="flex-1 rounded border border-slate-300 px-2 py-1.5 text-sm bg-white focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/10"
+                  placeholder={`Opción ${index + 1}`}
                 />
                 <button
                   type="button"
                   onClick={() => handleEliminarOpcion(index)}
-                  className="p-1 text-slate-400 hover:text-slate-600"
+                  className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                  title="Eliminar opción"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
             ))}
+
             <button
               type="button"
               onClick={handleAgregarOpcion}
-              className="inline-flex items-center rounded text-sm font-medium text-blue-600 hover:text-blue-800"
+              className="w-full inline-flex items-center justify-center rounded-lg text-sm font-medium text-brand-blue hover:bg-brand-blue/5 py-1.5 px-2 mt-2 border border-dashed border-brand-blue/30 hover:border-brand-blue/50 transition-colors"
             >
-              <Plus className="w-4 h-4 mr-1" />
+              <Plus className="w-3.5 h-3.5 mr-1" />
               Agregar opción
             </button>
           </div>
@@ -626,7 +617,7 @@ export default function FormularioBuilderPage({
       case "archivo":
         return (
           <div className="flex items-center gap-3 text-sm text-slate-600">
-            <ImageIcon className="w-4 h-4 text-blue-500" />
+            <ImageIcon className="w-4 h-4 text-brand-blue" />
             <select
               value={pregunta.formatoArchivo || "imagen"}
               onChange={(event) =>
@@ -677,7 +668,7 @@ export default function FormularioBuilderPage({
                 key={`${pregunta.id}-preview-single-${index}`}
                 className="flex items-center gap-2 text-sm text-slate-700"
               >
-                <input type="radio" disabled className="accent-blue-500" />
+                <input type="radio" disabled className="accent-brand-blue" />
                 <span>{opcion}</span>
               </label>
             ))}
@@ -692,7 +683,7 @@ export default function FormularioBuilderPage({
                 key={`${pregunta.id}-preview-multiple-${index}`}
                 className="flex items-center gap-2 text-sm text-slate-700"
               >
-                <div className="rounded border border-slate-300 bg-white p-1 text-blue-600">
+                <div className="rounded border border-slate-300 bg-white p-1 text-brand-blue">
                   <Check className="w-3 h-3" />
                 </div>
                 <span>{opcion}</span>
@@ -732,9 +723,9 @@ export default function FormularioBuilderPage({
         const formato = pregunta.formatoArchivo || "imagen";
         const icon =
           formato === "video" ? (
-            <Video className="w-4 h-4 text-purple-500" />
+            <Video className="w-4 h-4 text-brand-blue" />
           ) : (
-            <ImageIcon className="w-4 h-4 text-blue-500" />
+            <ImageIcon className="w-4 h-4 text-brand-blue" />
           );
         return (
           <div className="flex items-center gap-3 rounded border border-dashed border-slate-300 px-4 py-3 text-sm text-slate-600">
@@ -757,16 +748,13 @@ export default function FormularioBuilderPage({
 
   // Renderizar el paso actual
   const renderStep = () => {
-    const permitirPreguntas = permitirTexto || permitirTextoImagen;
-    const esSoloVideo = permitirVideo && !permitirPreguntas;
-
     switch (currentStep) {
       case 1:
         return (
           <div className="space-y-6">
-            <div className=" from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-100">
+            <div className="bg-slate-50 rounded-xl p-6 border border-slate-200">
               <h2 className="text-2xl font-bold text-slate-900 mb-2 flex items-center gap-2">
-                <MessageSquare className="w-6 h-6 text-indigo-600" />
+                <MessageSquare className="w-6 h-6 text-brand-blue" />
                 Información Básica
               </h2>
               <p className="text-slate-600">
@@ -780,7 +768,7 @@ export default function FormularioBuilderPage({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-base font-semibold flex items-center gap-2">
-                    <FileText className="w-4 h-4 text-indigo-600" />
+                    <FileText className="w-4 h-4 text-brand-blue" />
                     Título del Formulario *
                   </FormLabel>
                   <FormControl>
@@ -798,8 +786,9 @@ export default function FormularioBuilderPage({
                       }}
                     />
                   </FormControl>
-                  <FormDescription className="text-sm">
-                    💡 Un título descriptivo para identificar este formulario
+                  <FormDescription className="text-sm flex items-center gap-1">
+                    <Lightbulb className="w-3 h-3 text-brand-yellow" />
+                    Un título descriptivo para identificar este formulario
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -812,7 +801,7 @@ export default function FormularioBuilderPage({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-base font-semibold flex items-center gap-2">
-                    <MessageSquare className="w-4 h-4 text-indigo-600" />
+                    <MessageSquare className="w-4 h-4 text-brand-blue" />
                     Descripción *
                   </FormLabel>
                   <FormControl>
@@ -822,8 +811,9 @@ export default function FormularioBuilderPage({
                       {...field}
                     />
                   </FormControl>
-                  <FormDescription className="text-sm">
-                    💡 Este texto aparecerá en la parte superior del formulario para guiar a los usuarios
+                  <FormDescription className="text-sm flex items-center gap-1">
+                    <Lightbulb className="w-3 h-3 text-brand-yellow" />
+                    Este texto aparecerá en la parte superior del formulario para guiar a los usuarios
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -835,9 +825,9 @@ export default function FormularioBuilderPage({
       case 2:
         return (
           <div className="space-y-6">
-            <div className=" from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
+            <div className="bg-slate-50 rounded-xl p-6 border border-slate-200">
               <h2 className="text-2xl font-bold text-slate-900 mb-2 flex items-center gap-2">
-                <FileText className="w-6 h-6 text-blue-600" />
+                <FileText className="w-6 h-6 text-brand-blue" />
                 Formatos de Respuesta
               </h2>
               <p className="text-slate-600">
@@ -850,10 +840,10 @@ export default function FormularioBuilderPage({
                 control={form.control}
                 name="pedirNombre"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border-2 border-slate-200 p-5 hover:border-indigo-300 transition-colors bg-white shadow-sm">
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border-2 border-slate-200 p-5 hover:border-brand-blue/30 transition-colors bg-white shadow-sm">
                     <div className="space-y-0.5">
                       <FormLabel className="text-base font-semibold flex items-center gap-2">
-                        <User className="w-4 h-4 text-indigo-600" />
+                        <User className="w-4 h-4 text-brand-blue" />
                         Solicitar Nombre
                       </FormLabel>
                       <FormDescription className="text-sm">
@@ -875,10 +865,10 @@ export default function FormularioBuilderPage({
                 control={form.control}
                 name="pedirCorreo"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border-2 border-slate-200 p-5 hover:border-indigo-300 transition-colors bg-white shadow-sm">
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border-2 border-slate-200 p-5 hover:border-brand-blue/30 transition-colors bg-white shadow-sm">
                     <div className="space-y-0.5">
                       <FormLabel className="text-base font-semibold flex items-center gap-2">
-                        <Mail className="w-4 h-4 text-indigo-600" />
+                        <Mail className="w-4 h-4 text-brand-blue" />
                         Solicitar Correo Electrónico
                       </FormLabel>
                       <FormDescription className="text-sm">
@@ -897,7 +887,7 @@ export default function FormularioBuilderPage({
 
               <div className="pt-4 bg-slate-50 rounded-xl p-6 border border-slate-200">
                 <h3 className="text-lg font-semibold mb-2 text-slate-900 flex items-center gap-2">
-                  <ImageIcon className="w-5 h-5 text-indigo-600" />
+                  <ImageIcon className="w-5 h-5 text-brand-blue" />
                   Formatos de respuesta permitidos
                 </h3>
                 <p className="text-sm text-slate-600 mb-6">
@@ -906,13 +896,11 @@ export default function FormularioBuilderPage({
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <FormatOption
                     icon={() => <FileText className="h-5 w-5" />}
-                    title="Solo Texto"
+                    title="Texto"
                     description="Los usuarios escribirán su testimonio en texto plano."
-                    active={permitirTexto && !permitirTextoImagen}
+                    active={permitirTexto}
                     onClick={() => {
-                      form.setValue("permitirTexto", true);
-                      form.setValue("permitirTextoImagen", false);
-                      form.setValue("permitirVideo", false);
+                      form.setValue("permitirTexto", !permitirTexto);
                     }}
                   />
                   <FormatOption
@@ -921,9 +909,7 @@ export default function FormularioBuilderPage({
                     description="Los usuarios pueden adjuntar imagen con su testimonio."
                     active={permitirTextoImagen}
                     onClick={() => {
-                      form.setValue("permitirTexto", false);
-                      form.setValue("permitirTextoImagen", true);
-                      form.setValue("permitirVideo", false);
+                      form.setValue("permitirTextoImagen", !permitirTextoImagen);
                     }}
                   />
                   <FormatOption
@@ -932,9 +918,7 @@ export default function FormularioBuilderPage({
                     description="Los usuarios grabarán o subirán un video testimonio."
                     active={permitirVideo}
                     onClick={() => {
-                      form.setValue("permitirTexto", false);
-                      form.setValue("permitirTextoImagen", false);
-                      form.setValue("permitirVideo", true);
+                      form.setValue("permitirVideo", !permitirVideo);
                     }}
                   />
                 </div>
@@ -951,9 +935,9 @@ export default function FormularioBuilderPage({
       case 3:
         return (
           <div className="space-y-6">
-            <div className=" from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-100">
+            <div className="bg-slate-50 rounded-xl p-6 border border-slate-200">
               <h2 className="text-2xl font-bold text-slate-900 mb-2 flex items-center gap-2">
-                <ImageIcon className="w-6 h-6 text-purple-600" />
+                <ImageIcon className="w-6 h-6 text-brand-blue" />
                 Configurar Contenido
               </h2>
               <p className="text-slate-600">
@@ -962,328 +946,313 @@ export default function FormularioBuilderPage({
               </p>
             </div>
 
-            {esSoloVideo ? (
-              <>
-                <div className="p-4 rounded-lg border-2 border-blue-200 bg-blue-50">
-                  <div className="flex items-start gap-3">
-                    <div className="p-2 bg-blue-100 rounded-lg">
-                      <Video className="w-5 h-5 text-blue-600" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-blue-900 mb-1">
-                        Formulario de Video Testimonio
-                      </h3>
-                      <p className="text-sm text-blue-800">
-                        Los usuarios podrán subir o grabar un video con su testimonio.
-                        También pueden agregar una descripción de texto opcional.
-                      </p>
-                    </div>
+            {permitirVideo && (
+              <div className="p-4 rounded-lg border-2 border-brand-blue/20 bg-brand-blue/5 mb-6">
+                <div className="flex items-start gap-3">
+                  <div className="p-2 bg-brand-blue/10 rounded-lg">
+                    <Video className="w-5 h-5 text-brand-blue" />
                   </div>
-                </div>
-
-                <FormField
-                  control={form.control}
-                  name="mensajeGracias"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Mensaje de Agradecimiento *</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="¡Gracias por compartir tu video! Tu testimonio nos ayuda a mejorar."
-                          className="min-h-[100px]"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Este mensaje se mostrará después de que el usuario envíe su video
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </>
-            ) : (
-              <>
-                {/* Sección de Caja de Texto Principal (cuando es formato texto) */}
-                {(permitirTexto || permitirTextoImagen) && (
-                  <div className=" from-green-50 to-emerald-50 rounded-xl p-6 border-2 border-green-200">
-                    <div className="flex items-start gap-3 mb-4">
-                      <div className="p-2 bg-green-100 rounded-lg">
-                        <FileText className="w-5 h-5 text-green-600" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-green-900 mb-1 flex items-center gap-2">
-                          Campo de Texto Principal
-                          <span className="text-xs bg-green-200 text-green-700 px-2 py-0.5 rounded-full">Obligatorio</span>
-                        </h3>
-                        <p className="text-sm text-green-800">
-                          Los usuarios escribirán su testimonio en este campo de texto principal.
-                          {permitirTextoImagen && " También podrán adjuntar una imagen."}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="bg-white rounded-lg p-4 border border-green-200">
-                      <label className="block text-sm font-medium text-slate-700 mb-2">
-                        Título del campo de texto
-                      </label>
-                      <Input
-                        placeholder="Ej: Cuéntanos tu experiencia"
-                        className="mb-3"
-                        defaultValue="Comparte tu testimonio"
-                      />
-                      <label className="block text-sm font-medium text-slate-700 mb-2">
-                        Placeholder (texto de ayuda)
-                      </label>
-                      <Textarea
-                        placeholder="Ej: Describe tu experiencia, qué te gustó más, qué mejorarías..."
-                        className="min-h-20 resize-none"
-                        defaultValue="Escribe aquí tu testimonio..."
-                      />
-                      <p className="text-xs text-slate-500 mt-2">
-                        💡 Este es el campo principal donde los usuarios escribirán su testimonio
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                {/* Sección de Preguntas Adicionales */}
-                <div className="bg-slate-50 rounded-xl p-6 border border-slate-200">
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
-                        <MessageSquare className="w-5 h-5 text-indigo-600" />
-                        Preguntas Adicionales
-                        <span className="text-xs bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full">Opcional</span>
-                      </h3>
-                      <p className="text-sm text-slate-600 mt-1">
-                        Agrega preguntas específicas para obtener información más detallada (opcional)
-                      </p>
-                    </div>
-                    <div className="text-sm font-medium text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full">
-                      {preguntas.length} {preguntas.length === 1 ? 'pregunta' : 'preguntas'}
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    {preguntas.length === 0 ? (
-                      <div className="text-center py-8 bg-white rounded-lg border-2 border-dashed border-slate-300">
-                        <MessageSquare className="w-12 h-12 text-slate-400 mx-auto mb-3" />
-                        <p className="text-slate-600 font-medium">No hay preguntas adicionales</p>
-                        <p className="text-sm text-slate-500 mt-1">Agrega preguntas para obtener información específica</p>
-                      </div>
-                    ) : (
-                      preguntas.map((pregunta, index) => (
-                        <div
-                          key={pregunta.id}
-                          className="border-2 rounded-xl p-5 bg-white hover:border-indigo-300 transition-colors shadow-sm"
-                        >
-                          <div className="flex justify-between items-start mb-3">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-2">
-                                <span className="text-xs font-semibold bg-indigo-100 text-indigo-700 px-2 py-1 rounded">
-                                  Pregunta {index + 1}
-                                </span>
-                                {pregunta.requerida && (
-                                  <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded">
-                                    Obligatoria
-                                  </span>
-                                )}
-                              </div>
-                              <input
-                                type="text"
-                                value={pregunta.texto}
-                                onChange={(event) =>
-                                  actualizarPregunta(pregunta.id, {
-                                    texto: event.target.value,
-                                  })
-                                }
-                                placeholder="Escribe tu pregunta aquí"
-                                className="w-full p-3 border-2 border-slate-200 rounded-lg focus:border-indigo-500 focus:outline-none text-base font-medium"
-                              />
-                              <p className="text-xs text-slate-500 mt-2 flex items-center gap-1">
-                                <FileText className="w-3 h-3" />
-                                Formato: {formatoEtiquetas[pregunta.tipo]}
-                              </p>
-                            </div>
-                            <div className="flex space-x-1 ml-3">
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  moverPregunta(pregunta.id, "arriba")
-                                }
-                                disabled={index === 0}
-                                className="p-2 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg disabled:opacity-30 transition-colors"
-                                title="Mover arriba"
-                              >
-                                <MoveUp className="w-4 h-4" />
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  moverPregunta(pregunta.id, "abajo")
-                                }
-                                disabled={index === preguntas.length - 1}
-                                className="p-2 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg disabled:opacity-30 transition-colors"
-                                title="Mover abajo"
-                              >
-                                <MoveDown className="w-4 h-4" />
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => eliminarPregunta(pregunta.id)}
-                                className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
-                                title="Eliminar"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            </div>
-                          </div>
-
-                          <div className="mt-3 ml-2">
-                            {renderTipoPregunta(pregunta)}
-                          </div>
-
-                          <div className="mt-3 pt-2 border-t flex justify-between items-center">
-                            <div className="flex items-center">
-                              <select
-                                value={pregunta.tipo}
-                                onChange={(event) => {
-                                  const nuevoTipo =
-                                    event.target.value as TipoPregunta;
-                                  const cambios: Partial<Pregunta> = {
-                                    tipo: nuevoTipo,
-                                  };
-
-                                  if (
-                                    nuevoTipo === "opcion_unica" ||
-                                    nuevoTipo === "opcion_multiple"
-                                  ) {
-                                    cambios.opciones = pregunta.opciones?.length
-                                      ? pregunta.opciones
-                                      : ["Opción 1", "Opción 2"];
-                                    cambios.minimo = undefined;
-                                    cambios.maximo = undefined;
-                                    cambios.formatoArchivo = undefined;
-                                  } else if (nuevoTipo === "escala") {
-                                    cambios.minimo = pregunta.minimo ?? 1;
-                                    cambios.maximo = pregunta.maximo ?? 5;
-                                    cambios.opciones = undefined;
-                                    cambios.formatoArchivo = undefined;
-                                  } else if (nuevoTipo === "archivo") {
-                                    cambios.formatoArchivo =
-                                      pregunta.formatoArchivo || "imagen";
-                                    cambios.opciones = undefined;
-                                    cambios.minimo = undefined;
-                                    cambios.maximo = undefined;
-                                  } else {
-                                    cambios.opciones = undefined;
-                                    cambios.minimo = undefined;
-                                    cambios.maximo = undefined;
-                                    cambios.formatoArchivo = undefined;
-                                  }
-
-                                  actualizarPregunta(pregunta.id, cambios);
-                                }}
-                                className="text-sm border rounded p-1"
-                              >
-                                <option value="texto">Texto corto</option>
-                                <option value="opcion_unica">Opción única</option>
-                                <option value="opcion_multiple">
-                                  Opción múltiple
-                                </option>
-                                <option value="escala">Escala</option>
-                                <option value="fecha">Fecha</option>
-                                <option value="archivo">Archivo</option>
-                              </select>
-                            </div>
-                            <label className="flex items-center text-sm text-gray-600">
-                              <input
-                                type="checkbox"
-                                checked={pregunta.requerida}
-                                onChange={(event) =>
-                                  actualizarPregunta(pregunta.id, {
-                                    requerida: event.target.checked,
-                                  })
-                                }
-                                className="mr-2"
-                              />
-                              Requerida
-                            </label>
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </div>
-
-                  <div className="mt-6 bg-white rounded-xl p-6 border-2 border-dashed border-indigo-200">
-                    <h3 className="text-sm font-semibold text-slate-700 mb-4 flex items-center gap-2">
-                      <Plus className="w-4 h-4 text-indigo-600" />
-                      Agregar nueva pregunta:
+                  <div>
+                    <h3 className="font-semibold text-brand-blue mb-1">
+                      Formulario de Video Testimonio
                     </h3>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-                      <button
-                        type="button"
-                        onClick={() => agregarPregunta("texto")}
-                        className="flex flex-col items-center justify-center p-4 border-2 border-slate-200 rounded-xl hover:bg-indigo-50 hover:border-indigo-400 transition-all group"
-                      >
-                        <FileText className="w-7 h-7 text-indigo-500 mb-2 group-hover:scale-110 transition-transform" />
-                        <span className="text-sm font-medium text-slate-700">Texto</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => agregarPregunta("archivo")}
-                        className="flex flex-col items-center justify-center p-4 border-2 border-slate-200 rounded-xl hover:bg-purple-50 hover:border-purple-400 transition-all group"
-                      >
-                        <ImageIcon className="w-7 h-7 text-purple-500 mb-2 group-hover:scale-110 transition-transform" />
-                        <span className="text-sm font-medium text-slate-700">Archivo</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-8 p-6  from-slate-50 to-slate-100 rounded-xl border-2 border-slate-200">        <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-slate-800">
-                  <EyeIcon className="w-5 h-5 text-slate-600" />
-                  Vista previa del formulario
-                </h3>
-                  <div className="bg-white p-6 rounded-lg border-2 border-slate-200 shadow-sm">
-                    <h4 className="text-xl font-semibold mb-2">
-                      {form.watch("titulo") || "Título del formulario"}
-                    </h4>
-                    <p className="text-gray-600 mb-6">
-                      {form.watch("descripcion") || "Descripción del formulario"}
+                    <p className="text-sm text-slate-600">
+                      Los usuarios podrán subir o grabar un video con su testimonio.
+                      También pueden agregar una descripción de texto opcional.
                     </p>
-
-                    {preguntas.length === 0 ? (
-                      <p className="text-gray-400 italic">
-                        No hay preguntas aún. Agrega una para ver la vista
-                        previa.
-                      </p>
-                    ) : (
-                      <div className="space-y-6">
-                        {preguntas.map((pregunta, index) => (
-                          <div key={pregunta.id} className="space-y-2">
-                            <label className="block text-sm font-medium text-gray-700">
-                              {pregunta.texto || `Pregunta ${index + 1}`}
-                              {pregunta.requerida && (
-                                <span className="text-red-500 ml-1">*</span>
-                              )}
-                              <span className="text-xs text-slate-500 block font-normal mt-1">
-                                Formato: {formatoEtiquetas[pregunta.tipo]}
-                              </span>
-                            </label>
-                            {renderVistaPreviaPregunta(pregunta)}
-                          </div>
-                        ))}
-                      </div>
-                    )}
                   </div>
                 </div>
-              </>
+              </div>
             )}
 
-            <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-              <h3 className="font-medium text-blue-800 mb-2">
+            {/* Sección de Caja de Texto Principal (cuando es formato texto) */}
+            {(permitirTexto || permitirTextoImagen) && (
+              <div className="bg-slate-50 rounded-xl p-6 border-2 border-brand-blue/20 mb-6">
+                <div className="flex items-start gap-3 mb-4">
+                  <div className="p-2 bg-brand-blue/10 rounded-lg">
+                    <FileText className="w-5 h-5 text-brand-blue" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-brand-blue mb-1 flex items-center gap-2">
+                      Campo de Texto Principal
+                      <span className="text-xs bg-brand-light/20 text-brand-blue px-2 py-0.5 rounded-full">Obligatorio</span>
+                    </h3>
+                    <p className="text-sm text-slate-600">
+                      Los usuarios escribirán su testimonio en este campo de texto principal.
+                      {permitirTextoImagen && " También podrán adjuntar una imagen."}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-lg p-4 border border-brand-blue/20">
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Título del campo de texto
+                  </label>
+                  <Input
+                    placeholder="Ej: Cuéntanos tu experiencia"
+                    className="mb-3"
+                    defaultValue="Comparte tu testimonio"
+                  />
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Placeholder (texto de ayuda)
+                  </label>
+                  <Textarea
+                    placeholder="Ej: Describe tu experiencia, qué te gustó más, qué mejorarías..."
+                    className="min-h-20 resize-none"
+                    defaultValue="Escribe aquí tu testimonio..."
+                  />
+                  <p className="text-xs text-slate-500 mt-2 flex items-center gap-1">
+                    <Lightbulb className="w-3 h-3 text-brand-yellow" />
+                    Este es el campo principal donde los usuarios escribirán su testimonio
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Sección de Preguntas Adicionales */}
+            {(permitirTexto || permitirTextoImagen) && (
+              <div className="bg-slate-50 rounded-xl p-6 border border-slate-200 mb-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                      <MessageSquare className="w-5 h-5 text-brand-blue" />
+                      Preguntas Adicionales
+                      <span className="text-xs bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full">Opcional</span>
+                    </h3>
+                    <p className="text-sm text-slate-600 mt-1">
+                      Agrega preguntas específicas para obtener información más detallada (opcional)
+                    </p>
+                  </div>
+                  <div className="text-sm font-medium text-brand-blue bg-brand-blue/5 px-3 py-1 rounded-full">
+                    {preguntas.length} {preguntas.length === 1 ? 'pregunta' : 'preguntas'}
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  {preguntas.length === 0 ? (
+                    <div className="text-center py-8 bg-white rounded-lg border-2 border-dashed border-slate-300">
+                      <MessageSquare className="w-12 h-12 text-slate-400 mx-auto mb-3" />
+                      <p className="text-slate-600 font-medium">No hay preguntas adicionales</p>
+                      <p className="text-sm text-slate-500 mt-1">Agrega preguntas para obtener información específica</p>
+                    </div>
+                  ) : (
+                    preguntas.map((pregunta, index) => (
+                      <div
+                        key={pregunta.id}
+                        className="border-2 rounded-xl p-5 bg-white hover:border-brand-blue/30 transition-colors shadow-sm"
+                      >
+                        <div className="flex justify-between items-start mb-3">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="text-xs font-semibold bg-brand-blue/10 text-brand-blue px-2 py-1 rounded">
+                                Pregunta {index + 1}
+                              </span>
+                              {pregunta.requerida && (
+                                <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded">
+                                  Obligatoria
+                                </span>
+                              )}
+                            </div>
+                            <input
+                              type="text"
+                              value={pregunta.texto}
+                              onChange={(event) =>
+                                actualizarPregunta(pregunta.id, {
+                                  texto: event.target.value,
+                                })
+                              }
+                              placeholder="Escribe tu pregunta aquí"
+                              className="w-full p-3 border-2 border-slate-200 rounded-lg focus:border-brand-blue focus:outline-none text-base font-medium"
+                            />
+                            <p className="text-xs text-slate-500 mt-2 flex items-center gap-1">
+                              <FileText className="w-3 h-3" />
+                              Formato: {formatoEtiquetas[pregunta.tipo]}
+                            </p>
+                          </div>
+                          <div className="flex space-x-1 ml-3">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                moverPregunta(pregunta.id, "arriba")
+                              }
+                              disabled={index === 0}
+                              className="p-2 text-slate-500 hover:text-brand-blue hover:bg-brand-blue/5 rounded-lg disabled:opacity-30 transition-colors"
+                              title="Mover arriba"
+                            >
+                              <MoveUp className="w-4 h-4" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                moverPregunta(pregunta.id, "abajo")
+                              }
+                              disabled={index === preguntas.length - 1}
+                              className="p-2 text-slate-500 hover:text-brand-blue hover:bg-brand-blue/5 rounded-lg disabled:opacity-30 transition-colors"
+                              title="Mover abajo"
+                            >
+                              <MoveDown className="w-4 h-4" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => eliminarPregunta(pregunta.id)}
+                              className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                              title="Eliminar"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="mt-3 ml-2">
+                          {renderTipoPregunta(pregunta)}
+                        </div>
+
+                        <div className="mt-3 pt-2 border-t flex justify-between items-center">
+                          <div className="flex items-center gap-2">
+                            <label className="text-sm font-medium text-slate-700">Tipo:</label>
+                            <select
+                              value={pregunta.tipo}
+                              onChange={(event) => {
+                                const nuevoTipo =
+                                  event.target.value as TipoPregunta;
+                                const cambios: Partial<Pregunta> = {
+                                  tipo: nuevoTipo,
+                                };
+
+                                if (
+                                  nuevoTipo === "opcion_unica" ||
+                                  nuevoTipo === "opcion_multiple"
+                                ) {
+                                  cambios.opciones = pregunta.opciones?.length
+                                    ? pregunta.opciones
+                                    : ["Opción 1", "Opción 2"];
+                                  cambios.minimo = undefined;
+                                  cambios.maximo = undefined;
+                                  cambios.formatoArchivo = undefined;
+                                } else if (nuevoTipo === "escala") {
+                                  cambios.minimo = pregunta.minimo ?? 1;
+                                  cambios.maximo = pregunta.maximo ?? 5;
+                                  cambios.opciones = undefined;
+                                  cambios.formatoArchivo = undefined;
+                                } else if (nuevoTipo === "archivo") {
+                                  cambios.formatoArchivo =
+                                    pregunta.formatoArchivo || "imagen";
+                                  cambios.opciones = undefined;
+                                  cambios.minimo = undefined;
+                                  cambios.maximo = undefined;
+                                } else {
+                                  cambios.opciones = undefined;
+                                  cambios.minimo = undefined;
+                                  cambios.maximo = undefined;
+                                  cambios.formatoArchivo = undefined;
+                                }
+
+                                actualizarPregunta(pregunta.id, cambios);
+                              }}
+                              className="text-sm border rounded p-1.5 px-2 flex-1"
+                            >
+                              <option value="texto">Texto corto</option>
+                              <option value="opcion_unica">Opción única</option>
+                              <option value="opcion_multiple">
+                                Opción múltiple
+                              </option>
+                              <option value="escala">Escala</option>
+                              <option value="fecha">Fecha</option>
+                              <option value="archivo">Archivo</option>
+                            </select>
+                          </div>
+                          <label className="flex items-center text-sm text-gray-600">
+                            <input
+                              type="checkbox"
+                              checked={pregunta.requerida}
+                              onChange={(event) =>
+                                actualizarPregunta(pregunta.id, {
+                                  requerida: event.target.checked,
+                                })
+                              }
+                              className="mr-2"
+                            />
+                            Requerida
+                          </label>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                <div className="mt-6 bg-white rounded-xl p-6 border-2 border-dashed border-brand-blue/20">
+                  <h3 className="text-sm font-semibold text-slate-700 mb-4 flex items-center gap-2">
+                    <Plus className="w-4 h-4 text-brand-blue" />
+                    Agregar nueva pregunta:
+                  </h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => agregarPregunta("texto")}
+                      className="flex flex-col items-center justify-center p-4 border-2 border-slate-200 rounded-xl hover:bg-brand-blue/5 hover:border-brand-blue/40 transition-all group"
+                    >
+                      <FileText className="w-7 h-7 text-brand-blue mb-2 group-hover:scale-110 transition-transform" />
+                      <span className="text-sm font-medium text-slate-700">Texto</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => agregarPregunta("archivo")}
+                      className="flex flex-col items-center justify-center p-4 border-2 border-slate-200 rounded-xl hover:bg-brand-blue/5 hover:border-brand-blue/40 transition-all group"
+                    >
+                      <ImageIcon className="w-7 h-7 text-brand-blue mb-2 group-hover:scale-110 transition-transform" />
+                      <span className="text-sm font-medium text-slate-700">Archivo</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Vista Previa */}
+            <div className="mt-8 p-6 bg-slate-50 rounded-xl border-2 border-slate-200">
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-slate-800">
+                <EyeIcon className="w-5 h-5 text-slate-600" />
+                Vista previa del formulario
+              </h3>
+              <div className="bg-white p-6 rounded-lg border-2 border-slate-200 shadow-sm">
+                <h4 className="text-xl font-semibold mb-2">
+                  {form.watch("titulo") || "Título del formulario"}
+                </h4>
+                <p className="text-gray-600 mb-6">
+                  {form.watch("descripcion") || "Descripción del formulario"}
+                </p>
+
+                {!(permitirTexto || permitirTextoImagen) ? (
+                  <p className="text-gray-400 italic">
+                    Las preguntas adicionales no se muestran en el modo &quot;Solo Video&quot;.
+                  </p>
+                ) : preguntas.length === 0 ? (
+                  <p className="text-gray-400 italic">
+                    No hay preguntas aún. Agrega una para ver la vista
+                    previa.
+                  </p>
+                ) : (
+                  <div className="space-y-6">
+                    {preguntas.map((pregunta, index) => (
+                      <div key={pregunta.id} className="space-y-2">
+                        <label className="block text-sm font-medium text-gray-700">
+                          {pregunta.texto || `Pregunta ${index + 1}`}
+                          {pregunta.requerida && (
+                            <span className="text-red-500 ml-1">*</span>
+                          )}
+                          <span className="text-xs text-slate-500 block font-normal mt-1">
+                            Formato: {formatoEtiquetas[pregunta.tipo]}
+                          </span>
+                        </label>
+                        {renderVistaPreviaPregunta(pregunta)}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="p-4 bg-brand-blue/5 rounded-lg border border-brand-blue/20 mt-6">
+              <h3 className="font-medium text-brand-blue mb-2">
                 Mensaje de agradecimiento
               </h3>
               <FormField
@@ -1305,9 +1274,9 @@ export default function FormularioBuilderPage({
                   </FormItem>
                 )}
               />
-              <div className="p-4 bg-white rounded border border-blue-100 mt-4">
+              <div className="p-4 bg-white rounded border border-brand-blue/10 mt-4">
                 <div className="flex items-center gap-3 mb-3">
-                  <CheckCircle className="w-6 h-6 text-green-500" />
+                  <CheckCircle className="w-6 h-6 text-brand-blue" />
                   <h4 className="text-lg font-medium">¡Gracias!</h4>
                 </div>
                 <p className="text-slate-700">
@@ -1425,7 +1394,7 @@ export default function FormularioBuilderPage({
             <div key={step.number} className="flex items-center">
               <div
                 className={`flex items-center justify-center w-8 h-8 rounded-full ${currentStep >= step.number
-                  ? "bg-blue-600 text-white"
+                  ? "bg-brand-blue text-white"
                   : "bg-slate-100 text-slate-500"
                   }`}
               >
@@ -1438,7 +1407,7 @@ export default function FormularioBuilderPage({
               {index < STEPS.length - 1 && (
                 <div
                   className={`h-0.5 w-12 mx-2 ${currentStep > step.number
-                    ? "bg-blue-600"
+                    ? "bg-brand-blue"
                     : "bg-slate-200"
                     }`}
                 ></div>
@@ -1451,7 +1420,7 @@ export default function FormularioBuilderPage({
             <div
               key={step.number}
               className={`text-xs text-center ${currentStep === step.number
-                ? "text-blue-600 font-medium"
+                ? "text-brand-blue font-medium"
                 : "text-slate-500"
                 }`}
             >

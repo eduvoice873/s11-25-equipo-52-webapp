@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Copy, Check, Loader2, Eye } from 'lucide-react';
+import { Copy, Check, Loader2, Eye, ChevronDown, Palette, Target, Layout, Type } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Categoria {
@@ -12,6 +12,63 @@ interface Categoria {
 interface Organizacion {
   id: string;
   nombre: string;
+}
+
+interface ConfiguracionSeccion {
+  id: string;
+  titulo: string;
+  campos: string[];
+}
+
+// Componentes reutilizables
+function ConfigSection({
+  title,
+  icon,
+  children,
+}: {
+  title: string;
+  icon: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="bg-white border border-gray-200 rounded-lg p-4">
+      <h4 className="font-semibold text-sm text-gray-900 mb-3 flex items-center gap-2">
+        {icon}
+        {title}
+      </h4>
+      <div className="space-y-3">{children}</div>
+    </div>
+  );
+}
+
+function ColorInput({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (val: string) => void;
+}) {
+  return (
+    <div>
+      <label className="block text-xs font-medium text-gray-700 mb-1">{label}</label>
+      <div className="flex gap-2">
+        <input
+          type="color"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-12 h-8 rounded border border-gray-300 cursor-pointer"
+        />
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="flex-1 px-2 py-1 text-xs border border-gray-300 rounded font-mono focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        />
+      </div>
+    </div>
+  );
 }
 
 export default function WidgetGeneratorPage() {
@@ -169,303 +226,274 @@ export default function WidgetGeneratorPage() {
     return `/widget/embed?${params.toString()}`;
   };
 
-  if (!baseUrl || loading) {
+  if (!baseUrl) {
     return (
-      <div className="container mx-auto p-6 max-w-6xl">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="flex items-center gap-2 text-gray-600">
-            <Loader2 className="w-5 h-5 animate-spin" />
-            Cargando...
-          </div>
-        </div>
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto p-6 max-w-6xl">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Generador de Widget Personalizado</h1>
-        <p className="text-gray-600">
-          Crea un widget completamente personalizado para mostrar testimonios en tu sitio web
-        </p>
-      </div>
-
-      <div className="space-y-6">
-        {/* Preview */}
-        <div className="bg-white rounded-lg border-2 border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-bold flex items-center gap-2">
-              <Eye className="w-5 h-5" />
-              Vista Previa en Tiempo Real
-            </h3>
-            {organizacion && (
-              <span className="text-sm text-gray-600">
-                Organización: <strong>{organizacion.nombre}</strong>
-              </span>
-            )}
-          </div>
-          <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 bg-gray-50 overflow-hidden">
-            {organizacionId ? (
-              <iframe
-                src={getPreviewUrl()}
-                className="w-full border-none"
-                style={{ minHeight: '600px' }}
-              />
-            ) : (
-              <div className="flex items-center justify-center h-64 text-gray-400">
-                No hay organización seleccionada
-              </div>
-            )}
-          </div>
+    <div className="min-h-screen bg-white">
+      <div className="container mx-auto p-6 max-w-7xl">
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold mb-2 text-gray-900">Generador de Widget</h1>
+          <p className="text-gray-600 text-sm">
+            Personaliza el widget de testimonios para tu sitio web
+          </p>
         </div>
-
-        {/* Configuración */}
-        <div className="bg-white rounded-lg border-2 border-gray-200 p-6">
-          <h3 className="text-xl font-bold mb-6">Personalización del Widget</h3>
-
-          <div className="space-y-6">
-            {/* Filtros Básicos */}
-            <div>
-              <h4 className="font-semibold mb-4 text-gray-700">Filtros de Contenido</h4>
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">Categoría</label>
-                  <select
-                    value={categoriaId}
-                    onChange={(e) => setCategoriaId(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">Todas las categorías</option>
-                    {categorias.map((cat) => (
-                      <option key={cat.id} value={cat.id}>
-                        {cat.nombre}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-2">Límite de testimonios</label>
-                  <input
-                    type="number"
-                    value={config.limit}
-                    onChange={(e) => setConfig({ ...config, limit: Number(e.target.value) })}
-                    min="1"
-                    max="50"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Barra lateral de configuración */}
+          {/* Barra lateral de configuración */}
+          <div className="lg:col-span-2 space-y-4">
+            {loading ? (
+              <div className="flex items-center justify-center h-64 text-gray-500">
+                <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                Cargando...
               </div>
-
-              <div className="mt-3">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={config.destacados}
-                    onChange={(e) => setConfig({ ...config, destacados: e.target.checked })}
-                    className="w-4 h-4"
-                  />
-                  <span className="text-sm font-medium">Solo mostrar testimonios destacados</span>
-                </label>
-              </div>
-            </div>
-
-            {/* Tema y Colores */}
-            <div>
-              <h4 className="font-semibold mb-4 text-gray-700">Tema y Colores</h4>
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">Tema</label>
-                  <select
-                    value={config.theme}
-                    onChange={(e) => setConfig({ ...config, theme: e.target.value as any })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                  >
-                    <option value="light">Claro</option>
-                    <option value="dark">Oscuro</option>
-                    <option value="custom">Personalizado</option>
-                  </select>
-                </div>
-
-                {config.theme === 'custom' && (
-                  <>
+            ) : (
+              <>
+                {/* Filtros Básicos */}
+                <ConfigSection title="Contenido" icon={<Target className="w-4 h-4" />}>
+                  <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-sm font-medium mb-2">Color Primario</label>
-                      <div className="flex gap-2">
-                        <input
-                          type="color"
-                          value={config.primaryColor}
-                          onChange={(e) => setConfig({ ...config, primaryColor: e.target.value })}
-                          className="h-10 w-20 rounded-lg cursor-pointer border border-gray-300"
-                        />
-                        <input
-                          type="text"
-                          value={config.primaryColor}
-                          onChange={(e) => setConfig({ ...config, primaryColor: e.target.value })}
-                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono"
-                        />
-                      </div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">
+                        Categoría
+                      </label>
+                      <select
+                        value={categoriaId}
+                        onChange={(e) => setCategoriaId(e.target.value)}
+                        className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      >
+                        <option value="">Todas</option>
+                        {categorias.map((cat) => (
+                          <option key={cat.id} value={cat.id}>
+                            {cat.nombre}
+                          </option>
+                        ))}
+                      </select>
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium mb-2">Color Secundario</label>
-                      <div className="flex gap-2">
-                        <input
-                          type="color"
-                          value={config.secondaryColor}
-                          onChange={(e) => setConfig({ ...config, secondaryColor: e.target.value })}
-                          className="h-10 w-20 rounded-lg cursor-pointer border border-gray-300"
-                        />
-                        <input
-                          type="text"
-                          value={config.secondaryColor}
-                          onChange={(e) => setConfig({ ...config, secondaryColor: e.target.value })}
-                          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono"
-                        />
-                      </div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">
+                        Límite
+                      </label>
+                      <input
+                        type="number"
+                        value={config.limit}
+                        onChange={(e) => setConfig({ ...config, limit: Number(e.target.value) })}
+                        min="1"
+                        max="50"
+                        className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
                     </div>
-                  </>
+                  </div>
+
+                  <label className="flex items-center gap-2 mt-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={config.destacados}
+                      onChange={(e) => setConfig({ ...config, destacados: e.target.checked })}
+                      className="w-4 h-4 rounded"
+                    />
+                    <span className="text-sm text-gray-700">Solo destacados</span>
+                  </label>
+                </ConfigSection>
+
+                {/* Tema */}
+                <ConfigSection title="Tema" icon={<Palette className="w-4 h-4" />}>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">
+                      Tema
+                    </label>
+                    <select
+                      value={config.theme}
+                      onChange={(e) => setConfig({ ...config, theme: e.target.value as any })}
+                      className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="light">Claro</option>
+                      <option value="dark">Oscuro</option>
+                      <option value="custom">Personalizado</option>
+                    </select>
+                  </div>
+
+                  {config.theme === 'custom' && (
+                    <div className="grid grid-cols-2 gap-3 mt-3">
+                      <ColorInput
+                        label="Color Primario"
+                        value={config.primaryColor}
+                        onChange={(val) => setConfig({ ...config, primaryColor: val })}
+                      />
+                      <ColorInput
+                        label="Color Secundario"
+                        value={config.secondaryColor}
+                        onChange={(val) => setConfig({ ...config, secondaryColor: val })}
+                      />
+                    </div>
+                  )}
+                </ConfigSection>
+
+                {/* Diseño */}
+                <ConfigSection title="Diseño" icon={<Layout className="w-4 h-4" />}>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">
+                        Columnas
+                      </label>
+                      <select
+                        value={config.columns}
+                        onChange={(e) => setConfig({ ...config, columns: Number(e.target.value) as any })}
+                        className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      >
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">
+                        Estilo
+                      </label>
+                      <select
+                        value={config.cardStyle}
+                        onChange={(e) => setConfig({ ...config, cardStyle: e.target.value as any })}
+                        className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      >
+                        <option value="elevated">Elevada</option>
+                        <option value="bordered">Borde</option>
+                        <option value="minimal">Minimal</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">
+                        Radio
+                      </label>
+                      <select
+                        value={config.borderRadius}
+                        onChange={(e) => setConfig({ ...config, borderRadius: e.target.value as any })}
+                        className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      >
+                        <option value="sm">Pequeño</option>
+                        <option value="md">Mediano</option>
+                        <option value="lg">Grande</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">
+                        Espaciado
+                      </label>
+                      <select
+                        value={config.cardSpacing}
+                        onChange={(e) => setConfig({ ...config, cardSpacing: e.target.value as any })}
+                        className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      >
+                        <option value="compact">Compacto</option>
+                        <option value="normal">Normal</option>
+                        <option value="relaxed">Amplio</option>
+                      </select>
+                    </div>
+                  </div>
+                </ConfigSection>
+
+                {/* Textos */}
+                <ConfigSection title="Textos" icon={<Type className="w-4 h-4" />}>
+                  <div className="space-y-2">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">
+                        Título
+                      </label>
+                      <input
+                        type="text"
+                        value={config.titleText}
+                        onChange={(e) => setConfig({ ...config, titleText: e.target.value })}
+                        className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">
+                        Subtítulo
+                      </label>
+                      <input
+                        type="text"
+                        value={config.subtitleText}
+                        onChange={(e) => setConfig({ ...config, subtitleText: e.target.value })}
+                        className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+                  </div>
+                </ConfigSection>
+
+
+              </>
+            )}
+          </div>
+
+          {/* Panel derecho: Preview y Código */}
+          <div className="lg:col-span-1 space-y-4">
+            {/* Vista Previa */}
+            <div className="bg-white border border-gray-200 rounded-lg p-4">
+              <h3 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+                <Eye className="w-4 h-4" />
+                Vista Previa
+              </h3>
+
+              {organizacion && (
+                <p className="text-xs text-gray-600 mb-3">
+                  <span className="font-medium">{organizacion.nombre}</span>
+                </p>
+              )}
+
+              <div className="border border-gray-200 rounded-lg bg-gray-50 overflow-hidden">
+                {organizacionId ? (
+                  <iframe
+                    src={getPreviewUrl()}
+                    className="w-full border-none bg-white"
+                    style={{ height: '280px' }}
+                    title="Widget preview"
+                  />
+                ) : (
+                  <div className="flex items-center justify-center h-72 text-xs text-gray-400">
+                    Sin organización
+                  </div>
                 )}
               </div>
             </div>
 
-            {/* Diseño */}
-            <div>
-              <h4 className="font-semibold mb-4 text-gray-700">Diseño y Distribución</h4>
-              <div className="grid md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">Columnas</label>
-                  <select
-                    value={config.columns}
-                    onChange={(e) => setConfig({ ...config, columns: Number(e.target.value) as any })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                  >
-                    <option value="1">1 Columna</option>
-                    <option value="2">2 Columnas</option>
-                    <option value="3">3 Columnas</option>
-                    <option value="4">4 Columnas</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-2">Estilo de Tarjeta</label>
-                  <select
-                    value={config.cardStyle}
-                    onChange={(e) => setConfig({ ...config, cardStyle: e.target.value as any })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                  >
-                    <option value="elevated">Elevada (sombra)</option>
-                    <option value="bordered">Con Borde</option>
-                    <option value="minimal">Minimal</option>
-                    <option value="gradient">Gradiente</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-2">Radio de Borde</label>
-                  <select
-                    value={config.borderRadius}
-                    onChange={(e) => setConfig({ ...config, borderRadius: e.target.value as any })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                  >
-                    <option value="none">Sin redondeo</option>
-                    <option value="sm">Pequeño</option>
-                    <option value="md">Mediano</option>
-                    <option value="lg">Grande</option>
-                    <option value="xl">Extra Grande</option>
-                    <option value="full">Completo</option>
-                  </select>
-                </div>
+            {/* Código */}
+            <div className="bg-gray-900 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-bold text-white">Código</h3>
+                <button
+                  onClick={copyCode}
+                  className="flex items-center gap-1 px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                >
+                  {copied ? (
+                    <>
+                      <Check className="w-3 h-3" />
+                      Copiado
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3 h-3" />
+                      Copiar
+                    </>
+                  )}
+                </button>
               </div>
-            </div>
 
-            {/* Textos Personalizables */}
-            <div>
-              <h4 className="font-semibold mb-4 text-gray-700">Textos</h4>
-              <div className="space-y-3">
-                <div>
-                  <label className="block text-sm font-medium mb-2">Título Principal</label>
-                  <input
-                    type="text"
-                    value={config.titleText}
-                    onChange={(e) => setConfig({ ...config, titleText: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                    placeholder="Lo que dicen nuestros clientes"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-2">Subtítulo</label>
-                  <input
-                    type="text"
-                    value={config.subtitleText}
-                    onChange={(e) => setConfig({ ...config, subtitleText: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                    placeholder="Testimonios reales de personas que confían en nosotros"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Opciones de Visualización */}
-            <div>
-              <h4 className="font-semibold mb-4 text-gray-700">Elementos a Mostrar</h4>
-              <div className="grid md:grid-cols-3 gap-3">
-                {[
-                  { key: 'showAvatar', label: 'Avatar del autor' },
-                  { key: 'showRating', label: 'Calificación con estrellas' },
-                  { key: 'showDate', label: 'Fecha del testimonio' },
-                  { key: 'showCategory', label: 'Categoría' },
-                  { key: 'showMedia', label: 'Imágenes/Videos' },
-                  { key: 'showHighlight', label: 'Badge de destacado' },
-                  { key: 'hoverEffect', label: 'Efecto hover' },
-                  { key: 'animateOnScroll', label: 'Animación al scroll' },
-                ].map(({ key, label }) => (
-                  <label key={key} className="flex items-center gap-2 cursor-pointer p-2 hover:bg-gray-50 rounded">
-                    <input
-                      type="checkbox"
-                      checked={config[key as keyof typeof config] as boolean}
-                      onChange={(e) => setConfig({ ...config, [key]: e.target.checked })}
-                      className="w-4 h-4"
-                    />
-                    <span className="text-sm">{label}</span>
-                  </label>
-                ))}
-              </div>
+              <pre className="bg-gray-800 rounded p-2 overflow-x-auto max-h-56">
+                <code className="text-green-400 text-xs font-mono leading-tight">
+                  {generateCode()}
+                </code>
+              </pre>
             </div>
           </div>
-        </div>
-
-        {/* Código generado */}
-        <div className="bg-gray-900 rounded-lg p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-bold text-white">Código para Insertar en tu Sitio Web</h3>
-            <button
-              onClick={copyCode}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              {copied ? (
-                <>
-                  <Check className="w-4 h-4" />
-                  ¡Copiado!
-                </>
-              ) : (
-                <>
-                  <Copy className="w-4 h-4" />
-                  Copiar Código
-                </>
-              )}
-            </button>
-          </div>
-          <pre className="bg-gray-800 rounded-lg p-4 overflow-x-auto">
-            <code className="text-green-400 text-sm font-mono">
-              {generateCode()}
-            </code>
-          </pre>
-          <p className="text-gray-400 text-xs mt-3">
-            Copia este código y pégalo en tu sitio web donde quieras que aparezcan los testimonios
-          </p>
         </div>
       </div>
     </div>

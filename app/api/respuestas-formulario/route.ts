@@ -172,7 +172,7 @@ export async function POST(request: NextRequest) {
         personaId: persona?.id || null,
         nombreCompleto: nombreCompleto?.trim() || null,
         correo: correo?.trim() || null,
-        titulo: titulo?.trim() || "Testimonio sin título",
+        titulo: titulo?.trim() || "",
         texto: texto?.trim() || null,
         calificacion: calificacion || 5,
         estado: "pendiente",

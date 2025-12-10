@@ -62,6 +62,50 @@ export async function PATCH(
     if (decision === "aprobar") {
       const modalidad = respuestaFormulario.videoUrl ? "video" : "texto_imagen";
 
+      // Verificar si ya existe un testimonio para esta respuesta
+      let testimonioExistente: any = null;
+
+      // Solo buscar si hay personaId (para evitar búsquedas nulas)
+      if (respuestaFormulario.personaId) {
+        testimonioExistente = await prisma.testimonio.findFirst({
+          where: {
+            // Buscar por los datos de la respuesta
+            personaId: respuestaFormulario.personaId,
+            texto: respuestaFormulario.texto,
+            titulo: respuestaFormulario.titulo || "",
+          },
+        });
+      }
+
+      if (testimonioExistente) {
+        console.log(
+          "✅ El testimonio ya existe, actualizando estado de respuesta"
+        );
+
+        // Solo actualizar el estado de la respuesta
+        await prisma.respuestaFormulario.update({
+          where: { id },
+          data: {
+            estado: "aprobado",
+          },
+        });
+
+        const testimonioCompleto = await prisma.testimonio.findUnique({
+          where: { id: testimonioExistente.id },
+          include: {
+            persona: true,
+            categoria: true,
+            medios: true,
+            etiquetas: true,
+          },
+        });
+
+        return NextResponse.json({
+          message: "Respuesta aprobada. Testimonio ya existía.",
+          testimonio: testimonioCompleto,
+        });
+      }
+
       // Asegurar que existe una Persona
       let personaId = respuestaFormulario.personaId;
 

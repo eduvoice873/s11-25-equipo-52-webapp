@@ -20,6 +20,7 @@ export default function LoginForm() {
     register,
     handleSubmit,
     setError,
+    reset,
     formState: { isSubmitting, errors, isValid },
   } = useForm<LoginUser>({
     resolver: zodResolver(LoginUserSchema),
@@ -31,20 +32,36 @@ export default function LoginForm() {
   const [passwordVisibility, setPasswordVisibility] = useState(false);
 
   const onSubmit: SubmitHandler<LoginUser> = async (data) => {
-    const res = await signIn('credentials', {
-      ...data,
-      redirect: false,
-    });
+    try {
+      const res = await signIn('credentials', {
+        ...data,
+        redirect: false,
+      });
 
-    if (res?.error) {
-      if (res.error === 'CredentialsSignin') {
-        setError('root', { message: 'Credenciales inválidas' });
-      } else {
-        setError('root', { message: 'Error desconocido' });
+      if (res?.error) {
+        // Mostrar toast de error
+        if (res.error === 'CredentialsSignin') {
+          toast.error('Email o contraseña incorrectos');
+          setError('email', { message: 'Credenciales inválidas' });
+          setError('password', { message: 'Credenciales inválidas' });
+        } else {
+          toast.error(res.error || 'Error al iniciar sesión');
+          setError('root', { message: res.error || 'Error desconocido' });
+        }
+
+        // Limpiar solo el campo de contraseña (mantener email)
+        reset((values) => ({
+          ...values,
+          password: '',
+        }));
+      } else if (res?.ok) {
+        toast.success('¡Bienvenido/a!');
+        router.push("/home");
       }
-    } else {
-      toast.success('Bienvenido/a');
-      router.push("/home");
+    } catch (error) {
+      console.error('Error en login:', error);
+      toast.error('Error al procesar el login');
+      reset();
     }
   };
 
