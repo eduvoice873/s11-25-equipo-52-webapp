@@ -11,6 +11,7 @@ export function useUsers() {
     password: string;
     confirm: string;
     image?: string | null;
+    categoriaAsignadaId?: string | null;
   }) => {
     try {
       const response = await fetch('/api/users/editors', {
@@ -46,11 +47,75 @@ export function useUsers() {
     }
   };
 
+  const updateUser = async (
+    userId: string,
+    userData: {
+      name?: string;
+      activo?: boolean;
+      categoriaAsignadaId?: string | null;
+      image?: string | null;
+    }
+  ) => {
+    try {
+      const response = await fetch(`/api/users/${userId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          result.error || result.message || 'Error al actualizar el usuario'
+        );
+      }
+
+      toast.success('Usuario actualizado exitosamente');
+      mutate();
+      return result;
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'Error al actualizar el usuario';
+      toast.error(errorMessage);
+      throw error;
+    }
+  };
+
+  const deleteUser = async (userId: string) => {
+    try {
+      const response = await fetch(`/api/users/${userId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const result = await response.json();
+        throw new Error(
+          result.error || result.message || 'Error al eliminar el usuario'
+        );
+      }
+
+      toast.success('Usuario eliminado exitosamente');
+      mutate();
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Error al eliminar el usuario';
+      toast.error(errorMessage);
+      throw error;
+    }
+  };
+
   return {
     users: data || [],
     isLoading,
     error,
     mutate,
     createEditor,
+    updateUser,
+    deleteUser,
   };
 }

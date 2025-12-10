@@ -33,7 +33,7 @@ export default function CategoriesPage() {
   if (error) return <div>Error al cargar las categorías</div>;
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="container mt-6 mx-auto p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Categorías</h1>
         <Button asChild>
@@ -43,10 +43,7 @@ export default function CategoriesPage() {
 
       <div className="grid gap-4">
         {categories?.map((category) => (
-          <CategoryCard
-            key={category.id}
-            category={category}
-          />
+          <CategoryCard key={category.id} category={category} />
         ))}
       </div>
     </div>

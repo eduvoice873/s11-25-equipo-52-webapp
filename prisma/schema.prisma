@@ -21,8 +21,10 @@ model User {
   activo              Boolean                       @default(true)
   organizacionId      String
   rol                 Rol
+  categoriaAsignadaId String?
   accounts            Account[]
-  categorias          Categoria[]
+  categorias          Categoria[]                   @relation("CategoriasCreadas")
+  categoriaAsignada   Categoria?                    @relation("CategoriaAsignada", fields: [categoriaAsignadaId], references: [id], onDelete: SetNull)
   formularios         Formulario[]
   revisiones          Revision[]
   revisionesRespuesta RevisionRespuestaFormulario[]
@@ -31,6 +33,7 @@ model User {
   organizacion        Organizacion                  @relation(fields: [organizacionId], references: [id], onDelete: Cascade)
 
   @@index([organizacionId])
+  @@index([categoriaAsignadaId])
 }
 
 model Account {
@@ -91,18 +94,19 @@ model Persona {
 }
 
 model Categoria {
-  id             String       @id @default(uuid())
-  organizacionId String
-  nombre         String
-  creadoEn       DateTime     @default(now())
-  creadoPorId    String
-  mensaje        String?
-  titulo         String?
-  creadoPor      User         @relation(fields: [creadoPorId], references: [id])
-  organizacion   Organizacion @relation(fields: [organizacionId], references: [id], onDelete: Cascade)
-  formularios    Formulario[]
-  preguntas      Pregunta[]
-  testimonios    Testimonio[]
+  id                String       @id @default(uuid())
+  organizacionId    String
+  nombre            String
+  creadoEn          DateTime     @default(now())
+  creadoPorId       String
+  mensaje           String?
+  titulo            String?
+  creadoPor         User         @relation("CategoriasCreadas", fields: [creadoPorId], references: [id])
+  editoresAsignados User[]       @relation("CategoriaAsignada")
+  organizacion      Organizacion @relation(fields: [organizacionId], references: [id], onDelete: Cascade)
+  formularios       Formulario[]
+  preguntas         Pregunta[]
+  testimonios       Testimonio[]
 
   @@index([organizacionId])
   @@index([creadoPorId])

@@ -58,7 +58,9 @@ export function InviteMemberModal({ isOpen, onClose }: InviteMemberModalProps) {
         email: data.email,
         password: data.password,
         confirm: data.confirmPassword,
-        image: null as string | null, // Explicitly type as nullable
+        image: null as string | null,
+        categoriaAsignadaId:
+          data.role === 'editor' && data.categoriaId ? data.categoriaId : null,
       };
 
       await createEditor(userData);
@@ -74,7 +76,11 @@ export function InviteMemberModal({ isOpen, onClose }: InviteMemberModalProps) {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Invite New Member">
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Añade un editor a tu equipo"
+    >
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">
         <FormField label="Name" error={errors.name}>
           <Input

@@ -18,25 +18,27 @@ interface ApiUser {
 export default function UsersTable({ users = [] }: { users?: ApiUser[] }) {
   const [inviteOpen, setInviteOpen] = useState(false);
 
-  // Mapear usuarios de la API al formato de UserType
+  // Mapear usuarios de la API al formato de UserType (solo editores)
   const mappedUsers: UserType[] = useMemo(() => {
-    return users.map((user) => ({
-      id: user.id,
-      name: user.name || 'Sin nombre',
-      email: user.email,
-      role: user.rol,
-      status: user.activo ? 'active' : 'inactive',
-      avatar: user.image || undefined,
-      createdAt: new Date(user.createdAt).toLocaleDateString('es-ES', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-      }),
-      lastSeen: new Date(user.updatedAt).toLocaleDateString('es-ES'),
-      category: '', // No disponible en la API
-      tags: [], // No disponible en la API
-      testimonials: [], // No disponible en la API
-    }));
+    return users
+      .filter((user) => user.rol === 'editor') // Solo mostrar editores
+      .map((user) => ({
+        id: user.id,
+        name: user.name || 'Sin nombre',
+        email: user.email,
+        role: user.rol,
+        status: user.activo ? 'active' : 'inactive',
+        avatar: user.image || undefined,
+        createdAt: new Date(user.createdAt).toLocaleDateString('es-ES', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric',
+        }),
+        lastSeen: new Date(user.updatedAt).toLocaleDateString('es-ES'),
+        category: '', // No disponible en la API
+        tags: [], // No disponible en la API
+        testimonials: [], // No disponible en la API
+      }));
   }, [users]);
 
   return (
@@ -53,7 +55,7 @@ export default function UsersTable({ users = [] }: { users?: ApiUser[] }) {
           className="absolute right-0 top-0 flex items-center gap-2 bg-[#1152d4] text-white px-4 py-2 rounded-lg"
         >
           <span className="text-lg font-medium">+</span>
-          <span className="text-sm font-medium">Invite Member</span>
+          <span className="text-sm font-medium">Crear Usuario</span>
         </button>
       </div>
 

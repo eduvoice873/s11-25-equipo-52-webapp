@@ -14,15 +14,12 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center">
+    <div className="fixed inset-0 z-9999 flex items-center justify-center p-4">
       {/* fondo */}
-      <div
-        className="absolute inset-0 bg-black/40"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
 
       {/* contenido */}
-      <div className="relative z-50 bg-white rounded-xl p-6 w-full max-w-md shadow-xl animate-slideIn">
+      <div className="relative z-10000 bg-white rounded-xl p-6 w-full max-w-md shadow-2xl animate-slideIn max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">{title}</h2>

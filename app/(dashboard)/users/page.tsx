@@ -9,7 +9,7 @@ export default function UsersPage() {
 
   if (isLoading) {
     return (
-      <div className="w-full p-6 flex items-center justify-center">
+      <div className=" w-full flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Cargando usuarios...</p>
@@ -30,7 +30,7 @@ export default function UsersPage() {
   }
 
   return (
-    <div className="w-full p-6">
+    <div className="w-full mt-6 p-6">
       {users.length === 0 ? <EmptyUsers /> : <UsersTable users={users} />}
     </div>
   );
