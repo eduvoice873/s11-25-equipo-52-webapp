@@ -169,7 +169,7 @@ export default function RespuestasFormularioPage() {
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div className="flex-1">
             <Button
-              onClick={() => router.push('/testimonios/gestionar')}
+              onClick={() => router.back()}
               variant="ghost"
               className="mb-2 hover:bg-white/50"
             >
