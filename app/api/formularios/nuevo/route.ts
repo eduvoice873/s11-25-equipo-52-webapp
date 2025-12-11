@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/db";
+import { roleRequired } from "@/lib/roleRequired";
+import { Rol } from "@prisma/client";
 
 /**
  * @openapi
- * /api/formularios:
+ * /api/formularios/nuevo:
  *   post:
  *     summary: Crea un formulario
  *     tags:
@@ -52,7 +54,7 @@ import prisma from "@/lib/db";
  *               - preguntas
  *     responses:
  *       201:
- *         description: Formulario creada
+ *         description: Formulario creado
  *       400:
  *         description: Error de validación
  *       401:
@@ -61,6 +63,9 @@ import prisma from "@/lib/db";
  *         description: Error interno
  */
 export async function POST(request: NextRequest) {
+  const authCheck = await roleRequired([Rol.admin])(request);
+  if (authCheck) return authCheck;
+
   try {
     const session = await auth();
     if (!session?.user?.email) {
@@ -168,23 +173,23 @@ export async function POST(request: NextRequest) {
         ...(preguntas &&
           Array.isArray(preguntas) &&
           preguntas.length > 0 && {
-            preguntas: {
-              create: preguntas
-                .filter((p: any) => p?.texto?.trim()) // Filtrar preguntas vacías
-                .map((p: any, index: number) => ({
-                  texto: p.texto.trim(),
-                  tipo: p.tipo || "texto",
-                  requerida: p.requerida ?? false,
-                  orden: index,
-                  opciones:
-                    p.opciones &&
+          preguntas: {
+            create: preguntas
+              .filter((p: any) => p?.texto?.trim()) // Filtrar preguntas vacías
+              .map((p: any, index: number) => ({
+                texto: p.texto.trim(),
+                tipo: p.tipo || "texto",
+                requerida: p.requerida ?? false,
+                orden: index,
+                opciones:
+                  p.opciones &&
                     Array.isArray(p.opciones) &&
                     p.opciones.length > 0
-                      ? JSON.stringify(p.opciones)
-                      : null,
-                })),
-            },
-          }),
+                    ? JSON.stringify(p.opciones)
+                    : null,
+              })),
+          },
+        }),
       },
       include: {
         preguntas: true,

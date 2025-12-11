@@ -1,5 +1,7 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { signOut } from "@/lib/auth";
+import { roleRequired } from "@/lib/roleRequired";
+import { Rol } from "@prisma/client";
 
 /**
  * @swagger
@@ -12,7 +14,10 @@ import { signOut } from "@/lib/auth";
  *       200:
  *         description: Logout OK. Cerrado sesión correctamente.
  */
-export async function POST() {
+export async function POST(request: NextRequest) {
+    const authCheck = await roleRequired([Rol.admin, Rol.editor])(request);
+    if (authCheck) return authCheck;
+
     // Cierra la sesión y elimina la cookie
     await signOut({ redirect: false });
 

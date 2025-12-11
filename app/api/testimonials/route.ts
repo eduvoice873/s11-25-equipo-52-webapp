@@ -6,6 +6,8 @@ import { TestimonialFullCreateSchema } from "@/models/testimonialFull/dto/testim
 import { sanitizeBigInt } from "@/lib/sanitizeBigInt";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/db";
+import { roleRequired } from "@/lib/roleRequired";
+import { Rol } from "@prisma/client";
 
 const testimonialService = new TestimonialService();
 const organizationService = new OrganizationService();
@@ -21,6 +23,9 @@ const testimonialFullService = new TestimonialFullService();
  */
 // Crea un nuevo testimonio
 export async function POST(request: NextRequest) {
+  const authCheck = await roleRequired([Rol.admin, Rol.editor])(request);
+  if (authCheck) return authCheck;
+
   try {
     const body = await request.json();
     const dto = TestimonialFullCreateSchema.parse(body);
@@ -62,6 +67,9 @@ export async function POST(request: NextRequest) {
  */
 // Obtiene todos los testimonios
 export async function GET(request: NextRequest) {
+  const authCheck = await roleRequired([Rol.admin, Rol.editor])(request);
+  if (authCheck) return authCheck;
+
   try {
     // Verificar autenticación
     const session = await auth();

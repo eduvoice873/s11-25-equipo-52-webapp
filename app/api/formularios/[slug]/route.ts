@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
+import { roleRequired } from "@/lib/roleRequired";
+import { Rol } from "@prisma/client";
 
 /**
  * @openapi
@@ -29,6 +31,9 @@ export async function GET(
   request: NextRequest,
   context: { params: Promise<{ slug: string }> } // ← Next.js 15+ params es una Promise
 ) {
+  const authCheck = await roleRequired([Rol.admin])(request);
+  if (authCheck) return authCheck;
+
   try {
     // Esperar la Promise de params
     const { slug } = await context.params;

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { TagService } from "@/models/tag/tagService";
 import { OrganizationService } from "@/models/organization/organizationService";
+import { roleRequired } from "@/lib/roleRequired";
+import { Rol } from "@prisma/client";
 
 const tagService = new TagService();
 const organizationService = new OrganizationService();
@@ -36,8 +38,8 @@ const organizationService = new OrganizationService();
  */
 // Obtiene etiquetas por el ID de la organización
 export async function GET(request: NextRequest, { params }: { params: Promise<{ organizacionId: string }> }) {
-    const session = await auth();
-    if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const authCheck = await roleRequired([Rol.admin, Rol.editor])(request);
+    if (authCheck) return authCheck;
 
     try {
         const { organizacionId } = await params;

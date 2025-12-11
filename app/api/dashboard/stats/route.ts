@@ -1,8 +1,24 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/db";
+import { roleRequired } from "@/lib/roleRequired";
+import { Rol } from "@prisma/client";
 
-export async function GET() {
+/**
+ * @openapi
+ * /api/dashboard/stats:
+ *   get:
+ *     summary: Obtiene toda la información en general que tiene el administración
+ *     tags:
+ *       - Dashboard
+ *     responses:
+ *       200:
+ *         description: Información en general obtenidos
+ */
+export async function GET(request: NextRequest) {
+  const authCheck = await roleRequired([Rol.admin])(request);
+  if (authCheck) return authCheck;
+
   try {
     const session = await auth();
     if (!session?.user) {

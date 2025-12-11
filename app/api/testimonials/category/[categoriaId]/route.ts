@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { CategoryService } from "@/models/category/categoryService";
 import { TestimonialService } from "@/models/testimonial/testimonialService";
+import { roleRequired } from "@/lib/roleRequired";
+import { Rol } from "@prisma/client";
 
 const testimonialService = new TestimonialService();
 const categoryService = new CategoryService();
@@ -35,6 +37,9 @@ const categoryService = new CategoryService();
  */
 // Obtiene testimonios por categoriaId
 export async function GET(request: NextRequest, { params }: { params: Promise<{ categoriaId: string }> }) {
+    const authCheck = await roleRequired([Rol.admin, Rol.editor])(request);
+    if (authCheck) return authCheck;
+
     try {
         const { categoriaId } = await params;
 

@@ -4,14 +4,38 @@ import { UserUpdateSchema } from "@/models/user/dto/user";
 import bcrypt from "bcrypt";
 import { ZodError } from "zod";
 import { headers } from "next/headers";
+import { roleRequired } from "@/lib/roleRequired";
+import { Rol } from "@prisma/client";
 
 const userService = new UserService();
 
+/**
+ * @openapi
+ * /api/perfil:
+ *   get:
+ *     summary: Obtiene el perfil del usuario autenticado
+ *     tags:
+ *       - Perfil
+ *     responses:
+ *       200:
+ *         description: Perfil del usuario obtenido
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/OrganizationCreateSchema'
+ *       400:
+ *         description: Error de validación
+ *       500:
+ *         description: Error interno
+ */
 /**
  * GET /api/perfil
  * Obtiene el perfil del usuario autenticado
  */
 export async function GET(request: NextRequest) {
+  const authCheck = await roleRequired([Rol.admin, Rol.editor])(request);
+  if (authCheck) return authCheck;
+
   try {
     // Obtener email del header (enviado por el cliente después de autenticarse)
     const email = request.headers.get("x-user-email");
@@ -36,7 +60,7 @@ export async function GET(request: NextRequest) {
       ...userWithoutPassword,
       organizacionNombre: typeof user.organizacionId === 'object' && user.organizacionId !== null ? (user.organizacionId as any).nombre : null,
     };
- 
+
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
     console.error("Error en GET /api/perfil:", error);

@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
 import { OrganizationService } from "@/models/organization/organizationService";
 import { OrganizationUpdateSchema } from "@/models/organization/dto/organization";
+import { roleRequired } from "@/lib/roleRequired";
+import { Rol } from "@prisma/client";
 
 const organizationService = new OrganizationService();
 
@@ -35,14 +36,14 @@ const organizationService = new OrganizationService();
  */
 //Obtiene una organización por su ID
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-    const session = await auth();
-    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const authCheck = await roleRequired([Rol.admin, Rol.editor])(request);
+    if (authCheck) return authCheck;
 
     try {
         const { id } = await params;
 
         const organization = await organizationService.getOrganizationById(id);
-        if (!organization) return NextResponse.json({ error: "Organization not found" }, { status: 404 });
+        if (!organization) return NextResponse.json({ error: "Organización no encontrada" }, { status: 404 });
 
         return NextResponse.json(organization, { status: 200 });
     } catch (error) {
@@ -86,14 +87,14 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  */
 // Actualiza una organización por su ID
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-    const session = await auth();
-    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const authCheck = await roleRequired([Rol.admin])(request);
+    if (authCheck) return authCheck;
 
     try {
         const { id } = await params;
 
         const organizationFounded = await organizationService.getOrganizationById(id);
-        if (!organizationFounded) return NextResponse.json({ error: "Organization not found" }, { status: 404 });
+        if (!organizationFounded) return NextResponse.json({ error: "Organización no encontrada" }, { status: 404 });
 
         const body = await request.json();
         const dto = OrganizationUpdateSchema.parse(body);
@@ -133,14 +134,14 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
  */
 // Elimina una organización por su ID
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-    const session = await auth();
-    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const authCheck = await roleRequired([Rol.admin])(request);
+    if (authCheck) return authCheck;
 
     try {
         const { id } = await params;
 
         const organizationFounded = await organizationService.getOrganizationById(id);
-        if (!organizationFounded) return NextResponse.json({ error: "Organization not found" }, { status: 404 });
+        if (!organizationFounded) return NextResponse.json({ error: "Organización no encontrada" }, { status: 404 });
 
         await organizationService.deleteOrganization(id);
         return new NextResponse(null, { status: 204 });

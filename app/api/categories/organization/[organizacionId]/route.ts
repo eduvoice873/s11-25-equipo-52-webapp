@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { CategoryService } from "@/models/category/categoryService";
+import { roleRequired } from "@/lib/roleRequired";
+import { Rol } from "@prisma/client";
 
 const categoryService = new CategoryService();
 
@@ -35,14 +37,14 @@ const categoryService = new CategoryService();
  */
 // Obtiene categorías por el ID de la organización
 export async function GET(request: NextRequest, { params }: { params: Promise<{ organizacionId: string }> }) {
-    const session = await auth();
-    if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const authCheck = await roleRequired([Rol.admin])(request);
+    if (authCheck) return authCheck;
 
     try {
         const { organizacionId } = await params;
         const organizationFounded = await prisma.organizacion.findUnique({ where: { id: organizacionId } });
 
-        if (!organizationFounded) return NextResponse.json({ error: "Organization not found" }, { status: 404 });
+        if (!organizationFounded) return NextResponse.json({ error: "No se encontró la organización" }, { status: 404 });
 
         const categories = await categoryService.getCategoryByOrganizacionId(organizacionId);
 
