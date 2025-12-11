@@ -136,7 +136,7 @@ export function AdminTestimonial({
   onToggleFeatured,
   onShare
 }: AdminTestimonialProps) {
- 
+
 
   const [loading, setLoading] = useState(false);
   const [isFeatured, setIsFeatured] = useState(destacado);
@@ -218,6 +218,39 @@ export function AdminTestimonial({
     } catch (error) {
       console.error('Error:', error);
       toast.error('Error al archivar el testimonio');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleToggleFeatured = async () => {
+    if (!approvedTestimonioId || loading) {
+      toast.warning('No se puede destacar sin una respuesta aprobada');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/testimonials/${approvedTestimonioId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ destacado: !isFeatured }),
+      });
+
+      if (!response.ok) throw new Error('Error al actualizar');
+
+      const data = await response.json();
+      setIsFeatured(!isFeatured);
+      toast.success(
+        !isFeatured
+          ? 'Testimonio marcado como destacado'
+          : 'Testimonio desmarcado como destacado'
+      );
+
+      if (onToggleFeatured) onToggleFeatured();
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error('Error al cambiar el estado de destacado');
     } finally {
       setLoading(false);
     }
@@ -314,35 +347,8 @@ export function AdminTestimonial({
       toast.success('Enlace copiado al portapapeles');
     }
     if (onShare) onShare();
-  }; const handleToggleFeatured = async () => {
-    if (!respuestaId || loading) {
-      setIsFeatured(!isFeatured);
-      toast.success(isFeatured ? 'Removido de destacados' : 'Marcado como destacado');
-      if (onToggleFeatured) onToggleFeatured();
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const response = await fetch(`/api/testimonials/${respuestaId}/actions`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'toggle-featured' }),
-      });
-
-      if (!response.ok) throw new Error('Error al destacar');
-
-      const data = await response.json();
-      setIsFeatured(!isFeatured);
-      toast.success(data.message);
-      if (onToggleFeatured) onToggleFeatured();
-    } catch (error) {
-      console.error('Error:', error);
-      toast.error('Error al actualizar estado destacado');
-    } finally {
-      setLoading(false);
-    }
   };
+
   if (variant === "mini") {
     return (
       <div onClick={onClick} className={`shadow-md rounded-xl p-4 border border-gray-200 bg-white
@@ -685,12 +691,12 @@ export function AdminTestimonial({
               color: isFeatured ? theme.colors.red : theme.colors.lightBlue,
               backgroundColor: isFeatured ? 'rgba(239, 68, 68, 0.1)' : 'transparent'
             }}
-            disabled
-            title="Funcionalidad no disponible"
-            className="text-xs border px-2 py-1 rounded flex items-center gap-1 hover:bg-blue-50"
+            disabled={loading}
+            title={isFeatured ? 'Quitar de destacados' : 'Marcar como destacado'}
+            className="text-xs border px-2 py-1 rounded flex items-center gap-1 hover:bg-blue-50 disabled:opacity-50 transition-all"
           >
             <Heart className="w-4 h-4" fill={isFeatured ? 'currentColor' : 'none'} />
-            {isFeatured ? 'Destacado' : 'Destacar'}
+            {loading ? 'Guardando...' : isFeatured ? 'Destacado' : 'Destacar'}
           </button>
         </div>
       </div>
