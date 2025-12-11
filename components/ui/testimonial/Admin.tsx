@@ -136,12 +136,7 @@ export function AdminTestimonial({
   onToggleFeatured,
   onShare
 }: AdminTestimonialProps) {
-  console.log(' AdminTestimonial props:', {
-    variant,
-    preguntas,
-    respuestasPreguntas,
-    titulo
-  });
+ 
 
   const [loading, setLoading] = useState(false);
   const [isFeatured, setIsFeatured] = useState(destacado);

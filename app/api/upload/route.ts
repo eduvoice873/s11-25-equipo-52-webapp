@@ -2,14 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
-    console.log("🔥 Iniciando upload...");
+    
 
     let formData: FormData;
     try {
       formData = await request.formData();
-      console.log("✅ FormData parseado correctamente");
+
     } catch (parseError) {
-      console.error("❌ Error parseando FormData:", parseError);
+      console.error(" Error parseando FormData:", parseError);
       return NextResponse.json(
         {
           error: "Error procesando el archivo",
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     const file = formData.get("file");
 
     if (!file || !(file instanceof File)) {
-      console.error("❌ No se recibió archivo válido");
+      console.error(" No se recibió archivo válido");
       return NextResponse.json(
         { error: "No se recibió ningún archivo válido" },
         { status: 400 }
@@ -38,10 +38,7 @@ export async function POST(request: NextRequest) {
       tipoFinal = "video";
     }
 
-    console.log(`📦 Archivo: ${file.name}`);
-    console.log(`   MIME: ${file.type}`);
-    console.log(`   Tamaño: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
-    console.log(`   Tipo: ${tipoFinal}`);
+
 
     // Validar tipos permitidos
     const allowedTypes = {
@@ -50,7 +47,7 @@ export async function POST(request: NextRequest) {
     };
 
     if (!allowedTypes[tipoFinal].includes(file.type)) {
-      console.error(`❌ Tipo MIME no permitido: ${file.type}`);
+      console.error(` Tipo MIME no permitido: ${file.type}`);
       return NextResponse.json(
         {
           error: `Tipo de archivo no permitido: ${file.type}`,
@@ -64,7 +61,7 @@ export async function POST(request: NextRequest) {
     const maxSize =
       tipoFinal === "video" ? 100 * 1024 * 1024 : 10 * 1024 * 1024;
     if (file.size > maxSize) {
-      console.error(`❌ Archivo demasiado grande: ${file.size} bytes`);
+      console.error(` Archivo demasiado grande: ${file.size} bytes`);
       return NextResponse.json(
         {
           error: `Archivo demasiado grande (máx: ${maxSize / 1024 / 1024}MB)`,
@@ -77,13 +74,10 @@ export async function POST(request: NextRequest) {
     const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
     const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
 
-    console.log(`🔍 Cloud Name: ${cloudName ? "✅ Configurado" : "❌ NO"}`);
-    console.log(
-      `🔍 Upload Preset: ${uploadPreset ? "✅ Configurado" : "❌ NO"}`
-    );
+
 
     if (!cloudName || !uploadPreset) {
-      console.error("❌ Falta configuración de Cloudinary");
+      console.error(" Falta configuración de Cloudinary");
       return NextResponse.json(
         { error: "Configuración de Cloudinary incompleta" },
         { status: 500 }
@@ -103,7 +97,7 @@ export async function POST(request: NextRequest) {
     const resourceType = tipoFinal === "video" ? "video" : "image";
     const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`;
 
-    console.log(`📤 Enviando a: ${cloudinaryUrl}`);
+
 
     // Hacer request a Cloudinary
     const cloudinaryRes = await fetch(cloudinaryUrl, {
@@ -111,11 +105,11 @@ export async function POST(request: NextRequest) {
       body: cloudinaryFormData,
     });
 
-    console.log(`📥 Respuesta Cloudinary: ${cloudinaryRes.status}`);
+
 
     if (!cloudinaryRes.ok) {
       const errorText = await cloudinaryRes.text();
-      console.error(`❌ Error Cloudinary: ${errorText}`);
+      console.error(` Error Cloudinary: ${errorText}`);
 
       let errorData: any = {};
       try {
@@ -135,9 +129,7 @@ export async function POST(request: NextRequest) {
 
     const responseData = await cloudinaryRes.json();
 
-    console.log(`✅ Upload exitoso`);
-    console.log(`   URL: ${responseData.secure_url}`);
-    console.log(`   Public ID: ${responseData.public_id}`);
+
 
     return NextResponse.json({
       success: true,
@@ -151,7 +143,7 @@ export async function POST(request: NextRequest) {
       duration: responseData.duration || null,
     });
   } catch (error) {
-    console.error(`❌ Error general:`, error);
+    console.error(` Error general:`, error);
     const message =
       error instanceof Error ? error.message : "Error desconocido";
     console.error(`   ${message}`);

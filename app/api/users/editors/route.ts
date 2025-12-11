@@ -50,54 +50,59 @@ const organizationService = new OrganizationService();
  */
 // Crear un usuario con rol editor
 export async function POST(request: NextRequest) {
-    const session = await auth();
-    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const session = await auth();
+  if (!session)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const userId = session?.user?.id;
-    if (!userId) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  const userId = session?.user?.id;
+  if (!userId)
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 
-    try {
-      const body = await request.json();
-      const dto = UserCreateSchema.parse(body);
+  try {
+    const body = await request.json();
+    const { categoriaId, ...userCreateData } = body;
 
-      const userFounded = await userService.getUserByEmail(dto.email);
+    const dto = UserCreateSchema.parse(userCreateData);
 
-      if (userFounded) {
-        return NextResponse.json(
-          { error: 'User already exists', field: 'email' },
-          { status: 400 }
-        );
-      }
+    const userFounded = await userService.getUserByEmail(dto.email);
 
-      const organizationId =
-        await organizationService.getOrganizationIdByUserId(userId);
-      if (!organizationId) {
-        return NextResponse.json(
-          { error: 'Organization not found' },
-          { status: 404 }
-        );
-      }
-
-      const saltOrRounds = 10;
-      const hashedPassword = await bcrypt.hash(dto.password, saltOrRounds);
-
-      const newUserEditor = await userService.createUserEditor(
-        dto,
-        hashedPassword,
-        organizationId
-      );
-
-      return NextResponse.json(newUserEditor, { status: 201 });
-    } catch (error) {
-      console.error('Error en POST /api/users/editors:', error);
-      if (error instanceof Error)
-        return NextResponse.json({ message: error.message }, { status: 400 });
-
+    if (userFounded) {
       return NextResponse.json(
-        { message: 'Internal Server Error' },
-        { status: 500 }
+        { error: "User already exists", field: "email" },
+        { status: 400 }
       );
     }
+
+    const organizationId =
+      await organizationService.getOrganizationIdByUserId(userId);
+    if (!organizationId) {
+      return NextResponse.json(
+        { error: "Organization not found" },
+        { status: 404 }
+      );
+    }
+
+    const saltOrRounds = 10;
+    const hashedPassword = await bcrypt.hash(dto.password, saltOrRounds);
+
+    const newUserEditor = await userService.createUserEditor(
+      dto,
+      hashedPassword,
+      organizationId,
+      categoriaId // Pasar categoriaId
+    );
+
+    return NextResponse.json(newUserEditor, { status: 201 });
+  } catch (error) {
+    console.error("Error en POST /api/users/editors:", error);
+    if (error instanceof Error)
+      return NextResponse.json({ message: error.message }, { status: 400 });
+
+    return NextResponse.json(
+      { message: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
 }
 
 /**
@@ -117,6 +122,6 @@ export async function POST(request: NextRequest) {
  */
 // Obtiene usuarios con rol editor
 export async function GET() {
-    const usersEditors = await userService.getUserByEditorRol();
-    return NextResponse.json(usersEditors, { status: 200 });
+  const usersEditors = await userService.getUserByEditorRol();
+  return NextResponse.json(usersEditors, { status: 200 });
 }

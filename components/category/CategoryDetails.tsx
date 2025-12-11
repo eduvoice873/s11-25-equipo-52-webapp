@@ -104,7 +104,7 @@ function FormularioCard({ formulario, onDelete, onEdit, onDuplicate }: {
         });
         toast.success("Compartido exitosamente");
       } catch (err) {
-        console.log("Error al compartir:", err);
+        toast.error("Error al compartir");
       }
     } else {
       handleCopyLink();

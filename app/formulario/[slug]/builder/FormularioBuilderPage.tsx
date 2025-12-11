@@ -287,8 +287,7 @@ export default function FormularioBuilderPage({
     const fetchCategoria = async () => {
       const categoriaIdFinal = formularioExistente?.categoriaId ?? categoriaIdProp;
 
-      console.log(" categoriaIdProp recibido:", categoriaIdProp);
-      console.log(" categoriaIdFinal calculado:", categoriaIdFinal);
+      
 
       if (!categoriaIdFinal || formularioExistente) {
         if (!categoriaIdFinal && !formularioExistente) {

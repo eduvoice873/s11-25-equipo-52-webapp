@@ -109,7 +109,7 @@ export async function GET(
     );
   } catch (error) {
     console.error(
-      "❌ Error en GET /api/formularios/categoria/[categoriaId]:",
+      " Error en GET /api/formularios/categoria/[categoriaId]:",
       error
     );
     return NextResponse.json(

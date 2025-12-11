@@ -78,9 +78,7 @@ export async function PATCH(
       }
 
       if (testimonioExistente) {
-        console.log(
-          "✅ El testimonio ya existe, actualizando estado de respuesta"
-        );
+       
 
         // Solo actualizar el estado de la respuesta
         await prisma.respuestaFormulario.update({
@@ -109,20 +107,7 @@ export async function PATCH(
       // Asegurar que existe una Persona
       let personaId = respuestaFormulario.personaId;
 
-      // Debug: ver qué datos tenemos
-      console.log("RespuestaFormulario:", {
-        id: respuestaFormulario.id,
-        personaId: respuestaFormulario.personaId,
-        correo: respuestaFormulario.correo,
-        nombreCompleto: respuestaFormulario.nombreCompleto,
-        persona: respuestaFormulario.persona
-          ? {
-              id: respuestaFormulario.persona.id,
-              correo: respuestaFormulario.persona.correo,
-              nombreCompleto: respuestaFormulario.persona.nombreCompleto,
-            }
-          : null,
-      });
+
 
       if (!personaId) {
         // Si no hay personaId, crear o buscar la persona por correo
@@ -136,13 +121,10 @@ export async function PATCH(
         // Si no hay correo, generar uno temporal basado en el ID de la respuesta
         if (!correo) {
           correo = `testimonio-${respuestaFormulario.id}@voiceshub.temp`;
-          console.log(" Correo no encontrado, generando temporal:", correo);
+
         }
 
-        console.log(" Creando/actualizando persona con:", {
-          correo,
-          nombreCompleto,
-        });
+
 
         // Buscar o crear la persona
         const persona = await prisma.persona.upsert({

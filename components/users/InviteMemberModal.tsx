@@ -25,7 +25,7 @@ interface FormData {
 
 export function InviteMemberModal({ isOpen, onClose }: InviteMemberModalProps) {
   const { categories, isLoading: loadingCategories } = useCategories();
-  const { createEditor } = useUsers();
+  const { createEditor, createAdmin } = useUsers();
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -58,23 +58,32 @@ export function InviteMemberModal({ isOpen, onClose }: InviteMemberModalProps) {
         email: data.email,
         password: data.password,
         confirm: data.confirmPassword,
-        image: null as string | null, // Explicitly type as nullable
+        image: null as string | null,
+        categoriaAsignadaId:
+          data.role === 'editor' && data.categoriaId ? data.categoriaId : null,
       };
 
-      await createEditor(userData);
+      if (data.role === 'admin') {
+        await createAdmin(userData);
+      } else {
+        await createEditor(userData);
+      }
 
       reset();
       onClose();
     } catch (error) {
       console.error('Error al crear usuario:', error);
-      // El error ya se muestra con toast en el hook
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Invite New Member">
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Añade un editor a tu equipo"
+    >
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">
         <FormField label="Name" error={errors.name}>
           <Input

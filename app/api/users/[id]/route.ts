@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { UserService } from "@/models/user/userService";
 import { UserUpdateSchema } from "@/models/user/dto/user";
 import bcrypt from "bcrypt";
+import prisma from "@/lib/db";
 
 const userService = new UserService();
 
@@ -34,20 +35,28 @@ const userService = new UserService();
  *         description: Error interno
  */
 //Obtiene un usuario por su ID
-export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-    try {
-        const { id } = await params;
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
 
-        const user = await userService.getUserById(id);
-        if (!user) return NextResponse.json({ message: "User not found" }, { status: 404 });
+    const user = await userService.getUserById(id);
+    if (!user)
+      return NextResponse.json({ message: "User not found" }, { status: 404 });
 
-        return NextResponse.json(user, { status: 200 });
-    } catch (error) {
-        if (error instanceof Error) return NextResponse.json({ error: error.message }, { status: 400 });
+    return NextResponse.json(user, { status: 200 });
+  } catch (error) {
+    if (error instanceof Error)
+      return NextResponse.json({ error: error.message }, { status: 400 });
 
-        return NextResponse.json({ error: "Internal server error" }, { status: 500 });
-    }
-};
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
 
 /**
  * @openapi
@@ -82,32 +91,54 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  *         description: Error interno
  */
 // Actualiza un usuario por su ID
-export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-    try {
-        const { id } = await params;
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
 
-        const userFounded = await userService.getUserById(id);
-        if (!userFounded) return NextResponse.json({ message: "User not found" }, { status: 404 });
+    const userFounded = await userService.getUserById(id);
+    if (!userFounded)
+      return NextResponse.json({ message: "User not found" }, { status: 404 });
 
-        const body = await request.json();
-        const dto = UserUpdateSchema.parse(body);
+    const body = await request.json();
+    const dto = UserUpdateSchema.parse(body);
 
-        const saltOrRounds = 10;
-        const hashedPassword = await bcrypt.hash(dto.password, saltOrRounds);
-
-        const updatedUser = await userService.updateUser(id, {
-            name: dto.name,
-            password: hashedPassword,
-            activo: dto.activo
-        });
-
-        return NextResponse.json(updatedUser, { status: 200 });
-    } catch (error) {
-        if (error instanceof Error) return NextResponse.json({ error: error.message }, { status: 400 });
-
-        return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    let hashedPassword: string | undefined;
+    if (dto.password) {
+      const saltOrRounds = 10;
+      hashedPassword = await bcrypt.hash(dto.password, saltOrRounds);
     }
-};
+
+    const updateData: any = {
+      name: dto.name,
+      password: hashedPassword,
+      activo: dto.activo,
+    };
+
+    // Si se proporciona categoriaId para un editor, actualizar la categoría
+    if (dto.categoriaId && userFounded.rol === "editor") {
+      // Asignar la nueva categoría
+      await prisma.categoria.update({
+        where: { id: dto.categoriaId },
+        data: { creadoPorId: id },
+      });
+    }
+
+    const updatedUser = await userService.updateUser(id, updateData);
+
+    return NextResponse.json(updatedUser, { status: 200 });
+  } catch (error) {
+    if (error instanceof Error)
+      return NextResponse.json({ error: error.message }, { status: 400 });
+
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
 
 /**
  * @openapi
@@ -134,18 +165,26 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
  *          description: Error interno
  */
 // Elimina un usuario por su ID
-export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-    try {
-        const { id } = await params;
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
 
-        const userFounded = await userService.getUserById(id);
-        if (!userFounded) return NextResponse.json({ message: "User not found" }, { status: 404 });
+    const userFounded = await userService.getUserById(id);
+    if (!userFounded)
+      return NextResponse.json({ message: "User not found" }, { status: 404 });
 
-        await userService.deleteUser(id);
-        return new NextResponse(null, { status: 204 });
-    } catch (error) {
-        if (error instanceof Error) return NextResponse.json({ error: error.message }, { status: 400 });
+    await userService.deleteUser(id);
+    return new NextResponse(null, { status: 204 });
+  } catch (error) {
+    if (error instanceof Error)
+      return NextResponse.json({ error: error.message }, { status: 400 });
 
-        return NextResponse.json({ error: "Internal server error" }, { status: 500 });
-    }
-};
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}

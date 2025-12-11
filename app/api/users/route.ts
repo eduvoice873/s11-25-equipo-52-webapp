@@ -1,15 +1,17 @@
-import prisma from "@/lib/db";
-import { NextRequest, NextResponse } from "next/server";
-import { UserService } from "@/models/user/userService";
-import { OrganizationService } from "@/models/organization/organizationService";
-import bcrypt from "bcrypt";
+import prisma from '@/lib/db';
+import { NextRequest, NextResponse } from 'next/server';
+import { UserService } from '@/models/user/userService';
+import { OrganizationService } from '@/models/organization/organizationService';
+import bcrypt from 'bcrypt';
+import { auth } from '@/lib/auth';
 
 const userService = new UserService();
 const organizationService = new OrganizationService();
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    const { name, email, password, organizacion, organizacion_slug } = await request.json();
+    const { name, email, password, organizacion, organizacion_slug } =
+      await request.json();
 
     const foundUser = await prisma.user.findUnique({
       where: {
@@ -18,13 +20,20 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     });
 
     if (foundUser) {
-      return NextResponse.json({ error: "User already exists", field: "email" }, { status: 400 });
+      return NextResponse.json(
+        { error: 'User already exists', field: 'email' },
+        { status: 400 }
+      );
     }
 
-    const foundOrganization = await organizationService.getOrganizationBySlug(organizacion_slug);
+    const foundOrganization =
+      await organizationService.getOrganizationBySlug(organizacion_slug);
 
     if (foundOrganization) {
-      return NextResponse.json({ error: "Organization already exists", field: "organization" }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Organization already exists', field: 'organization' },
+        { status: 400 }
+      );
     }
 
     const newOrganization = await organizationService.createOrganization({
@@ -40,7 +49,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         name,
         email,
         password: hashedPassword,
-        rol: "admin",
+        rol: 'admin',
         organizacion: {
           connect: {
             id: newOrganization.id,
@@ -54,13 +63,19 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       },
     });
 
-    return NextResponse.json({ message: "User successfully created", data: newUser }, { status: 201 });
+    return NextResponse.json(
+      { message: 'User successfully created', data: newUser },
+      { status: 201 }
+    );
   } catch (error) {
     if (error instanceof Error) {
       console.error(error.message);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }
 
@@ -81,6 +96,42 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
  */
 // Obtiene todos los usuarios tanto admins como editores
 export async function GET() {
-  const users = await userService.getAllUsers();
-  return NextResponse.json(users, { status: 200 });
+  try {
+    // Verificar autenticación
+    const session = await auth();
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    }
+
+    // Obtener usuario autenticado
+    const currentUser = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      select: { id: true, organizacionId: true, rol: true },
+    });
+
+    if (!currentUser) {
+      return NextResponse.json(
+        { error: 'Usuario no encontrado' },
+        { status: 404 }
+      );
+    }
+
+    // Obtener solo usuarios de la misma organización
+    const users = await prisma.user.findMany({
+      where: {
+        organizacionId: currentUser.organizacionId,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    return NextResponse.json(users, { status: 200 });
+  } catch (error) {
+    console.error('Error al obtener usuarios:', error);
+    return NextResponse.json(
+      { error: 'Error interno del servidor' },
+      { status: 500 }
+    );
+  }
 }

@@ -32,7 +32,7 @@ export class TestimonialFullService {
         },
       });
 
-      // ✅ Define el tipo correctamente
+      //  Se define el tipo correctamente
       let medio: Awaited<ReturnType<typeof tx.medio.create>> | null = null;
 
       if (data.medio) {

@@ -53,7 +53,7 @@ export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps
         setIsError(false);
         setErrorMessage(null);
 
-        console.log(" Cargando formulario con slug:", slug);
+
 
         const response = await fetch(`/api/formularios/${slug}`);
 
@@ -63,7 +63,7 @@ export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps
         }
 
         const data = await response.json();
-        console.log(" Formulario cargado:", data);
+
 
         setFormulario(data.formulario || data);
       } catch (error) {
@@ -161,11 +161,11 @@ export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps
     }
 
     setVideoFile(file);
-    // Limpiar cualquier error anterior
+    // Limpiamos cualquier error anterior
   };
 
   // ============================================================
-  // SUBIR VIDEO A CLOUDINARY (MVP / upload_preset)
+  // SUBIR VIDEO A CLOUDINARY ( /upload_preset)
   // ============================================================
   async function uploadVideoToCloudinary(file: File): Promise<CloudinaryResponse> {
     const fd = new FormData();
@@ -190,22 +190,20 @@ export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps
   const subirArchivo = async (file: File, tipo: "imagen" | "video") => {
     try {
       setSubiendoArchivo(true);
-      console.log(`📤 Subiendo ${tipo}:`, file.name);
-      console.log(`   Tipo de archivo:`, file.type);
-      console.log(`   Tamaño:`, (file.size / 1024 / 1024).toFixed(2), "MB");
+
 
       const formData = new FormData();
       formData.append("file", file);
-      // No enviamos "tipo" porque el servidor lo detecta automáticamente
+      // No debemos  enviar "tipo" porque el servidor lo detecta automáticamente
 
-      console.log(`📡 Enviando a /api/upload...`);
+
 
       const response = await fetch("/api/upload", {
         method: "POST",
         body: formData,
       });
 
-      console.log(`📥 Respuesta del servidor:`, response.status, response.statusText);
+      
 
       if (!response.ok) {
         let errorData: any = {};
@@ -215,7 +213,7 @@ export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps
           console.error("No se pudo parsear la respuesta de error:", parseError);
           errorData = { error: "Error desconocido del servidor" };
         }
-        console.error(`❌ Error del servidor:`, errorData);
+        console.error(` Error del servidor:`, errorData);
 
         const errorMessage = errorData.details || errorData.error || "Error al subir archivo";
         setFormError(errorMessage);
@@ -223,7 +221,7 @@ export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps
       }
 
       const data = await response.json();
-      console.log(`✅ ${tipo} subido exitosamente:`, data.url);
+
 
       if (tipo === "imagen") {
         setImagenUrl(data.url);
@@ -236,7 +234,7 @@ export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps
       return data.url;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : `Error al subir ${tipo}`;
-      console.error(`❌ Error al subir ${tipo}:`, errorMessage);
+      console.error(` Error al subir ${tipo}:`, errorMessage);
       setFormError(errorMessage);
       return null;
     } finally {
@@ -269,8 +267,8 @@ export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps
 
       // Validar según el formato permitido
       const tieneTexto = formData.texto.trim().length > 0;
-      const tieneImagen = imagenUrl.length > 0;
-      const tieneVideo = videoUrl.length > 0;
+      const tieneImagen = imagenUrl.length > 0 || imagenPrincipalFile !== null;
+      const tieneVideo = videoUrl.length > 0 || videoFile !== null;
       const tienePreguntas = formulario.preguntas && formulario.preguntas.length > 0;
 
       // Si SOLO permite video, el video es obligatorio
