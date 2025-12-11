@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PersonService } from "@/models/person/personService";
 import { TestimonialService } from "@/models/testimonial/testimonialService";
+import { roleRequired } from "@/lib/roleRequired";
+import { Rol } from "@prisma/client";
 
 const testimonialService = new TestimonialService();
 const personService = new PersonService();
@@ -35,6 +37,9 @@ const personService = new PersonService();
  */
 // Obtiene testimonios por personaId
 export async function GET(request: NextRequest, { params }: { params: Promise<{ personaId: string }> }) {
+    const authCheck = await roleRequired([Rol.admin, Rol.editor])(request);
+    if (authCheck) return authCheck;
+
     try {
         const { personaId } = await params;
 

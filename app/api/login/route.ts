@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { signIn } from "@/lib/auth";
+import { roleRequired } from "@/lib/roleRequired";
+import { Rol } from "@prisma/client";
 
 /**
  * @swagger
@@ -35,6 +37,9 @@ import { signIn } from "@/lib/auth";
  */
 // Inicia sesión
 export async function POST(req: NextRequest) {
+    const authCheck = await roleRequired([Rol.admin, Rol.editor])(req);
+    if (authCheck) return authCheck;
+
     const { email, password } = await req.json();
 
     const result = await signIn("credentials", {

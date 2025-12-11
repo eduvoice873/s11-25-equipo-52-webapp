@@ -3,6 +3,88 @@ import { auth } from "@/lib/auth";
 import prisma from "@/lib/db";
 import { sanitizeBigInt } from "@/lib/sanitizeBigInt";
 
+/**
+ * @openapi
+ * /api/respuestas-formulario:
+ *   get:
+ *     summary: Obtiene todas las respuestas de un formulario por medio de un filtrado
+ *     tags:
+ *       - Respuesta Formulario
+ *     parameters:
+ *       - in: query
+ *         name: formularioUrl
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Url del formulario para filtrar las respuestas
+ *     responses:
+ *       '200':
+ *         description: Respuestas de formularios obtenidas
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 total:
+ *                   type: integer
+ *                   example: 3
+ *                 respuestas:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                       formularioId:
+ *                         type: string
+ *                       personaId:
+ *                         type: string
+ *                         nullable: true
+ *                       nombreCompleto:
+ *                         type: string
+ *                         nullable: true
+ *                       correo:
+ *                         type: string
+ *                         nullable: true
+ *                       titulo:
+ *                         type: string
+ *                       texto:
+ *                         type: string
+ *                       calificacion:
+ *                         type: integer
+ *                         example: 5
+ *                       estado:
+ *                         type: string
+ *                         example: pendiente
+ *                       imagenUrl:
+ *                         type: string
+ *                         nullable: true
+ *                       videoUrl:
+ *                         type: string
+ *                         nullable: true
+ *                       creadoEn:
+ *                         type: string
+ *                         format: date-time
+ *                       persona:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                           nombreCompleto:
+ *                             type: string
+ *                           correo:
+ *                             type: string
+ *                           fotoUrl:
+ *                             type: string
+ *                             nullable: true
+ *       '400':
+ *         description: Parámetros inválidos (p. ej., falta formularioUrl)
+ *       '500':
+ *         description: Error interno del servidor
+ */
 export async function GET(request: NextRequest) {
   try {
     const session = await auth();

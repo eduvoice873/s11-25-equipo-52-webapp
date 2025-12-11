@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { roleRequired } from "@/lib/roleRequired";
+import { Rol } from "@prisma/client";
 import { TagService } from "@/models/tag/tagService";
 import { TagCreateSchema } from "@/models/tag/dto/tag";
 
@@ -38,8 +40,11 @@ const tagService = new TagService();
  */
 // Crea una nueva etiqueta
 export async function POST(request: NextRequest) {
+    const authCheck = await roleRequired([Rol.admin, Rol.editor])(request);
+    if (authCheck) return authCheck;
+
     const session = await auth();
-    if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!session?.user) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
 
     try {
         const body = await request.json();
@@ -75,9 +80,9 @@ export async function POST(request: NextRequest) {
  *                     $ref: '#/components/schemas/TagCreateSchema'
  */
 // Obtiene todas las etiquetas
-export async function GET() {
-    const session = await auth();
-    if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+export async function GET(request: NextRequest) {
+    const authCheck = await roleRequired([Rol.admin, Rol.editor])(request);
+    if (authCheck) return authCheck;
 
     const tags = await tagService.getAllTags();
     return NextResponse.json(tags, { status: 200 });

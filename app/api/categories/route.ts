@@ -3,6 +3,8 @@ import { auth } from "@/lib/auth";
 import { CategoryService } from "@/models/category/categoryService";
 import { OrganizationService } from "@/models/organization/organizationService";
 import { CategoryCreateSchema } from "@/models/category/dto/category";
+import { roleRequired } from "@/lib/roleRequired";
+import { Rol } from "@prisma/client";
 
 const categoryService = new CategoryService();
 const organizationService = new OrganizationService();
@@ -43,13 +45,14 @@ const organizationService = new OrganizationService();
  */
 // Crea una nueva categoría
 export async function POST(request: NextRequest) {
+  const authCheck = await roleRequired([Rol.admin])(request);
+  if (authCheck) return authCheck;
+
   const session = await auth();
-  if (!session?.user)
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!session?.user) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
 
   const userId = session.user.id;
-  if (!userId)
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!userId) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
 
   try {
     const body = await request.json();
@@ -60,11 +63,10 @@ export async function POST(request: NextRequest) {
 
     const organizacionId =
       await organizationService.getOrganizationIdByUserId(userId);
-    if (!organizacionId)
-      return NextResponse.json(
-        { error: "Organization not found for user" },
-        { status: 404 }
-      );
+    if (!organizacionId) return NextResponse.json(
+      { error: "No se encontró la organización por el usuario" },
+      { status: 404 }
+    );
 
     const newCategory = await categoryService.createCategory(
       dto,
@@ -74,8 +76,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(newCategory, { status: 201 });
   } catch (error) {
-    if (error instanceof Error)
-      return NextResponse.json({ error: error.message }, { status: 400 });
+    if (error instanceof Error) return NextResponse.json({ error: error.message }, { status: 400 });
 
     return NextResponse.json(
       { error: "Internal server error" },
@@ -100,31 +101,29 @@ export async function POST(request: NextRequest) {
  *               $ref: '#/components/schemas/CategoryCreateSchema'
  */
 // Obtiene todas las categorías de la organización del usuario
-export async function GET() {
+export async function GET(request: NextRequest) {
+
+  const authCheck = await roleRequired([Rol.admin])(request);
+  if (authCheck) return authCheck;
+
   const session = await auth();
-  if (!session?.user)
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!session?.user) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
 
   const userId = session.user.id;
-  if (!userId)
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!userId) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
 
   try {
-    const organizacionId =
-      await organizationService.getOrganizationIdByUserId(userId);
-    if (!organizacionId)
-      return NextResponse.json(
-        { error: "Organization not found for user" },
-        { status: 404 }
-      );
+    const organizacionId = await organizationService.getOrganizationIdByUserId(userId);
+    if (!organizacionId) return NextResponse.json(
+      { error: "No se encontró la organización por el usuario" },
+      { status: 404 }
+    );
 
     // Filtrar categorías por organización
-    const categories =
-      await categoryService.getCategoryByOrganizacionId(organizacionId);
+    const categories = await categoryService.getCategoryByOrganizacionId(organizacionId);
     return NextResponse.json(categories, { status: 200 });
   } catch (error) {
-    if (error instanceof Error)
-      return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error instanceof Error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

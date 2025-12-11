@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/db";
 import { OrganizationService } from "@/models/organization/organizationService";
+import { roleRequired } from "@/lib/roleRequired";
+import { Rol } from "@prisma/client";
 
 const organizationService = new OrganizationService();
 
@@ -35,14 +37,14 @@ const organizationService = new OrganizationService();
  */
 // Obtiene una organización por el ID del usuario
 export async function GET(request: NextRequest, { params }: { params: Promise<{ userId: string }> }) {
-    const session = await auth();
-    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const authCheck = await roleRequired([Rol.admin])(request);
+    if (authCheck) return authCheck;
 
     try {
         const { userId } = await params;
         const userFounded = await prisma.user.findUnique({ where: { id: userId } });
 
-        if (!userFounded) return NextResponse.json({ error: "User not found" }, { status: 404 });
+        if (!userFounded) return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 });
 
         const organization = await organizationService.getOrganizationById(userFounded.organizacionId);
 
