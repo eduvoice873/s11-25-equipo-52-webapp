@@ -102,13 +102,8 @@ export function TestimonialRender_admin({
     fetch(`/api/respuestas-formulario/list?${params.toString()}`)
       .then(res => res.json())
       .then(data => {
-        console.log(' Datos recibidos del API:', data);
+
         const transformed = data.map((item: any) => {
-          console.log(' Item individual:', {
-            preguntas: item.formulario?.preguntas,
-            respuestasPreguntas: item.respuestasPreguntas,
-            titulo: item.titulo
-          });
           return {
             person: {
               nombreCompleto: item.nombreCompleto || item.persona?.nombreCompleto || 'Sin nombre',
@@ -128,6 +123,8 @@ export function TestimonialRender_admin({
               } : undefined,
               destacado: false,
               calificacion: item.calificacion,
+              preguntas: item.formulario?.preguntas,
+              respuestasPreguntas: item.respuestasPreguntas,
               date: item.creadoEn,
               tags: item.testimonio?.etiquetas || [],
               history: item.revisiones?.map((rev: any) => ({
@@ -155,7 +152,7 @@ export function TestimonialRender_admin({
             respuestasPreguntas: item.respuestasPreguntas || null
           };
         });
-        console.log(' Datos transformados:', transformed);
+
         setTestimonials(transformed);
         setLoading(false);
       })

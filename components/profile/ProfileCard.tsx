@@ -18,8 +18,7 @@ export default function ProfileCard() {
 
   // Refrescar perfil cuando el componente monta
   useEffect(() => {
-    console.log("ProfileCard: Montado, perfil actual:", perfil);
-    console.log("ProfileCard: isLoading:", isLoading, "isError:", isError, "error:", error);
+    refreshPerfil();
   }, [perfil, isLoading, isError, error]);
 
   // Inicializar formulario cuando carga el perfil

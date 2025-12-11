@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
     const formulariosConRespuestas = formularios.map((f) => ({
       ...f,
       respuestasTotales: f._count.respuestas,
-      _count: undefined, // Remover _count del objeto final
+      _count: undefined, // Elimine el campo _count original y para que mantenga solo el conteo personalizado
     }));
 
     return NextResponse.json(
@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("❌ Error en GET /api/formularios:", error);
+    console.error(" Error en GET /api/formularios:", error);
 
     return NextResponse.json(
       {

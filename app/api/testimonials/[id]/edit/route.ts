@@ -16,16 +16,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     const { id } = await params;
     const body = await request.json();
     const { titulo, texto, calificacion, nombre, correo, etiquetas } = body;
-
-    console.log("🔄 Actualizando testimonio:", {
-      id,
-      titulo,
-      texto: texto?.substring(0, 50),
-      calificacion,
-      nombre,
-      correo,
-      etiquetas,
-    });
+    // Validamos los datos recibidos
     if (!texto || typeof texto !== "string" || !texto.trim()) {
       return NextResponse.json(
         { error: "El texto del testimonio es obligatorio" },
@@ -133,12 +124,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       },
     });
 
-    console.log("✅ Testimonio actualizado exitosamente:", {
-      id: testimonioActualizado.id,
-      titulo: testimonioActualizado.titulo,
-      estado: testimonioActualizado.estado,
-      etiquetas: testimonioActualizado.etiquetas.map((e) => e.nombre),
-    });
+
 
     // Crear registro de revisión
     if (session.user.id) {

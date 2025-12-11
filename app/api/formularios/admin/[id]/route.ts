@@ -73,7 +73,7 @@ export async function DELETE(
       where: { id },
     });
 
-    console.log(" Formulario eliminado:", id);
+    
 
     return NextResponse.json(
       {

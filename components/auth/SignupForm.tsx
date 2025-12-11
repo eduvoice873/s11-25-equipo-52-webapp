@@ -147,7 +147,10 @@ export default function SignupForm() {
 
           <hr className="border" />
 
-          <GoogleBtn />
+          <GoogleBtn
+            disabled={true}
+            title="Próximamente podrás registrarte con Google"
+          />
         </form>
       </Card>
     </div>

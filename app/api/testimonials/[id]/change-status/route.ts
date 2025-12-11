@@ -20,7 +20,7 @@ export async function PATCH(
       return NextResponse.json({ error: "Estado inválido" }, { status: 400 });
     }
 
-    console.log(` Cambiando estado de ${id} a ${estado}`);
+    
 
     // Actualizar estado en RespuestaFormulario
     const respuesta = await prisma.respuestaFormulario.update({

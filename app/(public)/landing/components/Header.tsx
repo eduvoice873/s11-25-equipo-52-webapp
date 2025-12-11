@@ -60,7 +60,7 @@ export default function HeaderLanding() {
           </div>
         ) : session ? (
           <Link
-            href="/home"
+            href={session.user?.rol === "editor" ? "/editor-dashboard" : "/home"}
             className="hidden md:block bg-brand-blue text-background px-6 py-2 rounded-xl shadow-md hover:bg-brand-blue/90 transition-colors font-bold font-lato"
           >
             Ir al Dashboard

@@ -33,22 +33,17 @@ export async function GET(
     // Esperar la Promise de params
     const { slug } = await context.params;
 
-    console.log(" Slug recibido en API:", slug);
-
     if (!slug) {
-      console.log(" Slug vacío");
       return NextResponse.json(
         { error: "Slug no proporcionado" },
         { status: 400 }
       );
     }
 
-    console.log(" Buscando formulario con slug:", slug);
-
     // Obtener formulario público
     const formulario = await prisma.formulario.findUnique({
       where: {
-        slugPublico: slug.trim() // Trimear por si tiene espacios
+        slugPublico: slug.trim(), // Trimear por si tiene espacios
       },
       select: {
         id: true,
@@ -81,41 +76,34 @@ export async function GET(
       },
     });
 
-    console.log(" Resultado de búsqueda:", formulario ? " Encontrado" : " No encontrado");
-
     if (!formulario) {
       // Buscar si existe con otro formato
       const formularios = await prisma.formulario.findMany({
         where: {
           slugPublico: {
             contains: slug,
-            mode: 'insensitive',
+            mode: "insensitive",
           },
         },
         select: { slugPublico: true },
       });
 
-      console.log(" Formularios similares:", formularios);
-
       return NextResponse.json(
         {
           error: "Formulario no encontrado",
           slugBuscado: slug,
-          formulariosSimilares: formularios
+          formulariosSimilares: formularios,
         },
         { status: 404 }
       );
     }
 
     if (!formulario.estado) {
-      console.log(" Formulario inactivo");
       return NextResponse.json(
         { error: "Este formulario no está disponible" },
         { status: 403 }
       );
     }
-
-    console.log(" Formulario encontrado y activo:", formulario.id);
 
     return NextResponse.json(
       {
@@ -131,12 +119,10 @@ export async function GET(
       { status: 200 }
     );
   } catch (error) {
-    console.error("❌ Error en GET /api/formularios/[slug]:", error);
-
     return NextResponse.json(
       {
         error: "Error interno del servidor",
-        details: error instanceof Error ? error.message : "Error desconocido"
+        details: error instanceof Error ? error.message : "Error desconocido",
       },
       { status: 500 }
     );

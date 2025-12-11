@@ -23,13 +23,23 @@ export async function GET(request: NextRequest) {
     const categoriaId = searchParams.get("categoriaId");
     const search = searchParams.get("search");
 
+    // Si el usuario es editor, obtener su categoría asignada
+    let editorCategoriaId: string | null = null;
+    if (session.user.rol === "editor") {
+      const editorCategory = await prisma.categoria.findFirst({
+        where: { creadoPorId: session.user.id },
+        select: { id: true },
+      });
+      editorCategoriaId = editorCategory?.id || null;
+    }
+
     const where: any = {
       formulario: {
         categoria: { organizacionId },
       },
     };
 
-    console.log(" Filtro recibido:", filter);
+    
 
     if (filter === "pending") {
       where.estado = "pendiente";
@@ -39,9 +49,16 @@ export async function GET(request: NextRequest) {
       where.estado = "rechazado";
     }
 
-    console.log(" Condición WHERE:", JSON.stringify(where, null, 2));
 
-    if (categoriaId && categoriaId !== "all") {
+
+    // Si es editor, filtrar por su categoría
+    if (session.user.rol === "editor" && editorCategoriaId) {
+      where.formulario = {
+        ...where.formulario,
+        categoriaId: editorCategoriaId,
+      };
+    } else if (categoriaId && categoriaId !== "all") {
+      // Si es admin, permitir filtrar por categoriaId específico
       where.formulario = {
         ...where.formulario,
         categoriaId,
@@ -149,17 +166,8 @@ export async function GET(request: NextRequest) {
       })
     );
 
-    console.log(
-      `📊 Total de respuestas encontradas: ${respuestasConTestimonio.length}`
-    );
-    console.log(
-      "📋 Estados de las respuestas:",
-      respuestasConTestimonio.map((r) => ({
-        id: r.id,
-        estado: r.estado,
-        titulo: r.titulo,
-      }))
-    );
+
+
 
     return NextResponse.json(sanitizeBigInt(respuestasConTestimonio), {
       status: 200,

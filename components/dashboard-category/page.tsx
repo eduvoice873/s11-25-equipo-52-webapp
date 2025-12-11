@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Plus, AlertCircle } from "lucide-react";
 import { auth } from "@/lib/auth";
+import { requireAdmin } from "@/lib/roleValidation";
 import prisma from "@/lib/db";
 import CategoriesCards from "@/components/category/CategoriesCards";
 import DashboardStatsSection from "@/components/dashboard/DashboardStatsSection";
@@ -12,12 +13,10 @@ import PendingTestimonials from "@/components/dashboard/PendingTestimonials";
 export default async function DashboardCategoryPage() {
   const session = await auth();
 
+  // Validar que solo admins puedan acceder
+  const validSession = requireAdmin(session);
 
-  if (!session?.user?.rol) {
-    redirect("/login");
-  }
-
-  const organizacionId = session.user.organizacionId;
+  const organizacionId = validSession.user.organizacionId;
 
   if (!organizacionId) {
     redirect("/login");
@@ -40,7 +39,7 @@ export default async function DashboardCategoryPage() {
         {/* Hero Section */}
         <section className="flex flex-col gap-2">
           <h1 className="text-3xl font-bold text-brand-light flex items-center gap-2">
-            Bienvenid@, <span className="text-blue-900">{session.user.name}</span>
+            Bienvenid@, <span className="text-blue-900">{validSession.user.name}</span>
           </h1>
           <p className="text-gray-500">
             Gestiona tus categorías y testimonios desde aquí.

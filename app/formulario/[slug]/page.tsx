@@ -6,9 +6,9 @@ export default async function EnviarTestimonioPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  const { slug } = await params; // ✔ Necesario en Next 15+ con Turbopack
+  const { slug } = await params; 
 
-  console.log("Slug recibido desde page.tsx:", slug);
+
 
   return <TestimonioPublicForm slug={slug} />;
 }

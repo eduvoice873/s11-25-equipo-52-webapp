@@ -10,9 +10,9 @@ const organizationService = new OrganizationService();
 
 /**
  * @openapi
- * /api/users/editors:
+ * /api/users/admins:
  *   post:
- *     summary: Crea un usuario con rol editor
+ *     summary: Crea un usuario con rol admin
  *     tags:
  *       - Usuario
  *     requestBody:
@@ -37,10 +37,9 @@ const organizationService = new OrganizationService();
  *               - email
  *               - password
  *               - confirm
- *               - image
  *     responses:
  *       201:
- *         description: Editor creado
+ *         description: Admin creado
  *       400:
  *         description: Error de validación
  *       401:
@@ -48,7 +47,7 @@ const organizationService = new OrganizationService();
  *       500:
  *         description: Error interno
  */
-// Crear un usuario con rol editor
+// Crear un usuario con rol admin
 export async function POST(request: NextRequest) {
   const session = await auth();
   if (!session)
@@ -60,9 +59,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { categoriaId, ...userCreateData } = body;
-
-    const dto = UserCreateSchema.parse(userCreateData);
+    const dto = UserCreateSchema.parse(body);
 
     const userFounded = await userService.getUserByEmail(dto.email);
 
@@ -85,16 +82,15 @@ export async function POST(request: NextRequest) {
     const saltOrRounds = 10;
     const hashedPassword = await bcrypt.hash(dto.password, saltOrRounds);
 
-    const newUserEditor = await userService.createUserEditor(
+    const newUserAdmin = await userService.createUserAdmin(
       dto,
       hashedPassword,
-      organizationId,
-      categoriaId // Pasar categoriaId
+      organizationId
     );
 
-    return NextResponse.json(newUserEditor, { status: 201 });
+    return NextResponse.json(newUserAdmin, { status: 201 });
   } catch (error) {
-    console.error("Error en POST /api/users/editors:", error);
+    console.error("Error en POST /api/users/admins:", error);
     if (error instanceof Error)
       return NextResponse.json({ message: error.message }, { status: 400 });
 
@@ -107,21 +103,17 @@ export async function POST(request: NextRequest) {
 
 /**
  * @openapi
- * /api/users/editors:
+ * /api/users/admins:
  *   get:
- *     summary: Obtiene todos los usuarios con el rol de editor
+ *     summary: Obtiene todos los usuarios con el rol de admin
  *     tags:
  *       - Usuario
  *     responses:
  *       200:
- *         description: Usuarios con rol editor obtenidos
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/QuestionCreateSchema'
+ *         description: Usuarios con rol admin obtenidos
  */
-// Obtiene usuarios con rol editor
+// Obtiene usuarios con rol admin
 export async function GET() {
-  const usersEditors = await userService.getUserByEditorRol();
-  return NextResponse.json(usersEditors, { status: 200 });
+  const usersAdmins = await userService.getUserByAdminRol();
+  return NextResponse.json(usersAdmins, { status: 200 });
 }

@@ -1,11 +1,8 @@
-import prisma from "@/lib/db"; // ← Cambiar de @/lib/db a @/lib/db
-
+import prisma from "@/lib/db"; 
 export async function actualizarFormulario(id: string, data: any) {
   "use server";
 
   try {
-    console.log(" Actualizando formulario:", id);
-    console.log(" Datos a actualizar:", data);
 
     if (!id) {
       throw new Error("ID del formulario es requerido");
@@ -33,11 +30,11 @@ export async function actualizarFormulario(id: string, data: any) {
       },
     });
 
-    console.log(" Formulario actualizado:", formularioActualizado.id);
+
 
     return formularioActualizado;
   } catch (error) {
-    console.error("❌ Error al actualizar formulario:", error);
+    console.error(" Error al actualizar formulario:", error);
     throw error;
   }
 }

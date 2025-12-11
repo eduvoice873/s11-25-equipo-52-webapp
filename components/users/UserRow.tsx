@@ -96,7 +96,7 @@ export function UserRow({ user }: UserRowProps) {
 
       <td className="p-4 text-gray-700">{user.createdAt}</td>
 
-      {/* Actions mantenidas ✅ */}
+      {/* Actions mantenidas  */}
       <td className="p-4 flex justify-center gap-4">
         <button
           onClick={() => setIsEditModalOpen(true)}
