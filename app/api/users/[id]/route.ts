@@ -106,7 +106,7 @@ export async function PUT(
     const dto = UserUpdateSchema.parse(body);
 
     let hashedPassword: string | undefined;
-    if (dto.password) {
+    if (dto.password && typeof dto.password === "string") {
       const saltOrRounds = 10;
       hashedPassword = await bcrypt.hash(dto.password, saltOrRounds);
     }
