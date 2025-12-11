@@ -63,7 +63,9 @@ export default async function EditorDashboardPage() {
           </p>
         </section>
 
-        {/* Componente Placeholder
+
+
+        {/* Componente Placeholder sera remplazado con el componente que crea la compañera lidea*/}
         <div className="bg-white rounded-lg shadow p-8 text-center">
           <h2 className="text-2xl font-bold text-brand-blue mb-2">
             ¡Hola bienvenido editor!
@@ -72,132 +74,7 @@ export default async function EditorDashboardPage() {
             Este es un espacio reservado para un componente que será agregado próximamente.
           </p>
         </div>
-        */}
 
-
-
-        {!editorCategory && (
-          <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-lg">
-            <div className="flex items-center gap-3">
-              <AlertCircle className="w-5 h-5 text-red-600" />
-              <div className="flex-1">
-                <p className="text-sm font-medium text-red-800">
-                  No tienes una categoría asignada. Contacta al administrador.
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
-
-        {respuestasPendientes > 0 && (
-          <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-lg">
-            <div className="flex items-center gap-3">
-              <AlertCircle className="w-5 h-5 text-yellow-600" />
-              <div className="flex-1">
-                <p className="text-sm font-medium text-yellow-800">
-                  Tienes {respuestasPendientes} respuesta{respuestasPendientes > 1 ? 's' : ''} de formulario pendiente{respuestasPendientes > 1 ? 's' : ''} de revisión
-                </p>
-              </div>
-              <Button
-                asChild
-                variant="outline"
-                size="sm"
-                className="border-yellow-600 text-yellow-700 hover:bg-yellow-100"
-              >
-                <Link href="/gestionTestimonio">
-                  Revisar ahora
-                </Link>
-              </Button>
-            </div>
-          </div>
-        )}
-
-
-        {editorCategory && (
-          <section className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Mi Categoría</h2>
-            <div className="border-l-4 border-blue-500 pl-4">
-              <h3 className="text-2xl font-bold text-gray-900">{editorCategory.nombre}</h3>
-              {editorCategory.titulo && (
-                <p className="text-gray-600 mt-2">{editorCategory.titulo}</p>
-              )}
-              {editorCategory.mensaje && (
-                <p className="text-gray-500 text-sm mt-3 italic">"{editorCategory.mensaje}"</p>
-              )}
-            </div>
-          </section>
-        )}
-
-
-        {editorCategory && (
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-
-            <div className="bg-white rounded-lg shadow p-6 flex items-start gap-4">
-              <div className="bg-blue-100 rounded-lg p-3">
-                <FileText className="w-6 h-6 text-blue-600" />
-              </div>
-              <div>
-                <p className="text-gray-500 text-sm font-medium">Total Testimonios</p>
-                <p className="text-3xl font-bold text-gray-900 mt-1">{testimonios.length}</p>
-              </div>
-            </div>
-
-            // Aprobados
-            <div className="bg-white rounded-lg shadow p-6 flex items-start gap-4">
-              <div className="bg-green-100 rounded-lg p-3">
-                <CheckCircle2 className="w-6 h-6 text-green-600" />
-              </div>
-              <div>
-                <p className="text-gray-500 text-sm font-medium">Aprobados</p>
-                <p className="text-3xl font-bold text-green-600 mt-1">{testimoniosAprobados}</p>
-              </div>
-            </div>
-
-
-            <div className="bg-white rounded-lg shadow p-6 flex items-start gap-4">
-              <div className="bg-yellow-100 rounded-lg p-3">
-                <Clock className="w-6 h-6 text-yellow-600" />
-              </div>
-              <div>
-                <p className="text-gray-500 text-sm font-medium">Pendientes</p>
-                <p className="text-3xl font-bold text-yellow-600 mt-1">{testimoniosPendientes}</p>
-              </div>
-            </div>
-
-          
-            <div className="bg-white rounded-lg shadow p-6 flex items-start gap-4">
-              <div className="bg-red-100 rounded-lg p-3">
-                <AlertCircle className="w-6 h-6 text-red-600" />
-              </div>
-              <div>
-                <p className="text-gray-500 text-sm font-medium">Rechazados</p>
-                <p className="text-3xl font-bold text-red-600 mt-1">{testimoniosRechazados}</p>
-              </div>
-            </div>
-          </div>
-        )}
-
-
-        {editorCategory && (
-          <section className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Acciones Rápidas</h2>
-            <div className="grid md:grid-cols-2 gap-4">
-              <Button asChild className="bg-blue-600 hover:bg-blue-700">
-                <Link href="/gestionTestimonio" className="flex items-center gap-2">
-                  <AlertCircle size={18} />
-                  <span>Ver Testimonios Pendientes</span>
-                </Link>
-              </Button>
-              <Button asChild variant="outline">
-                <Link href={`/categories/${editorCategory.id}`} className="flex items-center gap-2">
-                  <FileText size={18} />
-                  <span>Ver Categoría</span>
-                </Link>
-              </Button>
-            </div>
-          </section>
-        )}
 
 
       </main>
