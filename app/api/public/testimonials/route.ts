@@ -10,16 +10,6 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get("limit") || "10");
     const destacados = searchParams.get("destacados") === "true";
 
-    if (!categoriaId && !organizacionId) {
-      return NextResponse.json([], {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET",
-          "Access-Control-Allow-Headers": "Content-Type",
-        },
-      });
-    }
-
     const where: any = {
       estado: { in: ["aprobado", "publicado"] },
     };
