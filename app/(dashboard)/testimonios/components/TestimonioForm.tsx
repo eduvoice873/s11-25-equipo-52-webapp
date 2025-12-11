@@ -107,6 +107,7 @@ const formSchema = z.object({
   mensajeGracias: z
     .string()
     .min(10, "El mensaje debe tener al menos 10 caracteres"),
+  urlVolverAlInicio: z.string().optional(),
   slugPublico: z
     .string()
     .min(3, "El slug debe tener al menos 3 caracteres")
@@ -176,6 +177,7 @@ export default function NuevoFormularioTestimonioPage({
       permitirVideo: false,
       mensajeGracias:
         "¡Gracias por compartir tu experiencia! Tu testimonio nos ayuda a mejorar.",
+      urlVolverAlInicio: "",
       slugPublico: "",
       estado: "borrador",
       nombreAutor: null,
@@ -870,6 +872,63 @@ export default function NuevoFormularioTestimonioPage({
                     </div>
                   </div>
                 </div>
+
+                <div className="p-4 bg-blue-50 rounded-lg border border-blue-200 mt-6">
+                  <h3 className="font-medium text-blue-800 mb-2">
+                    Mensaje de agradecimiento
+                  </h3>
+                  <FormField
+                    control={form.control}
+                    name="mensajeGracias"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm">
+                          Mensaje de agradecimiento *
+                        </FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="¡Gracias por compartir tu experiencia con nosotros! Tu testimonio ha sido enviado correctamente y será revisado por nuestro equipo."
+                            className="min-h-[120px]"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="urlVolverAlInicio"
+                    render={({ field }) => (
+                      <FormItem className="mt-4">
+                        <FormLabel className="text-sm">
+                          URL para volver al inicio (opcional)
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Ej: https://miwebsite.com o /inicio"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          URL a la que el usuario será dirigido al hacer clic en "Volver al inicio" en la página de agradecimiento. Si no la especificas, irá al inicio del sitio.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="p-4 bg-white rounded border border-blue-100 mt-4">
+                    <div className="flex items-center gap-3 mb-3">
+                      <CheckCircle className="w-6 h-6 text-green-500" />
+                      <h4 className="text-lg font-medium">¡Gracias!</h4>
+                    </div>
+                    <p className="text-slate-700">
+                      {form.watch("mensajeGracias")}
+                    </p>
+                  </div>
+                </div>
               </>
             ) : (
               <>
@@ -1063,42 +1122,66 @@ export default function NuevoFormularioTestimonioPage({
                     )}
                   </div>
                 </div>
+
+                <div className="p-4 bg-blue-50 rounded-lg border border-blue-200 mt-6">
+                  <h3 className="font-medium text-blue-800 mb-2">
+                    Mensaje de agradecimiento
+                  </h3>
+                  <FormField
+                    control={form.control}
+                    name="mensajeGracias"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm">
+                          Mensaje de agradecimiento *
+                        </FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="¡Gracias por compartir tu experiencia con nosotros! Tu testimonio ha sido enviado correctamente y será revisado por nuestro equipo."
+                            className="min-h-[120px]"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="urlVolverAlInicio"
+                    render={({ field }) => (
+                      <FormItem className="mt-4">
+                        <FormLabel className="text-sm">
+                          URL para volver al inicio (opcional)
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Ej: https://miwebsite.com o /inicio"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          URL a la que el usuario será dirigido al hacer clic en "Volver al inicio" en la página de agradecimiento. Si no la especificas, irá al inicio del sitio.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="p-4 bg-white rounded border border-blue-100 mt-4">
+                    <div className="flex items-center gap-3 mb-3">
+                      <CheckCircle className="w-6 h-6 text-green-500" />
+                      <h4 className="text-lg font-medium">¡Gracias!</h4>
+                    </div>
+                    <p className="text-slate-700">
+                      {form.watch("mensajeGracias")}
+                    </p>
+                  </div>
+                </div>
               </>
             )}
 
-            <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-              <h3 className="font-medium text-blue-800 mb-2">
-                Mensaje de agradecimiento
-              </h3>
-              <FormField
-                control={form.control}
-                name="mensajeGracias"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm">
-                      Mensaje de agradecimiento *
-                    </FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="¡Gracias por compartir tu experiencia con nosotros! Tu testimonio ha sido enviado correctamente y será revisado por nuestro equipo."
-                        className="min-h-[120px]"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <div className="p-4 bg-white rounded border border-blue-100 mt-4">
-                <div className="flex items-center gap-3 mb-3">
-                  <CheckCircle className="w-6 h-6 text-green-500" />
-                  <h4 className="text-lg font-medium">¡Gracias!</h4>
-                </div>
-                <p className="text-slate-700">
-                  {form.watch("mensajeGracias")}
-                </p>
-              </div>
-            </div>
           </div>
         );
 
@@ -1305,11 +1388,10 @@ export function FormatOption({
     <button
       type="button"
       onClick={onClick}
-      className={`flex items-start gap-3 rounded-lg border p-4 transition-all ${
-        active
-          ? "border-blue-500 bg-blue-50 shadow-sm"
-          : "border-slate-200 hover:border-slate-300"
-      }`}
+      className={`flex items-start gap-3 rounded-lg border p-4 transition-all ${active
+        ? "border-blue-500 bg-blue-50 shadow-sm"
+        : "border-slate-200 hover:border-slate-300"
+        }`}
     >
       <Icon className={`h-5 w-5 ${active ? "text-blue-500" : "text-slate-400"}`} />
       <div className="flex-1 text-left">
