@@ -1,11 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { auth } from "@/lib/auth";
+import { roleRequired } from "@/lib/roleRequired";
+import { Rol } from "@prisma/client";
 
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const authCheck = await roleRequired([Rol.admin, Rol.editor])(request);
+  if (authCheck) return authCheck;
+
   try {
     const session = await auth();
     if (!session?.user?.id) {

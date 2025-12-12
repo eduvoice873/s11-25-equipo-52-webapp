@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { UserService } from "@/models/user/userService";
 import { UserUpdateSchema } from "@/models/user/dto/user";
 import bcrypt from "bcrypt";
+import { roleRequired } from "@/lib/roleRequired";
+import { Rol } from "@prisma/client";
 import prisma from "@/lib/db";
 
 const userService = new UserService();
@@ -39,6 +41,9 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+   const authCheck = await roleRequired([Rol.admin])(request);
+   if (authCheck) return authCheck;
+    
   try {
     const { id } = await params;
 
@@ -95,6 +100,9 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+    const authCheck = await roleRequired([Rol.admin])(request);
+    if (authCheck) return authCheck;
+    
   try {
     const { id } = await params;
 
@@ -169,6 +177,9 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+   const authCheck = await roleRequired([Rol.admin])(request);
+   if (authCheck) return authCheck;
+    
   try {
     const { id } = await params;
 

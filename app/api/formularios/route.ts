@@ -1,8 +1,37 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
+import { roleRequired } from "@/lib/roleRequired";
+import { Rol } from "@prisma/client";
 
+/**
+ * @openapi
+ * /api/formularios:
+ *   get:
+ *     summary: Obtiene todos los formularios (con conteo de respuestas)
+ *     tags:
+ *       - Formulario
+ *     parameters:
+ *       - in: path
+ *         name: categoriaId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID de la categoría
+ *     responses:
+ *       200:
+ *         description: Formulario obtenido
+ *       400:
+ *         description: Error de validación
+ *       404:
+ *         description: Formulario no encontrado
+ *       500:
+ *         description: Error interno
+ */
 // GET → Obtener todos los formularios (con conteo de respuestas)
 export async function GET(request: NextRequest) {
+  const authCheck = await roleRequired([Rol.admin])(request);
+  if (authCheck) return authCheck;
+
   try {
     const formularios = await prisma.formulario.findMany({
       select: {

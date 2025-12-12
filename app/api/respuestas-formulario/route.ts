@@ -233,11 +233,11 @@ export async function POST(request: NextRequest) {
  *       - Respuesta Formulario
  *     parameters:
  *       - in: query
- *         name: formularioId
+ *         name: formularioUrl
  *         required: true
  *         schema:
  *           type: string
- *         description: ID del formulario para filtrar las respuestas
+ *         description: Url del formulario para filtrar las respuestas
  *     responses:
  *       '200':
  *         description: Respuestas de formularios obtenidas

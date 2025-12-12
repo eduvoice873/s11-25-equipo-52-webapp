@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { OrganizationService } from "@/models/organization/organizationService";
 import { OrganizationCreateSchema } from "@/models/organization/dto/organization";
+import { roleRequired } from "@/lib/roleRequired";
+import { Rol } from "@prisma/client";
 
 const organizationService = new OrganizationService();
 
@@ -70,9 +72,9 @@ export async function POST(request: NextRequest) {
  *               $ref: '#/components/schemas/OrganizationCreateSchema'
  */
 // Obtiene todas las organizaciones
-export async function GET() {
-    const session = await auth();
-    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+export async function GET(request: NextRequest) {
+    const authCheck = await roleRequired([Rol.admin])(request);
+    if (authCheck) return authCheck;
 
     const organizations = await organizationService.getAllOrganizations();
     return NextResponse.json(organizations, { status: 200 });

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { auth } from "@/lib/auth";
+import { roleRequired } from "@/lib/roleRequired";
+import { Rol } from "@prisma/client";
 
 /**
  * GET /api/testimonials/moderacion
@@ -9,6 +11,9 @@ import { auth } from "@/lib/auth";
  * - Editor: solo los de sus categorías asignadas
  */
 export async function GET(request: NextRequest) {
+  const authCheck = await roleRequired([Rol.admin, Rol.editor])(request);
+  if (authCheck) return authCheck;
+
   try {
     const session = await auth();
     if (!session?.user?.id) {

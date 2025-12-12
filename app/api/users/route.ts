@@ -1,14 +1,19 @@
-import prisma from '@/lib/db';
-import { NextRequest, NextResponse } from 'next/server';
-import { UserService } from '@/models/user/userService';
-import { OrganizationService } from '@/models/organization/organizationService';
-import bcrypt from 'bcrypt';
+import prisma from "@/lib/db";
+import { NextRequest, NextResponse } from "next/server";
+import { UserService } from "@/models/user/userService";
+import { OrganizationService } from "@/models/organization/organizationService";
+import bcrypt from "bcrypt";
+import { roleRequired } from "@/lib/roleRequired";
+import { Rol } from "@prisma/client";
 import { auth } from '@/lib/auth';
 
 const userService = new UserService();
 const organizationService = new OrganizationService();
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
+  const authCheck = await roleRequired([Rol.admin])(request);
+  if (authCheck) return authCheck;
+
   try {
     const { name, email, password, organizacion, organizacion_slug } =
       await request.json();
@@ -95,7 +100,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
  *               $ref: '#/components/schemas/QuestionCreateSchema'
  */
 // Obtiene todos los usuarios tanto admins como editores
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const authCheck = await roleRequired([Rol.admin])(request);
+  if (authCheck) return authCheck;
+  
   try {
     // Verificar autenticación
     const session = await auth();

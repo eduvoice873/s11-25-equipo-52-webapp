@@ -2,10 +2,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/db";
+import { roleRequired } from "@/lib/roleRequired";
+import { Rol } from "@prisma/client";
 
 /**
  * @openapi
- * /api/formulario/admin/{id}:
+ * /api/formularios/admin/{id}:
  *   delete:
  *     summary: Elimina un formulario por el ID del administrador
  *     tags:
@@ -27,10 +29,10 @@ import prisma from "@/lib/db";
  *       500:
  *          description: Error interno
  */
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const authCheck = await roleRequired([Rol.admin])(request);
+  if (authCheck) return authCheck;
+
   try {
     // Verificar autenticación
     const session = await auth();
@@ -91,11 +93,35 @@ export async function DELETE(
   }
 }
 
+/**
+ * @openapi
+ * /api/formularios/admin/{id}:
+ *   get:
+ *     summary: Obtiene un formulario por el ID del administrador
+ *     tags:
+ *       - Formulario
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID del administrador
+ *     responses:
+ *       204:
+ *         description: Formulario obtenido
+ *       400:
+ *         description: Error de validación
+ *       404:
+ *          description: Formulario no encontrado
+ *       500:
+ *          description: Error interno
+ */
 // También puedo agregar GET para obtener un formulario específico
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const authCheck = await roleRequired([Rol.admin])(request);
+  if (authCheck) return authCheck;
+
   try {
     const session = await auth();
     if (!session?.user?.email) {
@@ -164,10 +190,34 @@ export async function GET(
   }
 }
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+/**
+ * @openapi
+ * /api/formularios/admin/{id}:
+ *   patch:
+ *     summary: Actualiza parcialmente un formulario por el ID del administrador
+ *     tags:
+ *       - Formulario
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID del administrador
+ *     responses:
+ *       204:
+ *         description: Formulario actualizado
+ *       400:
+ *         description: Error de validación
+ *       404:
+ *          description: Formulario no encontrado
+ *       500:
+ *          description: Error interno
+ */
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const authCheck = await roleRequired([Rol.admin])(request);
+  if (authCheck) return authCheck;
+
   try {
     const session = await auth();
     if (!session?.user?.email) {

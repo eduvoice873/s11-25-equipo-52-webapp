@@ -4,7 +4,7 @@ import prisma from "@/lib/db";
 
 /**
  * @openapi
- * /api/formulario/categoria/{categoriaId}:
+ * /api/formularios/categoria/{categoriaId}:
  *   get:
  *     summary: Obtiene un formulario por el ID de la categoría
  *     tags:
@@ -18,7 +18,7 @@ import prisma from "@/lib/db";
  *         description: ID de la categoría
  *     responses:
  *       200:
- *         description: Formulario obtenida
+ *         description: Formulario obtenido
  *       400:
  *         description: Error de validación
  *       404:
