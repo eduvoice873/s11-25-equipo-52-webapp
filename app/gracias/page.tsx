@@ -61,32 +61,12 @@ export default function GraciasPage() {
             </li>
             <li className="flex items-start gap-2">
               <span className="text-green-600 font-bold mt-0.5">✓</span>
-              <span>Será publicado en nuestros widgets y plataformas</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-green-600 font-bold mt-0.5">✓</span>
-              <span>Recibirás notificación cuando sea publicado</span>
+              <span>Será publicado en nuestras plataformas</span>
             </li>
           </ul>
         </div>
 
-        {/* Botones */}
-        <div className="flex flex-col gap-3">
-          <button
-            onClick={() => router.push(urlRetorno)}
-            className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
-          >
-            <Home className="w-4 h-4" />
-            Volver al inicio
-          </button>
-          <button
-            onClick={() => router.back()}
-            className="w-full px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
-          >
-            <ArrowRight className="w-4 h-4" />
-            Enviar otro testimonio
-          </button>
-        </div>
+
 
         {/* Footer */}
         <p className="text-xs text-gray-500 mt-6">
