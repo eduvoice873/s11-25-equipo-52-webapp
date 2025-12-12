@@ -33,11 +33,7 @@ export default function AboutPage() {
               empresas EdTech las herramientas necesarias para recolectar, gestionar y publicar testimonios de
               manera profesional y escalable.
             </p>
-            <p className="text-gray-700 text-lg leading-relaxed font-lato">
-              Fundada en 2023 por un equipo de desarrolladores apasionados, hemos ayudado a más de
-              200 instituciones a transformar sus testimonios dispersos en una estrategia de marketing cohesiva y
-              efectiva.
-            </p>
+            
           </div>
 
           {/* Sección de Visión, Innovación, Compromiso */}
