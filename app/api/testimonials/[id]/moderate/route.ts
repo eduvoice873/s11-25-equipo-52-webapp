@@ -57,9 +57,9 @@ export async function PATCH(
       );
     }
 
-    if (usuario.rol !== "admin") {
+    if (usuario.rol !== "admin" && usuario.rol !== "editor") {
       return NextResponse.json(
-        { error: "Solo los admins pueden moderar testimonios" },
+        { error: "Solo los admins y editores pueden moderar testimonios" },
         { status: 403 }
       );
     }
@@ -67,23 +67,52 @@ export async function PATCH(
     if (decision === "aprobar") {
       const modalidad = respuestaFormulario.videoUrl ? "video" : "texto_imagen";
 
+      // Verificar si ya existe un testimonio para esta respuesta
+      let testimonioExistente: any = null;
+
+      // Solo buscar si hay personaId (para evitar búsquedas nulas)
+      if (respuestaFormulario.personaId) {
+        testimonioExistente = await prisma.testimonio.findFirst({
+          where: {
+            // Buscar por los datos de la respuesta
+            personaId: respuestaFormulario.personaId,
+            texto: respuestaFormulario.texto,
+            titulo: respuestaFormulario.titulo || "",
+          },
+        });
+      }
+
+      if (testimonioExistente) {
+
+
+        // Solo actualizar el estado de la respuesta
+        await prisma.respuestaFormulario.update({
+          where: { id },
+          data: {
+            estado: "aprobado",
+          },
+        });
+
+        const testimonioCompleto = await prisma.testimonio.findUnique({
+          where: { id: testimonioExistente.id },
+          include: {
+            persona: true,
+            categoria: true,
+            medios: true,
+            etiquetas: true,
+          },
+        });
+
+        return NextResponse.json({
+          message: "Respuesta aprobada. Testimonio ya existía.",
+          testimonio: testimonioCompleto,
+        });
+      }
+
       // Asegurar que existe una Persona
       let personaId = respuestaFormulario.personaId;
 
-      // Debug: ver qué datos tenemos
-      console.log("RespuestaFormulario:", {
-        id: respuestaFormulario.id,
-        personaId: respuestaFormulario.personaId,
-        correo: respuestaFormulario.correo,
-        nombreCompleto: respuestaFormulario.nombreCompleto,
-        persona: respuestaFormulario.persona
-          ? {
-            id: respuestaFormulario.persona.id,
-            correo: respuestaFormulario.persona.correo,
-            nombreCompleto: respuestaFormulario.persona.nombreCompleto,
-          }
-          : null,
-      });
+
 
       if (!personaId) {
         // Si no hay personaId, crear o buscar la persona por correo
@@ -97,13 +126,10 @@ export async function PATCH(
         // Si no hay correo, generar uno temporal basado en el ID de la respuesta
         if (!correo) {
           correo = `testimonio-${respuestaFormulario.id}@voiceshub.temp`;
-          console.log(" Correo no encontrado, generando temporal:", correo);
+
         }
 
-        console.log(" Creando/actualizando persona con:", {
-          correo,
-          nombreCompleto,
-        });
+
 
         // Buscar o crear la persona
         const persona = await prisma.persona.upsert({

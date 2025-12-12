@@ -2,10 +2,12 @@
 "use client";
 
 import { usePerfil } from "@/hooks/swr/usePerfil";
+import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 
 export default function ProfileCard() {
   const { perfil, isLoading, isError, error, updatePerfil, refreshPerfil } = usePerfil();
+  const { data: session } = useSession();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -16,10 +18,12 @@ export default function ProfileCard() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
+  // Verificar si el usuario es editor
+  const isEditor = (session?.user as any)?.rol === "editor";
+
   // Refrescar perfil cuando el componente monta
   useEffect(() => {
-    console.log("ProfileCard: Montado, perfil actual:", perfil);
-    console.log("ProfileCard: isLoading:", isLoading, "isError:", isError, "error:", error);
+    refreshPerfil();
   }, [perfil, isLoading, isError, error]);
 
   // Inicializar formulario cuando carga el perfil
@@ -53,9 +57,16 @@ export default function ProfileCard() {
     setIsSubmitting(true);
 
     try {
+      // Validar que el nombre no esté vacío
+      if (!formData.name || formData.name.trim().length < 2) {
+        setSubmitError("El nombre debe tener al menos 2 caracteres");
+        setIsSubmitting(false);
+        return;
+      }
+
       // Solo enviar campos que no estén vacíos
       const dataToUpdate: any = {
-        name: formData.name,
+        name: formData.name.trim(),
         activo: formData.activo,
       };
 
@@ -71,8 +82,19 @@ export default function ProfileCard() {
       // Limpiar mensaje de éxito después de 3 segundos
       setTimeout(() => setSubmitSuccess(false), 3000);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Error al actualizar el perfil";
+      let errorMessage = "Error al actualizar el perfil";
+
+      if (err instanceof Error) {
+        errorMessage = err.message;
+
+        // Si el error contiene detalles de validación, mejorar el mensaje
+        if (errorMessage.includes("Datos inválidos")) {
+          errorMessage = "Por favor verifica los datos ingresados. Si cambias la contraseña, debe incluir mayúscula, minúscula, número y carácter especial.";
+        }
+      }
+
       setSubmitError(errorMessage);
+      console.error("Error al actualizar perfil:", err);
     } finally {
       setIsSubmitting(false);
     }
@@ -214,10 +236,16 @@ export default function ProfileCard() {
                   name="activo"
                   checked={formData.activo}
                   onChange={handleInputChange}
-                  className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
+                  disabled={isEditor}
+                  className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
                 />
                 <span className="ml-2 text-sm font-medium text-gray-700">Cuenta Activa</span>
               </label>
+              {isEditor && (
+                <p className="text-sm text-gray-500 mt-1">
+                  Los editores no pueden cambiar el estado de su cuenta. Contacta al administrador.
+                </p>
+              )}
             </div>
 
             <div className="flex gap-3 pt-4">

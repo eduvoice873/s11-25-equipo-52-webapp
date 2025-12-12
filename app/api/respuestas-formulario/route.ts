@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
     // Obtener formulario
     let formulario;
     if (slugPublico) {
-      console.log(" Buscando formulario por slug:", slugPublico);
+     
       formulario = await prisma.formulario.findUnique({
         where: { slugPublico },
         select: {
@@ -165,14 +165,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Guardar respuesta
-    console.log(" Guardando respuesta...");
+
     const respuesta = await prisma.respuestaFormulario.create({
       data: {
         formularioId: formulario.id,
         personaId: persona?.id || null,
         nombreCompleto: nombreCompleto?.trim() || null,
         correo: correo?.trim() || null,
-        titulo: titulo?.trim() || "Testimonio sin título",
+        titulo: titulo?.trim() || "",
         texto: texto?.trim() || null,
         calificacion: calificacion || 5,
         estado: "pendiente",
@@ -202,7 +202,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    console.log(" Respuesta guardada:", respuesta.id);
+
 
     return NextResponse.json(
       {
@@ -346,7 +346,7 @@ export async function GET(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("❌ Error en GET /api/respuestas-formulario:", error);
+    console.error(" Error en GET /api/respuestas-formulario:", error);
 
     return NextResponse.json(
       { error: "Error interno del servidor" },

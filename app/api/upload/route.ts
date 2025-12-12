@@ -2,169 +2,156 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
-    const formData = await request.formData();
+    
 
-    // Debug: Ver todos los campos del FormData
-    console.log(" FormData recibido:");
-    for (const [key, value] of formData.entries()) {
-      console.log(`  ${key}:`, value instanceof File ? `File: ${value.name}` : value);
-    }
+    let formData: FormData;
+    try {
+      formData = await request.formData();
 
-    const file = formData.get("file") as File;
-    const tipo = formData.get("tipo") as string | null;
-
-    console.log(" Valores extraídos:");
-    console.log("  - file:", file?.name);
-    console.log("  - tipo (raw):", tipo);
-    console.log("  - tipo (type):", typeof tipo);
-
-    if (!file) {
+    } catch (parseError) {
+      console.error(" Error parseando FormData:", parseError);
       return NextResponse.json(
-        { error: "No se recibió ningún archivo" },
+        {
+          error: "Error procesando el archivo",
+          details:
+            parseError instanceof Error
+              ? parseError.message
+              : "FormData parse error",
+        },
         { status: 400 }
       );
     }
 
-    // Detectar tipo automáticamente si no viene en el FormData
-    let tipoFinal = tipo || "imagen";
+    const file = formData.get("file");
 
-    // Si el tipo es null o undefined, detectar por el MIME type
-    if (!tipo || tipo === "null") {
-      if (file.type.startsWith("video/")) {
-        tipoFinal = "video";
-        console.log(" Tipo detectado automáticamente: video");
-      } else if (file.type.startsWith("image/")) {
-        tipoFinal = "imagen";
-        console.log(" Tipo detectado automáticamente: imagen");
-      }
+    if (!file || !(file instanceof File)) {
+      console.error(" No se recibió archivo válido");
+      return NextResponse.json(
+        { error: "No se recibió ningún archivo válido" },
+        { status: 400 }
+      );
     }
 
-    console.log(" Archivo recibido:");
-    console.log("  - Nombre:", file.name);
-    console.log("  - Tipo MIME:", file.type);
-    console.log("  - Tamaño:", (file.size / 1024 / 1024).toFixed(2), "MB");
-    console.log("  - Categoría:", tipoFinal);
+    // Detectar tipo por MIME
+    let tipoFinal: "imagen" | "video" = "imagen";
+    if (file.type.startsWith("video/")) {
+      tipoFinal = "video";
+    }
 
-    // Validar tipo
+
+
+    // Validar tipos permitidos
     const allowedTypes = {
       imagen: ["image/jpeg", "image/png", "image/gif", "image/webp"],
       video: ["video/mp4", "video/webm", "video/quicktime", "video/x-msvideo"],
     };
 
-    const tipoKey = tipoFinal as keyof typeof allowedTypes;
-    if (!allowedTypes[tipoKey]?.includes(file.type)) {
-      console.error("❌ Tipo no permitido:", file.type);
+    if (!allowedTypes[tipoFinal].includes(file.type)) {
+      console.error(` Tipo MIME no permitido: ${file.type}`);
       return NextResponse.json(
         {
           error: `Tipo de archivo no permitido: ${file.type}`,
-          expectedCategory: tipoFinal,
-          allowedTypes: allowedTypes[tipoKey]
+          allowedTypes: allowedTypes[tipoFinal],
         },
         { status: 400 }
       );
     }
 
     // Validar tamaño
-    const maxSize = tipoFinal === "video" ? 100 * 1024 * 1024 : 10 * 1024 * 1024;
+    const maxSize =
+      tipoFinal === "video" ? 100 * 1024 * 1024 : 10 * 1024 * 1024;
     if (file.size > maxSize) {
-      console.error("❌ Archivo muy grande:", file.size, "bytes");
+      console.error(` Archivo demasiado grande: ${file.size} bytes`);
       return NextResponse.json(
         {
-          error: `Archivo demasiado grande. Máximo: ${maxSize / 1024 / 1024}MB`,
-          size: `${(file.size / 1024 / 1024).toFixed(2)}MB`,
-          maxSize: `${maxSize / 1024 / 1024}MB`
+          error: `Archivo demasiado grande (máx: ${maxSize / 1024 / 1024}MB)`,
         },
         { status: 400 }
       );
     }
 
-    // Verificar variables de entorno
+    // Verificar configuración Cloudinary
     const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-    const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "next-upload";
+    const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
 
-    console.log(" Configuración Cloudinary:");
-    console.log("  - Cloud Name:", cloudName);
-    console.log("  - Upload Preset:", uploadPreset);
 
-    if (!cloudName) {
-      console.error("NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME no está configurado");
+
+    if (!cloudName || !uploadPreset) {
+      console.error(" Falta configuración de Cloudinary");
       return NextResponse.json(
         { error: "Configuración de Cloudinary incompleta" },
         { status: 500 }
       );
     }
 
-    // Preparar FormData para Cloudinary
+    // Convertir archivo a buffer para Cloudinary
+    const buffer = await file.arrayBuffer();
+
+    // Crear FormData para Cloudinary
     const cloudinaryFormData = new FormData();
-    cloudinaryFormData.append("file", file);
+    cloudinaryFormData.append("file", new Blob([buffer], { type: file.type }));
     cloudinaryFormData.append("upload_preset", uploadPreset);
     cloudinaryFormData.append("folder", `testimonios/${tipoFinal}s`);
 
+    // URL de Cloudinary
     const resourceType = tipoFinal === "video" ? "video" : "image";
     const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`;
 
-    console.log(" Subiendo a Cloudinary...");
-    console.log("  - URL:", cloudinaryUrl);
-    console.log("  - Resource Type:", resourceType);
 
+
+    // Hacer request a Cloudinary
     const cloudinaryRes = await fetch(cloudinaryUrl, {
       method: "POST",
       body: cloudinaryFormData,
     });
 
-    console.log(" Respuesta de Cloudinary:");
-    console.log("  - Status:", cloudinaryRes.status);
-    console.log("  - Status Text:", cloudinaryRes.statusText);
+
 
     if (!cloudinaryRes.ok) {
       const errorText = await cloudinaryRes.text();
-      console.error("❌ Error de Cloudinary (raw):", errorText);
+      console.error(` Error Cloudinary: ${errorText}`);
 
-      let errorData;
+      let errorData: any = {};
       try {
         errorData = JSON.parse(errorText);
-        console.error("❌ Error de Cloudinary (parsed):", errorData);
       } catch {
-        console.error("❌ No se pudo parsear el error");
-        errorData = { message: errorText };
+        errorData = { error: { message: errorText } };
       }
 
       return NextResponse.json(
         {
           error: "Error al subir a Cloudinary",
           details: errorData.error?.message || errorData.message || errorText,
-          status: cloudinaryRes.status,
         },
         { status: 500 }
       );
     }
 
-    const data = await cloudinaryRes.json();
-    console.log(" Archivo subido exitosamente:");
-    console.log("  - URL:", data.secure_url);
-    console.log("  - Public ID:", data.public_id);
-    console.log("  - Formato:", data.format);
-    console.log("  - Tamaño:", (data.bytes / 1024 / 1024).toFixed(2), "MB");
+    const responseData = await cloudinaryRes.json();
+
+
 
     return NextResponse.json({
       success: true,
-      url: data.secure_url,
-      publicId: data.public_id,
-      format: data.format,
-      resourceType: data.resource_type,
-      width: data.width,
-      height: data.height,
-      size: data.bytes,
-      duration: data.duration,
+      url: responseData.secure_url,
+      publicId: responseData.public_id,
+      format: responseData.format,
+      resourceType: responseData.resource_type,
+      width: responseData.width || null,
+      height: responseData.height || null,
+      size: responseData.bytes || null,
+      duration: responseData.duration || null,
     });
   } catch (error) {
-    console.error("❌ Error general:", error);
-    console.error("Stack:", error instanceof Error ? error.stack : "No stack");
+    console.error(` Error general:`, error);
+    const message =
+      error instanceof Error ? error.message : "Error desconocido";
+    console.error(`   ${message}`);
 
     return NextResponse.json(
       {
         error: "Error al procesar el archivo",
-        details: error instanceof Error ? error.message : "Error desconocido",
+        details: message,
       },
       { status: 500 }
     );

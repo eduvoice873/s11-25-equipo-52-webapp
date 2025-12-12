@@ -75,7 +75,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
       where: { id },
     });
 
-    console.log(" Formulario eliminado:", id);
+    
 
     return NextResponse.json(
       {

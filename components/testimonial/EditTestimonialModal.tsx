@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, Plus, Tag } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface EditTestimonialModalProps {
@@ -12,6 +12,9 @@ interface EditTestimonialModalProps {
     titulo: string;
     texto: string;
     calificacion: number;
+    nombre?: string;
+    correo?: string;
+    etiquetas?: string[];
   };
   onSave: () => void;
 }
@@ -26,15 +29,54 @@ export function EditTestimonialModal({
   const [titulo, setTitulo] = useState(initialData.titulo);
   const [texto, setTexto] = useState(initialData.texto);
   const [calificacion, setCalificacion] = useState(initialData.calificacion);
+  const [nombre, setNombre] = useState(initialData.nombre || '');
+  const [correo, setCorreo] = useState(initialData.correo || '');
+  const [etiquetas, setEtiquetas] = useState<string[]>(initialData.etiquetas || []);
+  const [newTag, setNewTag] = useState('');
+  const [availableTags, setAvailableTags] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setTitulo(initialData.titulo);
     setTexto(initialData.texto);
     setCalificacion(initialData.calificacion);
+    setNombre(initialData.nombre || '');
+    setCorreo(initialData.correo || '');
+    setEtiquetas(initialData.etiquetas || []);
   }, [initialData]);
 
+  useEffect(() => {
+    if (isOpen) {
+      fetch('/api/tags')
+        .then(res => res.json())
+        .then(data => {
+          if (Array.isArray(data)) {
+            setAvailableTags(data.map((t: any) => t.nombre));
+          }
+        })
+        .catch(console.error);
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
+
+  const handleAddTag = () => {
+    if (newTag.trim() && !etiquetas.includes(newTag.trim())) {
+      setEtiquetas([...etiquetas, newTag.trim()]);
+      setNewTag('');
+    }
+  };
+
+  const handleRemoveTag = (tagToRemove: string) => {
+    setEtiquetas(etiquetas.filter(tag => tag !== tagToRemove));
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddTag();
+    }
+  };
 
   const handleSave = async () => {
     if (!texto.trim()) {
@@ -51,6 +93,9 @@ export function EditTestimonialModal({
           titulo: titulo.trim() || null,
           texto: texto.trim(),
           calificacion,
+          nombre: nombre.trim() || null,
+          correo: correo.trim() || null,
+          etiquetas,
         }),
       });
 
@@ -75,7 +120,7 @@ export function EditTestimonialModal({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center p-6 border-b sticky top-0 bg-white">
+        <div className="flex justify-between items-center p-6 border-b sticky top-0 bg-white z-10">
           <h2 className="text-2xl font-bold">Editar Testimonio</h2>
           <button
             onClick={onClose}
@@ -87,6 +132,33 @@ export function EditTestimonialModal({
         </div>
 
         <div className="p-6 space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Nombre del Autor
+              </label>
+              <input
+                type="text"
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value)}
+                placeholder="Nombre completo"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Correo Electrónico
+              </label>
+              <input
+                type="email"
+                value={correo}
+                onChange={(e) => setCorreo(e.target.value)}
+                placeholder="correo@ejemplo.com"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+          </div>
+
           <div>
             <label className="block text-sm font-medium mb-2">
               Título (opcional)
@@ -116,6 +188,57 @@ export function EditTestimonialModal({
 
           <div>
             <label className="block text-sm font-medium mb-2">
+              Etiquetas
+            </label>
+            <div className="flex flex-wrap gap-2 mb-2">
+              {etiquetas.map((tag) => (
+                <span
+                  key={tag}
+                  className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                >
+                  {tag}
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveTag(tag)}
+                    className="ml-1.5 inline-flex items-center justify-center w-4 h-4 rounded-full text-blue-400 hover:bg-blue-200 hover:text-blue-500 focus:outline-none"
+                  >
+                    <X size={12} />
+                  </button>
+                </span>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Tag className="h-4 w-4 text-gray-400" />
+                </div>
+                <input
+                  type="text"
+                  value={newTag}
+                  onChange={(e) => setNewTag(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Agregar etiqueta..."
+                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  list="available-tags"
+                />
+                <datalist id="available-tags">
+                  {availableTags.map((tag) => (
+                    <option key={tag} value={tag} />
+                  ))}
+                </datalist>
+              </div>
+              <button
+                type="button"
+                onClick={handleAddTag}
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                <Plus size={20} />
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2">
               Calificación: {calificacion} ⭐
             </label>
             <input
@@ -124,7 +247,7 @@ export function EditTestimonialModal({
               max="5"
               value={calificacion}
               onChange={(e) => setCalificacion(parseInt(e.target.value))}
-              className="w-full"
+              className="w-full accent-blue-600"
             />
             <div className="flex justify-between text-xs text-gray-500 mt-1">
               <span>1</span>
@@ -136,7 +259,7 @@ export function EditTestimonialModal({
           </div>
         </div>
 
-        <div className="flex justify-end gap-3 p-6 border-t bg-gray-50">
+        <div className="flex justify-end gap-3 p-6 border-t bg-gray-50 sticky bottom-0">
           <button
             onClick={onClose}
             disabled={loading}

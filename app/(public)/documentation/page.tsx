@@ -12,7 +12,7 @@ export default function DocumentationPage() {
       <main className="pt-32 pb-24">
         <div className="container mx-auto px-6 max-w-5xl">
           <div className="text-center mb-16">
-            <h1 className="text-5xl md:text-6xl font-black text-brand-blue mb-6">Documentación</h1>
+            <h1 className="text-5xl md:text-6xl font-bold text-brand-blue mb-6">Documentación</h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto font-lato">
               Guía completa para integrar y usar EduVoice CMS en tu institución
             </p>
@@ -27,14 +27,11 @@ export default function DocumentationPage() {
               <div className="space-y-4 text-gray-700 leading-relaxed font-lato">
                 <p>Comienza a usar EduVoice CMS en solo 5 minutos siguiendo estos pasos:</p>
                 <ol className="list-decimal list-inside space-y-3 ml-4">
-                  <li><strong>Crea tu cuenta:</strong> Regístrate en nuestra plataforma con tu email
-                    institucional</li>
-                  <li><strong>Configura tu espacio:</strong> Define categorías, tags y permisos de usuario
-                  </li>
-                  <li><strong>Sube tu primer testimonio:</strong> Agrega contenido en video, texto o imagen
-                  </li>
-                  <li><strong>Modera y publica:</strong> Revisa y aprueba el contenido antes de publicar</li>
-                  <li><strong>Integra en tu web:</strong> Usa widgets o nuestra API REST</li>
+                  <li>Crea tu cuenta: Regístrate en nuestra plataforma con tu email institucional</li>
+                  <li>Configura tu espacio: Define categorías, tags y permisos de usuario</li>
+                  <li>Sube tu primer testimonio: Agrega contenido en video, texto o imagen</li>
+                  <li>Modera y publica: Revisa y aprueba el contenido antes de publicar</li>
+                  <li>Integra en tu web: Usa widgets o nuestra API REST</li>
                 </ol>
               </div>
             </section>
@@ -47,29 +44,27 @@ export default function DocumentationPage() {
               <div className="space-y-4 text-gray-700 leading-relaxed font-lato">
                 <p>Nuestra API REST te permite integrar testimonios en cualquier plataforma.</p>
 
-                <h3 className="text-xl font-bold text-gray-900 mt-6 mb-3">Autenticación</h3>
-                <div className="bg-gray-900 rounded-lg p-4 overflow-x-auto">
-                  <pre className="text-gray-100 text-sm"><code>Authorization: Bearer YOUR_API_KEY</code></pre>
+                <h3 className="text-lg font-bold text-gray-900 mt-6 mb-3">Endpoints Públicos</h3>
+                <p className="text-gray-600 mb-3">Los siguientes endpoints son públicos y NO requieren autenticación:</p>
+                <div className="space-y-3">
+                  <div className="border-l-4 border-brand-blue bg-white p-4 rounded">
+                    <p className="font-mono text-sm text-brand-blue mb-2">GET /api/public/testimonials</p>
+                    <p className="text-gray-600">Obtiene testimonios públicos con filtros opcionales (categoriaId, organizacionId, destacados)</p>
+                  </div>
+                  <div className="border-l-4 border-brand-blue bg-white p-4 rounded">
+                    <p className="font-mono text-sm text-brand-blue mb-2">GET /api/public/testimonials/:id</p>
+                    <p className="text-gray-600">Obtiene un testimonio público específico por ID</p>
+                  </div>
+                  <div className="border-l-4 border-brand-blue bg-white p-4 rounded">
+                    <p className="font-mono text-sm text-brand-blue mb-2">GET /api/public/categories</p>
+                    <p className="text-gray-600">Obtiene todas las categorías públicas disponibles</p>
+                  </div>
                 </div>
 
-                <h3 className="text-xl font-bold text-gray-900 mt-6 mb-3">Endpoints Principales</h3>
-                <div className="space-y-3">
-                  <div className="border-l-4 border-brand-light bg-blue-50 p-4 rounded">
-                    <p className="font-mono text-sm text-brand-light mb-2">GET /api/v1/testimonials</p>
-                    <p className="text-gray-600">Obtiene lista de testimonios con filtros opcionales</p>
-                  </div>
-                  <div className="border-l-4 border-brand-light bg-blue-50 p-4 rounded">
-                    <p className="font-mono text-sm text-brand-light mb-2">POST /api/v1/testimonials</p>
-                    <p className="text-gray-600">Crea un nuevo testimonio</p>
-                  </div>
-                  <div className="border-l-4 border-brand-light bg-blue-50 p-4 rounded">
-                    <p className="font-mono text-sm text-brand-light mb-2">PUT /api/v1/testimonials/:id</p>
-                    <p className="text-gray-600">Actualiza un testimonio existente</p>
-                  </div>
-                  <div className="border-l-4 border-brand-light bg-blue-50 p-4 rounded">
-                    <p className="font-mono text-sm text-brand-light mb-2">DELETE /api/v1/testimonials/:id</p>
-                    <p className="text-gray-600">Elimina un testimonio</p>
-                  </div>
+                <h3 className="text-lg font-bold text-gray-900 mt-6 mb-3">Endpoints Protegidos</h3>
+                <p className="text-gray-600 mb-3">Los endpoints protegidos requieren autenticación mediante session token:</p>
+                <div className="bg-gray-50 rounded-lg p-4 overflow-x-auto border border-gray-200">
+                  <pre className="text-gray-700 text-sm"><code>Cookie: next-auth.session-token=YOUR_SESSION_TOKEN</code></pre>
                 </div>
               </div>
             </section>
@@ -81,15 +76,15 @@ export default function DocumentationPage() {
               </div>
               <div className="space-y-4 text-gray-700 leading-relaxed font-lato">
                 <p>Integra testimonios en tu web sin escribir código:</p>
-                <div className="bg-gray-900 rounded-lg p-4 overflow-x-auto mt-4">
-                  <pre className="text-gray-100 text-sm"><code>&lt;script src="https://cdn.eduvoicecms.com/widget.js"&gt;&lt;/script&gt;
+                <div className="bg-gray-50 rounded-lg p-4 overflow-x-auto border border-gray-200 mt-4">
+                  <pre className="text-gray-700 text-sm"><code>&lt;script src="https://cdn.eduvoicecms.com/widget.js"&gt;&lt;/script&gt;
                     &lt;div data-eduvoice-widget="carousel" data-category="ingenieria"&gt;&lt;/div&gt;</code></pre>
                 </div>
                 <p className="mt-4">Tipos de widgets disponibles:</p>
-                <ul className="list-disc list-inside space-y-2 ml-4">
-                  <li><strong>Carousel:</strong> Carrusel automático de testimonios</li>
-                  <li><strong>Grid:</strong> Cuadrícula responsive de testimonios</li>
-                  <li><strong>Featured:</strong> Testimonio destacado individual</li>
+                <ul className="list-disc list-inside space-y-2 ml-4 text-gray-700">
+                  <li>Carousel: Carrusel automático de testimonios</li>
+                  <li>Grid: Cuadrícula responsive de testimonios</li>
+                  <li>Featured: Testimonio destacado individual</li>
                 </ul>
               </div>
             </section>
@@ -101,28 +96,28 @@ export default function DocumentationPage() {
               </div>
               <div className="space-y-4 text-gray-700 leading-relaxed font-lato">
                 <div className="grid md:grid-cols-3 gap-6">
-                  <div className="bg-blue-50 p-6 rounded-xl">
+                  <div className="bg-white border border-gray-200 p-6 rounded-xl">
                     <h4 className="font-bold text-lg text-brand-blue mb-2">Admin</h4>
-                    <ul className="text-sm space-y-1">
-                      <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-600" /> Acceso completo</li>
-                      <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-600" /> Gestión de usuarios</li>
-                      <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-600" /> Configuración global</li>
+                    <ul className="text-sm space-y-1 text-gray-700">
+                      <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-brand-blue" /> Acceso completo</li>
+                      <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-brand-blue" /> Gestión de usuarios</li>
+                      <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-brand-blue" /> Configuración global</li>
                     </ul>
                   </div>
-                  <div className="bg-green-50 p-6 rounded-xl">
+                  <div className="bg-white border border-gray-200 p-6 rounded-xl">
                     <h4 className="font-bold text-lg text-brand-blue mb-2">Editor</h4>
-                    <ul className="text-sm space-y-1">
-                      <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-600" /> Crear testimonios</li>
-                      <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-600" /> Moderar contenido</li>
-                      <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-600" /> Publicar aprobados</li>
+                    <ul className="text-sm space-y-1 text-gray-700">
+                      <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-brand-blue" /> Crear testimonios</li>
+                      <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-brand-blue" /> Moderar contenido</li>
+                      <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-brand-blue" /> Publicar aprobados</li>
                     </ul>
                   </div>
-                  <div className="bg-yellow-50 p-6 rounded-xl">
+                  <div className="bg-white border border-gray-200 p-6 rounded-xl">
                     <h4 className="font-bold text-lg text-brand-blue mb-2">Visitante</h4>
-                    <ul className="text-sm space-y-1">
-                      <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-600" /> Ver testimonios</li>
-                      <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-600" /> Enviar testimonios</li>
-                      <li className="flex items-center gap-2"><span className="text-red-600">✗</span> No puede publicar</li>
+                    <ul className="text-sm space-y-1 text-gray-700">
+                      <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-brand-blue" /> Ver testimonios</li>
+                      <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-brand-blue" /> Enviar testimonios</li>
+                      <li className="flex items-center gap-2"><span className="text-gray-400">✗</span> No puede publicar</li>
                     </ul>
                   </div>
                 </div>
@@ -137,28 +132,26 @@ export default function DocumentationPage() {
               <div className="space-y-4 text-gray-700 leading-relaxed font-lato">
                 <ul className="space-y-3">
                   <li className="flex gap-3">
-                    <CheckCircle className="w-5 h-5 text-green-600 shrink-0 mt-0.5" />
-                    <span><strong>Categoriza correctamente:</strong> Usa tags consistentes para facilitar la
-                      búsqueda</span>
+                    <CheckCircle className="w-5 h-5 text-brand-blue shrink-0 mt-0.5" />
+                    <span>Categoriza correctamente: Usa tags consistentes para facilitar la búsqueda</span>
                   </li>
                   <li className="flex gap-3">
-                    <CheckCircle className="w-5 h-5 text-green-600 shrink-0 mt-0.5" />
-                    <span><strong>Modera antes de publicar:</strong> Asegura la calidad del contenido</span>
+                    <CheckCircle className="w-5 h-5 text-brand-blue shrink-0 mt-0.5" />
+                    <span>Modera antes de publicar: Asegura la calidad del contenido</span>
                   </li>
                   <li className="flex gap-3">
-                    <CheckCircle className="w-5 h-5 text-green-600 shrink-0 mt-0.5" />
-                    <span><strong>Optimiza videos:</strong> Usa formatos compatibles (MP4, WebM)</span>
+                    <CheckCircle className="w-5 h-5 text-brand-blue shrink-0 mt-0.5" />
+                    <span>Optimiza videos: Usa formatos compatibles (MP4, WebM)</span>
                   </li>
                   <li className="flex gap-3">
-                    <CheckCircle className="w-5 h-5 text-green-600 shrink-0 mt-0.5" />
-                    <span><strong>Actualiza regularmente:</strong> Mantén el contenido fresco y
-                      relevante</span>
+                    <CheckCircle className="w-5 h-5 text-brand-blue shrink-0 mt-0.5" />
+                    <span>Actualiza regularmente: Mantén el contenido fresco y relevante</span>
                   </li>
                 </ul>
               </div>
             </section>
 
-            <section className="bg-brand-blue/5 rounded-xl p-8">
+            <section className="bg-white border border-gray-200 rounded-xl p-8">
               <h2 className="text-2xl font-bold text-brand-blue mb-4">¿Necesitas ayuda?</h2>
               <p className="text-gray-700 mb-4 font-lato">Nuestro equipo de soporte está disponible 24/7 para ayudarte.</p>
               <Link href="#"

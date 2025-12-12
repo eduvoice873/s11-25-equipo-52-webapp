@@ -12,6 +12,11 @@ export default async function Layout({
 
   if (!session) redirect('/login');
 
+  // Si el usuario está inactivo, redirigir a página de cuenta inactiva
+  if (!session.user?.activo) {
+    redirect(`/inactive?userId=${session.user?.id}`);
+  }
+
   const rol = session?.user?.rol ?? 'editor'; //duda aqui
 
   return (

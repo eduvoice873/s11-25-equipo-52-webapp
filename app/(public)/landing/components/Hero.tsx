@@ -160,7 +160,7 @@ export default function Hero() {
               <div className="relative z-10 animate-float">
                 <div className="bg-white rounded-2xl shadow-2xl p-6 border border-gray-200">
                   <Image
-                    src="/dashboard.jpg"
+                    src="/home.jpg"
                     alt="Dashboard Preview"
                     width={600}
                     height={300}
@@ -172,7 +172,7 @@ export default function Hero() {
                 <div className="absolute -bottom-8 -left-8 z-20 animate-float-delayed hidden lg:block">
                   <div className="bg-white rounded-xl shadow-xl p-4 border border-gray-200">
                     <Image
-                      src="/testimonio.jpg"
+                      src="/testimonios.jpg"
                       alt="Testimonial Card"
                       width={300}
                       height={200}

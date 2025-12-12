@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { useCategory } from "@/hooks/swr/useCategory";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
@@ -104,7 +105,7 @@ function FormularioCard({ formulario, onDelete, onEdit, onDuplicate }: {
         });
         toast.success("Compartido exitosamente");
       } catch (err) {
-        console.log("Error al compartir:", err);
+        toast.error("Error al compartir");
       }
     } else {
       handleCopyLink();
@@ -145,17 +146,6 @@ function FormularioCard({ formulario, onDelete, onEdit, onDuplicate }: {
                       <Eye className="mr-2 h-4 w-4" />
                       Vista previa
                     </DropdownMenuItem>
-
-                    <DropdownMenuItem onClick={() => onEdit(formulario.id)}>
-                      <Edit className="mr-2 h-4 w-4" />
-                      Editar
-                    </DropdownMenuItem>
-
-                    <DropdownMenuItem onClick={() => onDuplicate(formulario.id)}>
-                      <Copy className="mr-2 h-4 w-4" />
-                      Duplicar
-                    </DropdownMenuItem>
-
                     <DropdownMenuItem onClick={handleCopyLink}>
                       <LinkIcon className="mr-2 h-4 w-4" />
                       Copiar enlace
@@ -269,7 +259,9 @@ function TestimonioCard({ item, onApprove, onReject, onDelete }: {
 
   const handleDelete = () => {
     setShowDeleteDialog(false);
-    onDelete?.(item.id);
+    // Usar testimonioId si existe (para respuestas de formulario), sino usar id (para testimonios directos)
+    const idAEliminar = item.testimonioId || item.id;
+    onDelete?.(idAEliminar);
   };
 
   return (
@@ -410,8 +402,12 @@ function StatsCard({ title, value, icon: Icon, color = "blue" }: { title: string
 export default function CategoryDetails({ id }: { id: string }) {
   const { category, isLoading, error, mutate } = useCategory(id);
   const router = useRouter();
+  const { data: session } = useSession();
   const [origin, setOrigin] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Verificar si el usuario es editor
+  const isEditor = (session?.user as any)?.rol === "editor";
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -493,59 +489,80 @@ export default function CategoryDetails({ id }: { id: string }) {
   // Handlers para testimonios
   const handleApproveTestimonio = async (testimonioId: string) => {
     try {
-      const response = await fetch(`/api/testimonios/${testimonioId}/approve`, {
-        method: "POST",
+      const response = await fetch(`/api/testimonials/${testimonioId}/moderate`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          decision: "aprobar",
+          notas: "Aprobado desde la vista de categoría",
+        }),
       });
 
       if (!response.ok) {
-        throw new Error("Error al aprobar el testimonio");
+        const error = await response.json();
+        throw new Error(error.error || "Error al aprobar el testimonio");
       }
 
       toast.success("Testimonio aprobado");
       mutate();
     } catch (error) {
       console.error("Error al aprobar:", error);
-      toast.error("Error al aprobar el testimonio");
+      toast.error(error instanceof Error ? error.message : "Error al aprobar el testimonio");
     }
   };
 
   const handleRejectTestimonio = async (testimonioId: string) => {
     try {
-      const response = await fetch(`/api/testimonios/${testimonioId}/reject`, {
-        method: "POST",
+      const response = await fetch(`/api/testimonials/${testimonioId}/moderate`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          decision: "rechazar",
+          notas: "Rechazado desde la vista de categoría",
+        }),
       });
 
       if (!response.ok) {
-        throw new Error("Error al rechazar el testimonio");
+        const error = await response.json();
+        throw new Error(error.error || "Error al rechazar el testimonio");
       }
 
       toast.success("Testimonio rechazado");
       mutate();
     } catch (error) {
       console.error("Error al rechazar:", error);
-      toast.error("Error al rechazar el testimonio");
+      toast.error(error instanceof Error ? error.message : "Error al rechazar el testimonio");
     }
   };
 
   const handleDeleteTestimonio = async (testimonioId: string) => {
     try {
-      const response = await fetch(`/api/testimonios/${testimonioId}`, {
+      // Si no tiene formato de UUID típico, es un ID de respuesta de formulario
+      const isUUID = testimonioId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
+      const endpoint = isUUID
+        ? `/api/testimonials/${testimonioId}`
+        : `/api/respuestas-formulario/${testimonioId}`;
+
+      const response = await fetch(endpoint, {
         method: "DELETE",
       });
 
       if (!response.ok) {
-        throw new Error("Error al eliminar el testimonio");
+        const error = await response.json();
+        throw new Error(error.error || "Error al eliminar el testimonio");
       }
 
       toast.success("Testimonio eliminado");
       mutate();
     } catch (error) {
       console.error("Error al eliminar:", error);
-      toast.error("Error al eliminar el testimonio");
+      toast.error(error instanceof Error ? error.message : "Error al eliminar el testimonio");
     }
-  };
-
-  if (isLoading) {
+  }; if (isLoading) {
     return (
       <div className="space-y-6">
         <Skeleton className="h-10 w-64" />
@@ -622,10 +639,24 @@ export default function CategoryDetails({ id }: { id: string }) {
           icon={MessageSquare}
         />
 
-        <Button onClick={handleCrearFormulario} className="mb-6 bg-brand-blue hover:bg-brand-blue/90">
-          <PlusCircle className="w-4 h-4 mr-2" />
-          Crear nuevo formulario
-        </Button>
+        {isEditor ? (
+          <Card className="border-yellow-200 bg-yellow-50 mb-6">
+            <CardContent className="p-4 flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5 shrink-0" />
+              <div>
+                <p className="font-medium text-yellow-900">Permisos insuficientes</p>
+                <p className="text-sm text-yellow-700 mt-1">
+                  Los editores no pueden crear ni modificar formularios. Contacta al administrador para realizar esta acción.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <Button onClick={handleCrearFormulario} className="mb-6 bg-brand-blue hover:bg-brand-blue/90">
+            <PlusCircle className="w-4 h-4 mr-2" />
+            Crear nuevo formulario
+          </Button>
+        )}
 
         {category.formularios && category.formularios.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -645,10 +676,12 @@ export default function CategoryDetails({ id }: { id: string }) {
               <MessageSquare className="w-12 h-12 text-slate-300 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-slate-900 mb-2">Sin formularios</h3>
               <p className="text-slate-500 mb-6">Aún no has creado formularios para esta categoría.</p>
-              <Button onClick={handleCrearFormulario} className="bg-brand-blue hover:bg-brand-blue/90">
-                <PlusCircle className="w-4 h-4 mr-2" />
-                Crear formulario
-              </Button>
+              {!isEditor && (
+                <Button onClick={handleCrearFormulario} className="bg-brand-blue hover:bg-brand-blue/90">
+                  <PlusCircle className="w-4 h-4 mr-2" />
+                  Crear formulario
+                </Button>
+              )}
             </CardContent>
           </Card>
         )}

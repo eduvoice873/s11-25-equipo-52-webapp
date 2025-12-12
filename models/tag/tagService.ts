@@ -21,7 +21,14 @@ export class TagService {
   }
 
   async getTagsByOrganizacionId(organizacionId: string) {
-    return await prisma.etiqueta.findMany({ where: { organizacionId } });
+    return await prisma.etiqueta.findMany({
+      where: { organizacionId },
+      include: {
+        _count: {
+          select: { testimonios: true },
+        },
+      },
+    });
   }
 
   async updateTag(id: string, data: TagUpdateDTO) {

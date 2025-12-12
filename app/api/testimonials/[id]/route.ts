@@ -1,4 +1,3 @@
-
 import { NextRequest, NextResponse } from "next/server";
 import { TestimonialService } from "@/models/testimonial/testimonialService";
 import { OrganizationService } from "@/models/organization/organizationService";
@@ -39,43 +38,128 @@ const createTestimonialFullService = new TestimonialFullService();
  *          description: Error interno
  */
 // Obtiene un testimonio por ID
-export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }){
-    try {
-        const { id } = await params;
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
 
-        const testimonial = await testimonialService.getTestimonialById(id);
-        if (!testimonial) return NextResponse.json({ message: "Testimonial not found" }, { status: 404 });
+    const testimonial = await testimonialService.getTestimonialById(id);
+    if (!testimonial)
+      return NextResponse.json(
+        { message: "Testimonial not found" },
+        { status: 404 }
+      );
 
-        return NextResponse.json(sanitizeBigInt(testimonial), { status: 200 });
-    } catch (error) {
-        if (error instanceof Error) return NextResponse.json({ message: error.message }, { status: 400 });
+    return NextResponse.json(sanitizeBigInt(testimonial), { status: 200 });
+  } catch (error) {
+    if (error instanceof Error)
+      return NextResponse.json({ message: error.message }, { status: 400 });
 
-        return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
-    }
-};
+    return NextResponse.json(
+      { message: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
+}
 
 // Actualiza un testimonio por ID
-export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }){
-    try {
-        const { id } = await params;
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
 
-        const testimonialFounded = await testimonialService.getTestimonialById(id);
-        if (!testimonialFounded) return NextResponse.json({ message: "Testimonial not found" }, { status: 404 });
+    const testimonialFounded = await testimonialService.getTestimonialById(id);
+    if (!testimonialFounded)
+      return NextResponse.json(
+        { message: "Testimonial not found" },
+        { status: 404 }
+      );
 
-        const organizacionId = await organizationService.getOrganizationIdByCategoryId(testimonialFounded.categoriaId);
-        if (!organizacionId) return NextResponse.json({ error: "Organization not found for user" }, { status: 404 });
+    const organizacionId =
+      await organizationService.getOrganizationIdByCategoryId(
+        testimonialFounded.categoriaId
+      );
+    if (!organizacionId)
+      return NextResponse.json(
+        { error: "Organization not found for user" },
+        { status: 404 }
+      );
 
-        const body = await request.json();
-        const dto = TestimonialFullUpdateSchema.parse(body);
-        const updatedTestimonial = await createTestimonialFullService.updateTestimonialFull(id, dto, organizacionId);
+    const body = await request.json();
+    const dto = TestimonialFullUpdateSchema.parse(body);
+    const updatedTestimonial =
+      await createTestimonialFullService.updateTestimonialFull(
+        id,
+        dto,
+        organizacionId
+      );
 
-        return NextResponse.json(sanitizeBigInt(updatedTestimonial), { status: 200 });
-    } catch (error) {
-        if (error instanceof Error) return NextResponse.json({ message: error.message }, { status: 400 });
+    return NextResponse.json(sanitizeBigInt(updatedTestimonial), {
+      status: 200,
+    });
+  } catch (error) {
+    if (error instanceof Error)
+      return NextResponse.json({ message: error.message }, { status: 400 });
 
-        return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
-    }
-};
+    return NextResponse.json(
+      { message: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
+}
+
+// Actualización parcial (PATCH) de un testimonio
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+
+    const testimonialFounded = await testimonialService.getTestimonialById(id);
+    if (!testimonialFounded)
+      return NextResponse.json(
+        { message: "Testimonial not found" },
+        { status: 404 }
+      );
+
+    const organizacionId =
+      await organizationService.getOrganizationIdByCategoryId(
+        testimonialFounded.categoriaId
+      );
+    if (!organizacionId)
+      return NextResponse.json(
+        { error: "Organization not found for user" },
+        { status: 404 }
+      );
+
+    const body = await request.json();
+
+    // Para PATCH, permitimos actualización parcial sin validar schema completo
+    const updatedTestimonial =
+      await createTestimonialFullService.updateTestimonialFull(
+        id,
+        body,
+        organizacionId
+      );
+
+    return NextResponse.json(sanitizeBigInt(updatedTestimonial), {
+      status: 200,
+    });
+  } catch (error) {
+    if (error instanceof Error)
+      return NextResponse.json({ message: error.message }, { status: 400 });
+
+    return NextResponse.json(
+      { message: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
+}
 
 /**
  * @openapi
@@ -102,18 +186,32 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
  *          description: Error interno
  */
 // Elimina un testimonio por ID
-export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }){
-    try {
-        const { id } = await params;
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
 
-        const testimonialFounded = await testimonialService.getTestimonialById(id);
-        if (!testimonialFounded) return NextResponse.json({ message: "Testimonial not found" }, { status: 404 });
+    const testimonialFounded = await testimonialService.getTestimonialById(id);
+    if (!testimonialFounded)
+      return NextResponse.json(
+        { error: "Testimonio no encontrado" },
+        { status: 404 }
+      );
 
-        await testimonialService.deleteTestimonial(id);
-        return new NextResponse(null, { status: 204 });
-    } catch (error) {
-        if (error instanceof Error) return NextResponse.json({ message: error.message }, { status: 400 });
+    await testimonialService.deleteTestimonial(id);
+    return NextResponse.json(
+      { message: "Testimonio eliminado exitosamente" },
+      { status: 200 }
+    );
+  } catch (error) {
+    if (error instanceof Error)
+      return NextResponse.json({ error: error.message }, { status: 400 });
 
-        return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
-    }
-};
+    return NextResponse.json(
+      { error: "Error interno del servidor" },
+      { status: 500 }
+    );
+  }
+}

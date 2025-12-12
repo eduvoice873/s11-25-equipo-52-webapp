@@ -41,11 +41,29 @@ export async function GET() {
       );
     }
 
-    const whereClause = {
+    // Si el usuario es editor, obtener su categoría asignada
+    let editorCategoriaId: string | null = null;
+    if (session.user.rol === "editor") {
+      const editorCategory = await prisma.categoria.findFirst({
+        where: { creadoPorId: session.user.id },
+        select: { id: true },
+      });
+      editorCategoriaId = editorCategory?.id || null;
+    }
+
+    const whereClause: any = {
       formulario: {
         categoria: { organizacionId },
       },
     };
+
+    // Si es editor, filtrar por su categoría
+    if (session.user.rol === "editor" && editorCategoriaId) {
+      whereClause.formulario = {
+        ...whereClause.formulario,
+        categoriaId: editorCategoriaId,
+      };
+    }
 
     const [total, pendientes, aprobados, rechazados] = await Promise.all([
       prisma.respuestaFormulario.count({ where: whereClause }),

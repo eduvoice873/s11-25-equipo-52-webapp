@@ -52,38 +52,62 @@ const organizationService = new OrganizationService();
  */
 // Crear un usuario con rol editor
 export async function POST(request: NextRequest) {
-    const authCheck = await roleRequired([Rol.admin])(request);
-    if (authCheck) return authCheck;
+  const authCheck = await roleRequired([Rol.admin])(request);
+  if (authCheck) return authCheck;
+  
+  const session = await auth();
+  if (!session)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const session = await auth();
-    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const userId = session?.user?.id;
+  if (!userId)
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 
-    const userId = session?.user?.id;
-    if (!userId) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  try {
+    const body = await request.json();
+    const { categoriaId, ...userCreateData } = body;
 
-    try {
-        const body = await request.json();
-        const dto = UserCreateSchema.parse(body);
+    const dto = UserCreateSchema.parse(userCreateData);
 
-        const userFounded = await userService.getUserByEmail(dto.email);
+    const userFounded = await userService.getUserByEmail(dto.email);
 
-        if (userFounded) {
-            return NextResponse.json({ error: "User already exists", field: "email" }, { status: 400 });
-        }
-
-        const organizationId = await organizationService.getOrganizationIdByUserId(userId);
-        if (!organizationId) return NextResponse.json({ error: "Organization not found" }, { status: 404 });
-
-        const saltOrRounds = 10;
-        const hashedPassword = await bcrypt.hash(dto.password, saltOrRounds);
-
-        const newUserEditor = await userService.createUserEditor(dto, hashedPassword, organizationId);
-        return NextResponse.json(newUserEditor, { status: 201 });
-    } catch (error) {
-        if (error instanceof Error) return NextResponse.json({ message: error.message }, { status: 400 });
-
-        return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
+    if (userFounded) {
+      return NextResponse.json(
+        { error: "User already exists", field: "email" },
+        { status: 400 }
+      );
     }
+
+    const organizationId =
+      await organizationService.getOrganizationIdByUserId(userId);
+    if (!organizationId) {
+      return NextResponse.json(
+        { error: "Organization not found" },
+        { status: 404 }
+      );
+    }
+
+    const saltOrRounds = 10;
+    const hashedPassword = await bcrypt.hash(dto.password, saltOrRounds);
+
+    const newUserEditor = await userService.createUserEditor(
+      dto,
+      hashedPassword,
+      organizationId,
+      categoriaId // Pasar categoriaId
+    );
+
+    return NextResponse.json(newUserEditor, { status: 201 });
+  } catch (error) {
+    console.error("Error en POST /api/users/editors:", error);
+    if (error instanceof Error)
+      return NextResponse.json({ message: error.message }, { status: 400 });
+
+    return NextResponse.json(
+      { message: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
 }
 
 /**
@@ -103,9 +127,9 @@ export async function POST(request: NextRequest) {
  */
 // Obtiene usuarios con rol editor
 export async function GET(request: NextRequest) {
-    const authCheck = await roleRequired([Rol.admin])(request);
-    if (authCheck) return authCheck;
-
-    const usersEditors = await userService.getUserByEditorRol();
-    return NextResponse.json(usersEditors, { status: 200 });
+  const authCheck = await roleRequired([Rol.admin])(request);
+  if (authCheck) return authCheck;
+  
+  const usersEditors = await userService.getUserByEditorRol();
+  return NextResponse.json(usersEditors, { status: 200 });
 }

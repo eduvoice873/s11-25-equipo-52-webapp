@@ -8,14 +8,31 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { AlertCircle } from "lucide-react";
 import { CategoryCreateSchema } from "@/models/category/dto/category";
+import { useEffect, useState } from "react";
 
 const formSchema = CategoryCreateSchema;
 
 export default function CreateCategoryPage() {
   const router = useRouter();
+  const { data: session } = useSession();
+  const [mounted, setMounted] = useState(false);
+
+  // Verificar si el usuario es editor
+  const isEditor = (session?.user as any)?.rol === "editor";
+
+  useEffect(() => {
+    setMounted(true);
+    if (isEditor) {
+      toast.error("No tienes permisos para crear categorías");
+      router.push("/categories");
+    }
+  }, [isEditor, router]);
+
   const {
     register,
     handleSubmit,
@@ -64,11 +81,11 @@ export default function CreateCategoryPage() {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div>
               <label htmlFor="nombre" className="block text-sm font-medium mb-1">
-                Nombre Interno *
+                Nombre Interno para identificar la categoría *
               </label>
               <Input
                 id="nombre"
-                placeholder="Ej: graduacion-2025"
+                placeholder="Este nombre sera usado para identificar la categoría"
                 {...register("nombre")}
               />
               {errors.nombre && (
@@ -80,11 +97,11 @@ export default function CreateCategoryPage() {
 
             <div>
               <label htmlFor="titulo" className="block text-sm font-medium mb-1">
-                Título Público *
+                Título Público para la categoría *
               </label>
               <Input
                 id="titulo"
-                placeholder="Ej: Graduación 2025"
+                placeholder="Título que verán los usuarios al acceder al formulario"
                 {...register("titulo")}
               />
               {errors.titulo && (
@@ -99,11 +116,11 @@ export default function CreateCategoryPage() {
                 htmlFor="mensaje"
                 className="block text-sm font-medium mb-1"
               >
-                Mensaje de Bienvenida *
+                Mensaje de Acceso *
               </label>
               <Textarea
                 id="mensaje"
-                placeholder="Escribe un mensaje de bienvenida para esta categoría"
+                placeholder="Mensaje que verán los usuarios al acceder al formulario"
                 rows={4}
                 {...register("mensaje")}
               />

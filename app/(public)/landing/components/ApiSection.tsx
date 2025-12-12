@@ -72,31 +72,16 @@ export default function ApiSection() {
 
           <pre className="p-6 overflow-x-auto text-gray-100 text-xs leading-relaxed">
             <code>
-              <span className="text-gray-500">{'<!-- 1. Copia este código -->'}</span>
-              {'\n'}
+              <span className="text-gray-500">{'<!-- EduVoice CMS Widget -->'}</span>
               {'\n'}<span className="text-purple-400">{'<div'}</span>
-              {'\n'}  <span className="text-cyan-400">id</span>=<span className="text-amber-300">"eduvoice-testimonials"</span>
-              {'\n'}  <span className="text-cyan-400">data-org</span>=<span className="text-amber-300">"tu-organizacion"</span>
-              {'\n'}  <span className="text-cyan-400">data-category</span>=<span className="text-amber-300">"bootcamp"</span>
+              {'\n'}  <span className="text-cyan-400">id</span>=<span className="text-amber-300">"eduvoice-widget"</span>
+              {'\n'}  <span className="text-cyan-400">data-orgid</span>=<span className="text-amber-300">"1a77bf0a-e9fc-4acd-97a0-e4c323c29fa5"</span>
+              {'\n'}  <span className="text-cyan-400">data-category</span>=<span className="text-amber-300">"52d6e038-d78e-4222-8fc3-12e286c46be4"</span>
               {'\n'}  <span className="text-cyan-400">data-layout</span>=<span className="text-amber-300">"grid"</span>
-              {'\n'}  <span className="text-cyan-400">data-theme</span>=<span className="text-amber-300">"light"</span>
               {'\n'}<span className="text-purple-400">{'></div>'}</span>
-              {'\n'}
-              {'\n'}<span className="text-gray-500">{'<!-- 2. Incluye el script -->'}</span>
               {'\n'}<span className="text-purple-400">{'<script'}</span>
-              {'\n'}  <span className="text-cyan-400">src</span>=<span className="text-amber-300">"https://cdn.eduvoicecms.com/widget.js"</span>
-              {'\n'}  <span className="text-cyan-400">async</span>
+              {'\n'}  <span className="text-cyan-400">src</span>=<span className="text-amber-300">"https://eduvoice-cms.vercel.app/widget.js"</span>
               {'\n'}<span className="text-purple-400">{'></script>'}</span>
-              {'\n'}
-              {'\n'}<span className="text-gray-500">{'<!-- ¡Listo! 🎉 -->'}</span>
-              {'\n'}<span className="text-gray-500">{'<!-- El widget se renderiza automáticamente -->'}</span>
-              {'\n'}<span className="text-gray-500">{'<!-- con los testimonios aprobados de tu org -->'}</span>
-              {'\n'}
-              {'\n'}<span className="text-gray-500">{'/* Opciones de personalización: */'}</span>
-              {'\n'}<span className="text-gray-500">{'/* data-layout: "grid" | "carousel" | "masonry" */'}</span>
-              {'\n'}<span className="text-gray-500">{'/* data-theme: "light" | "dark" | "auto" */'}</span>
-              {'\n'}<span className="text-gray-500">{'/* data-tags: "tag1,tag2" (filtrar por tags) */'}</span>
-              {'\n'}<span className="text-gray-500">{'/* data-limit: "6" (máximo a mostrar) */'}</span>
             </code>
           </pre>
         </div>

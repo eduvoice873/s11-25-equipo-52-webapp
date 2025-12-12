@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
 
     const organizacionId = session.user.organizacionId;
 
-    // ✅ Valida que organizacionId exista
+    //Valida que organizacionId exista
     if (!organizacionId) {
       return NextResponse.json(
         { error: "organizacionId no encontrado" },

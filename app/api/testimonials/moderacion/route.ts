@@ -41,9 +41,9 @@ export async function GET(request: NextRequest) {
     }
 
     // Solo admin puede ver testimonios para moderar
-    if (usuario.rol !== "admin") {
+    if (usuario.rol !== "admin" && usuario.rol !== "editor") {
       return NextResponse.json(
-        { error: "Solo los admins pueden ver testimonios para moderar" },
+        { error: "Solo los admins y editores pueden ver testimonios para moderar" },
         { status: 403 }
       );
     }

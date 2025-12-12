@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,7 @@ interface FormularioTestimonio {
   permitirTextoImagen: boolean;
   permitirVideo: boolean;
   mensajeGracias: string;
+  urlVolverAlInicio?: string;
   preguntas: any[];
 }
 
@@ -31,12 +33,12 @@ interface TestimonioPublicFormProps {
 }
 
 export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps) {
+  const router = useRouter();
   const [formulario, setFormulario] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
-  const [exito, setExito] = useState(false);
   const [imagenUrl, setImagenUrl] = useState<string>("");
   const [videoUrl, setVideoUrl] = useState<string>("");
   const [imagenPublicId, setImagenPublicId] = useState<string>("");
@@ -53,7 +55,7 @@ export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps
         setIsError(false);
         setErrorMessage(null);
 
-        console.log(" Cargando formulario con slug:", slug);
+
 
         const response = await fetch(`/api/formularios/${slug}`);
 
@@ -63,7 +65,7 @@ export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps
         }
 
         const data = await response.json();
-        console.log(" Formulario cargado:", data);
+
 
         setFormulario(data.formulario || data);
       } catch (error) {
@@ -161,11 +163,11 @@ export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps
     }
 
     setVideoFile(file);
-    // Limpiar cualquier error anterior
+    // Limpiamos cualquier error anterior
   };
 
   // ============================================================
-  // SUBIR VIDEO A CLOUDINARY (MVP / upload_preset)
+  // SUBIR VIDEO A CLOUDINARY ( /upload_preset)
   // ============================================================
   async function uploadVideoToCloudinary(file: File): Promise<CloudinaryResponse> {
     const fd = new FormData();
@@ -190,29 +192,35 @@ export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps
   const subirArchivo = async (file: File, tipo: "imagen" | "video") => {
     try {
       setSubiendoArchivo(true);
-      console.log(` Subiendo ${tipo}:`, file.name);
-      console.log(` Tipo de archivo:`, file.type);
-      console.log(` Tamaño:`, (file.size / 1024 / 1024).toFixed(2), "MB");
+
 
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("tipo", tipo); // ← Asegurarse que esto esté correcto
-
-      console.log(` Enviando a /api/upload con tipo="${tipo}"`);
-
+      // No debemos  enviar "tipo" porque el servidor lo detecta automáticamente
       const response = await fetch("/api/upload", {
         method: "POST",
         body: formData,
       });
 
+
+
       if (!response.ok) {
-        const errorData = await response.json();
+        let errorData: any = {};
+        try {
+          errorData = await response.json();
+        } catch (parseError) {
+          console.error("No se pudo parsear la respuesta de error:", parseError);
+          errorData = { error: "Error desconocido del servidor" };
+        }
         console.error(` Error del servidor:`, errorData);
-        throw new Error(errorData.error || "Error al subir archivo");
+
+        const errorMessage = errorData.details || errorData.error || "Error al subir archivo";
+        setFormError(errorMessage);
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
-      console.log(` ${tipo} subido:`, data.url);
+
 
       if (tipo === "imagen") {
         setImagenUrl(data.url);
@@ -224,8 +232,9 @@ export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps
 
       return data.url;
     } catch (error) {
-      console.error(` Error al subir ${tipo}:`, error);
-      setFormError(error instanceof Error ? error.message : `Error al subir ${tipo}`);
+      const errorMessage = error instanceof Error ? error.message : `Error al subir ${tipo}`;
+      console.error(` Error al subir ${tipo}:`, errorMessage);
+      setFormError(errorMessage);
       return null;
     } finally {
       setSubiendoArchivo(false);
@@ -257,8 +266,8 @@ export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps
 
       // Validar según el formato permitido
       const tieneTexto = formData.texto.trim().length > 0;
-      const tieneImagen = imagenUrl.length > 0;
-      const tieneVideo = videoUrl.length > 0;
+      const tieneImagen = imagenUrl.length > 0 || imagenPrincipalFile !== null;
+      const tieneVideo = videoUrl.length > 0 || videoFile !== null;
       const tienePreguntas = formulario.preguntas && formulario.preguntas.length > 0;
 
       // Si SOLO permite video, el video es obligatorio
@@ -303,29 +312,17 @@ export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps
 
       // Subir foto de perfil si existe
       if (fotoPerfilFile) {
-        const resultado = await subirArchivo(fotoPerfilFile, "imagen");
-        if (resultado) {
-          urlFotoPerfil = imagenUrl;
-          publicIdFotoPerfil = imagenPublicId;
-        }
+        urlFotoPerfil = await subirArchivo(fotoPerfilFile, "imagen");
       }
 
       // Subir imagen principal si existe
       if (imagenPrincipalFile) {
-        const resultado = await subirArchivo(imagenPrincipalFile, "imagen");
-        if (resultado) {
-          urlImagenPrincipal = imagenUrl;
-          publicIdImagenPrincipal = imagenPublicId;
-        }
+        urlImagenPrincipal = await subirArchivo(imagenPrincipalFile, "imagen");
       }
 
       // Subir video si existe
       if (videoFile) {
-        const resultado = await subirArchivo(videoFile, "video");
-        if (resultado) {
-          urlVideo = videoUrl;
-          publicIdVideo = videoPublicId;
-        }
+        urlVideo = await subirArchivo(videoFile, "video");
       }
 
       const response = await fetch("/api/respuestas-formulario", {
@@ -338,7 +335,6 @@ export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps
           organizacionId: formulario.organizacionId,
           nombreCompleto: formData.nombreCompleto.trim() || null,
           correo: formData.correo.trim() || null,
-          titulo: "Testimonio sin título", // ← Valor por defecto
           texto: formData.texto.trim() || null,
           calificacion: formData.calificacion || 5,
           fotoPerfilUrl: urlFotoPerfil, // Foto de perfil
@@ -358,8 +354,12 @@ export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps
 
       const data = await response.json();
 
-      // Mostrar mensaje de éxito
-      setExito(true);
+      // Guardar mensaje y URL personalizada en sessionStorage
+      sessionStorage.setItem("mensajeGracias", formulario.mensajeGracias);
+      if (formulario.urlVolverAlInicio) {
+        sessionStorage.setItem("urlVolverAlInicio", formulario.urlVolverAlInicio);
+      }
+      router.push("/gracias");
 
       // Limpiar formulario
       setFormData({
@@ -505,14 +505,6 @@ export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps
 
         {/* FORM */}
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* UI mensajes */}
-          {exito && (
-            <div className="p-3 bg-green-50 border border-green-200 rounded-lg flex gap-3">
-              <CheckCircle className="text-green-600" />
-              <p>{formulario.mensajeGracias}</p>
-            </div>
-          )}
-
           {(errorMessage || formError) && (
             <div className="p-3 bg-red-50 border border-red-200 rounded-lg flex gap-3">
               <AlertCircle className="text-red-600 shrink-0" />
@@ -670,13 +662,11 @@ export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps
           {formulario.permitirTextoImagen && (
             <div className="space-y-3">
               <label className="block text-sm font-medium text-slate-700">
-                Imagen del Testimonio
+                Sube una imagen que ilustre tu testimonio
                 {!formulario.permitirTexto && !formulario.permitirVideo && (
                   <span className="text-red-500"> *</span>
                 )}
               </label>
-              <p className="text-xs text-slate-500">Sube una imagen de ti con el producto o solo del producto</p>
-
               <input
                 type="file"
                 accept="image/*"
@@ -806,12 +796,12 @@ export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps
                   {/* OPCIÓN ÚNICA (RADIO) */}
                   {p.tipo === "opcion_unica" && (
                     <div className="flex flex-wrap gap-2">
-                      {p.opciones?.map((opcion: string, idx: number) => (
+                      {(typeof p.opciones === 'string' ? JSON.parse(p.opciones) : p.opciones || []).map((opcion: string, idx: number) => (
                         <label
                           key={idx}
                           className={`flex items-center gap-2 px-4 py-2 border-2 rounded-lg cursor-pointer transition-all ${formData.respuestas[p.id] === opcion
-                              ? "bg-indigo-600 text-white border-indigo-600"
-                              : "bg-white text-slate-700 border-slate-300 hover:border-indigo-400"
+                            ? "bg-indigo-600 text-white border-indigo-600"
+                            : "bg-white text-slate-700 border-slate-300 hover:border-indigo-400"
                             }`}
                         >
                           <input
@@ -832,7 +822,7 @@ export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps
                   {/* OPCIÓN MÚLTIPLE (CHECKBOX) */}
                   {p.tipo === "opcion_multiple" && (
                     <div className="space-y-2">
-                      {p.opciones?.map((opcion: string, idx: number) => {
+                      {(typeof p.opciones === 'string' ? JSON.parse(p.opciones) : p.opciones || []).map((opcion: string, idx: number) => {
                         const seleccionadas = formData.respuestas[p.id] || [];
                         return (
                           <label
@@ -878,8 +868,8 @@ export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps
                           type="button"
                           onClick={() => handlePreguntaChange(p.id, num)}
                           className={`w-12 h-12 rounded-full border-2 font-bold transition-all ${formData.respuestas[p.id] === num
-                              ? "bg-indigo-600 text-white border-indigo-600"
-                              : "bg-white text-slate-700 border-slate-300 hover:border-indigo-400"
+                            ? "bg-indigo-600 text-white border-indigo-600"
+                            : "bg-white text-slate-700 border-slate-300 hover:border-indigo-400"
                             }`}
                         >
                           {num}
@@ -907,8 +897,8 @@ export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps
                     <label className="block cursor-pointer">
                       <div
                         className={`border-2 border-dashed rounded-lg p-6 text-center transition ${formData.respuestas[p.id]
-                            ? "border-green-500 bg-green-50"
-                            : "border-slate-300 hover:border-indigo-500 hover:bg-indigo-50"
+                          ? "border-green-500 bg-green-50"
+                          : "border-slate-300 hover:border-indigo-500 hover:bg-indigo-50"
                           }`}
                       >
                         <svg

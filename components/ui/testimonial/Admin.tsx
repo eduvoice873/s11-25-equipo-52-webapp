@@ -48,6 +48,7 @@ export interface AdminTestimonialProps {
   isActive?: boolean
   respuestaId?: string
   testimonioId?: string
+  categoria?: { id: string; titulo: string }
   preguntas?: Array<{
     id: string
     texto: string
@@ -125,6 +126,7 @@ export function AdminTestimonial({
   isActive = false,
   respuestaId,
   testimonioId,
+  categoria,
   preguntas = [],
   respuestasPreguntas = null,
   onApprove,
@@ -134,12 +136,7 @@ export function AdminTestimonial({
   onToggleFeatured,
   onShare
 }: AdminTestimonialProps) {
-  console.log(' AdminTestimonial props:', {
-    variant,
-    preguntas,
-    respuestasPreguntas,
-    titulo
-  });
+
 
   const [loading, setLoading] = useState(false);
   const [isFeatured, setIsFeatured] = useState(destacado);
@@ -226,6 +223,39 @@ export function AdminTestimonial({
     }
   };
 
+  const handleToggleFeatured = async () => {
+    if (!approvedTestimonioId || loading) {
+      toast.warning('No se puede destacar sin una respuesta aprobada');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/testimonials/${approvedTestimonioId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ destacado: !isFeatured }),
+      });
+
+      if (!response.ok) throw new Error('Error al actualizar');
+
+      const data = await response.json();
+      setIsFeatured(!isFeatured);
+      toast.success(
+        !isFeatured
+          ? 'Testimonio marcado como destacado'
+          : 'Testimonio desmarcado como destacado'
+      );
+
+      if (onToggleFeatured) onToggleFeatured();
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error('Error al cambiar el estado de destacado');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSpam = async () => {
     if (!respuestaId || loading) {
       toast.warning('Marcado como spam');
@@ -234,17 +264,33 @@ export function AdminTestimonial({
 
     setLoading(true);
     try {
-      const response = await fetch(`/api/testimonials/${respuestaId}/actions`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'spam' }),
-      });
+      if (estado === 'pendiente') {
+        // Para pendientes, usamos el endpoint de moderación
+        const response = await fetch(`/api/testimonials/${respuestaId}/moderate`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ decision: 'rechazar', notas: 'Spam' }),
+        });
 
-      if (!response.ok) throw new Error('Error al marcar como spam');
+        if (!response.ok) throw new Error('Error al marcar como spam');
 
-      const data = await response.json();
-      toast.warning(data.message);
-      if (onSpam) onSpam();
+        const data = await response.json();
+        toast.warning('Testimonio marcado como spam (rechazado)');
+        if (onSpam) onSpam(); // Esto debería recargar la lista
+      } else {
+        // Para aprobados/publicados, usamos actions
+        const response = await fetch(`/api/testimonials/${respuestaId}/actions`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'spam' }),
+        });
+
+        if (!response.ok) throw new Error('Error al marcar como spam');
+
+        const data = await response.json();
+        toast.warning(data.message);
+        if (onSpam) onSpam();
+      }
     } catch (error) {
       console.error('Error:', error);
       toast.error('Error al marcar como spam');
@@ -301,64 +347,41 @@ export function AdminTestimonial({
       toast.success('Enlace copiado al portapapeles');
     }
     if (onShare) onShare();
-  }; const handleToggleFeatured = async () => {
-    if (!respuestaId || loading) {
-      setIsFeatured(!isFeatured);
-      toast.success(isFeatured ? 'Removido de destacados' : 'Marcado como destacado');
-      if (onToggleFeatured) onToggleFeatured();
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const response = await fetch(`/api/testimonials/${respuestaId}/actions`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'toggle-featured' }),
-      });
-
-      if (!response.ok) throw new Error('Error al destacar');
-
-      const data = await response.json();
-      setIsFeatured(!isFeatured);
-      toast.success(data.message);
-      if (onToggleFeatured) onToggleFeatured();
-    } catch (error) {
-      console.error('Error:', error);
-      toast.error('Error al actualizar estado destacado');
-    } finally {
-      setLoading(false);
-    }
   };
+
   if (variant === "mini") {
     return (
       <div onClick={onClick} className={`shadow-md rounded-xl p-4 border border-gray-200 bg-white
       cursor-pointer hover:scale-[1.02]
       ${isActive ? "border-blue-600 ring-2 ring-blue-300" : "border-gray-200"}
        ${className}`}>
-        <div className="flex justify-between items-center mb-3">
-          {tags && tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 text-xs justify-center">
-              {tags.map((tag) => (
-                <span key={tag} style={{
-                  borderColor: theme.colors.lightBlue,
-                  color: theme.colors.lightBlue,
-                }} className="px-2 py-1 border rounded-lg">
-                  {tag}
-                </span>
-              ))}
-              <button
-                className="px-2 py-1 border rounded-lg text-xs"
-                style={{
-                  borderColor: statusStyles[estado].border,
-                  color: statusStyles[estado].text,
-                }}>
+
+        {/* Header con Estado y Categoría */}
+        <div className="flex justify-between items-start mb-3 gap-2">
+          <div className="flex-1">
+            {/* Estado Badge */}
+            <div className="inline-block mb-2">
+              <span style={{
+                borderColor: statusStyles[estado].border,
+                color: statusStyles[estado].text,
+                backgroundColor: `${statusStyles[estado].text}15`
+              }} className="px-3 py-1 border rounded-full text-xs font-semibold">
                 {statusStyles[estado].label}
-              </button>
+              </span>
             </div>
-          )}
+
+            {/* Categoría Badge */}
+            {categoria && (
+              <div className="inline-block ml-2">
+                <span className="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs font-semibold">
+                  {categoria.titulo}
+                </span>
+              </div>
+            )}
+          </div>
+
           {destacado === true && (
-            <Heart className="w-4 h-4 text-red-500" fill="currentColor" />
+            <Heart className="w-4 h-4 text-red-500 shrink-0" fill="currentColor" />
           )}
         </div>
 
@@ -668,10 +691,12 @@ export function AdminTestimonial({
               color: isFeatured ? theme.colors.red : theme.colors.lightBlue,
               backgroundColor: isFeatured ? 'rgba(239, 68, 68, 0.1)' : 'transparent'
             }}
-            className="text-xs border px-2 py-1 rounded flex items-center gap-1 hover:bg-blue-50"
+            disabled={loading}
+            title={isFeatured ? 'Quitar de destacados' : 'Marcar como destacado'}
+            className="text-xs border px-2 py-1 rounded flex items-center gap-1 hover:bg-blue-50 disabled:opacity-50 transition-all"
           >
             <Heart className="w-4 h-4" fill={isFeatured ? 'currentColor' : 'none'} />
-            {isFeatured ? 'Destacado' : 'Destacar'}
+            {loading ? 'Guardando...' : isFeatured ? 'Destacado' : 'Destacar'}
           </button>
         </div>
       </div>
@@ -754,7 +779,10 @@ export function AdminTestimonial({
           titulo: titulo || '',
           texto,
           calificacion,
-        }}
+          nombre: nombreCompleto,
+          correo: correo,
+          etiquetas: tags || [],
+        } as const}
         onSave={async () => {
           setShowEditModal(false);
           if (onApprove) {

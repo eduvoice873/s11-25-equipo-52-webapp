@@ -105,13 +105,23 @@ export async function GET(request: NextRequest) {
     const categoriaId = searchParams.get("categoriaId");
     const search = searchParams.get("search");
 
+    // Si el usuario es editor, obtener su categoría asignada
+    let editorCategoriaId: string | null = null;
+    if (session.user.rol === "editor") {
+      const editorCategory = await prisma.categoria.findFirst({
+        where: { creadoPorId: session.user.id },
+        select: { id: true },
+      });
+      editorCategoriaId = editorCategory?.id || null;
+    }
+
     const where: any = {
       formulario: {
         categoria: { organizacionId },
       },
     };
 
-    console.log(" Filtro recibido:", filter);
+    
 
     if (filter === "pending") {
       where.estado = "pendiente";
@@ -121,9 +131,16 @@ export async function GET(request: NextRequest) {
       where.estado = "rechazado";
     }
 
-    console.log(" Condición WHERE:", JSON.stringify(where, null, 2));
 
-    if (categoriaId && categoriaId !== "all") {
+
+    // Si es editor, filtrar por su categoría
+    if (session.user.rol === "editor" && editorCategoriaId) {
+      where.formulario = {
+        ...where.formulario,
+        categoriaId: editorCategoriaId,
+      };
+    } else if (categoriaId && categoriaId !== "all") {
+      // Si es admin, permitir filtrar por categoriaId específico
       where.formulario = {
         ...where.formulario,
         categoriaId,
@@ -193,16 +210,24 @@ export async function GET(request: NextRequest) {
     const respuestasConTestimonio = await Promise.all(
       respuestas.map(async (respuesta) => {
         let testimonioId: string | null = null;
+        let testimonio: any = null;
 
         if (respuesta.estado === "aprobado" && respuesta.personaId) {
-          // Buscar el testimonio más reciente de esta persona que coincida con los datos
-          const testimonio = await prisma.testimonio.findFirst({
+          // Buscar el testimonio más reciente de esta persona
+          // Usar personaId y texto como criterio (el titulo puede cambiar)
+          testimonio = await prisma.testimonio.findFirst({
             where: {
               personaId: respuesta.personaId,
-              titulo: respuesta.titulo,
               texto: respuesta.texto,
             },
-            select: { id: true },
+            include: {
+              etiquetas: {
+                select: {
+                  id: true,
+                  nombre: true,
+                },
+              },
+            },
             orderBy: { creadoEn: "desc" },
           });
 
@@ -214,21 +239,17 @@ export async function GET(request: NextRequest) {
         return {
           ...respuesta,
           testimonioId,
+          testimonio: testimonio
+            ? {
+                etiquetas: testimonio.etiquetas.map((e: any) => e.nombre),
+              }
+            : null,
         };
       })
     );
 
-    console.log(
-      `📊 Total de respuestas encontradas: ${respuestasConTestimonio.length}`
-    );
-    console.log(
-      "📋 Estados de las respuestas:",
-      respuestasConTestimonio.map((r) => ({
-        id: r.id,
-        estado: r.estado,
-        titulo: r.titulo,
-      }))
-    );
+
+
 
     return NextResponse.json(sanitizeBigInt(respuestasConTestimonio), {
       status: 200,
