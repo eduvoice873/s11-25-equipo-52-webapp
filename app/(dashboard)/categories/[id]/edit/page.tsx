@@ -93,7 +93,7 @@ export default function EditCategoryPage() {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div>
               <label htmlFor="nombre" className="block text-sm font-medium mb-1">
-                Nombre para indentificar la categoría 
+                Nombre de la categoría:
               </label>
               <Input
                 id="nombre"
@@ -108,8 +108,8 @@ export default function EditCategoryPage() {
             </div>
 
             <div>
-              <label htmlFor="titulo" className="block text-sm font-medium mb-1">
-                Título Publico para la categoria
+              <label htmlFor="titulo" className="block text-sm font-medium  mb-1">
+                Nombre publico:
               </label>
               <Input
                 id="titulo"
@@ -125,7 +125,7 @@ export default function EditCategoryPage() {
 
             <div>
               <label htmlFor="mensaje" className="block text-sm font-medium mb-1">
-                Mensaje de Bienvenida
+                Descriccion de la categoria:
               </label>
               <Textarea
                 id="mensaje"

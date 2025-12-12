@@ -488,7 +488,7 @@ export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps
     <div className="min-h-screen py-12 px-4">
       <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
         {/* HEADER */}
-        <div className="px-6 py-8 bg-indigo-600 text-white">
+        <div className="px-6 py-8 bg-brand-blue text-white">
           <h1 className="text-3xl font-bold">
             {formulario.nombreFormulario}
           </h1>
@@ -683,8 +683,8 @@ export default function TestimonioPublicForm({ slug }: TestimonioPublicFormProps
                   file:mr-4 file:py-2 file:px-4
                   file:rounded-lg file:border-0
                   file:text-sm file:font-semibold
-                  file:bg-indigo-600 file:text-white
-                  hover:file:bg-indigo-700
+                  file:bg-brand-blue file:text-white
+                  hover:file:bg-brand-blue/40
                   cursor-pointer"
               />
 

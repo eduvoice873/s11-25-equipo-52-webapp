@@ -205,6 +205,8 @@ function FormularioCard({ formulario, onDelete, onEdit, onDuplicate }: {
             <Button
               variant="ghost"
               size="sm"
+              disabled
+              title="Proximamente podras editar los fomularios"
               onClick={() => onEdit(formulario.id)}
               className="text-brand-blue hover:bg-brand-blue/10"
             >
@@ -463,7 +465,7 @@ export default function CategoryDetails({ id }: { id: string }) {
   };
 
   const handleEditFormulario = (formularioId: string) => {
-    router.push(`/formulario/${formularioId}/edit`);
+    router.push(`/formulario/edit/${formularioId}`);
   };
 
   const handleDuplicateFormulario = async (formularioId: string) => {
