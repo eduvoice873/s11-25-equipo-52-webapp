@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { Rol } from "@prisma/client";
+import { Rol } from "app/generated/prisma";
 
 export function roleRequired(allowedRoles: Rol[]) {
     return async function (req: NextRequest) {

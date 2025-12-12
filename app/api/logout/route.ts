@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { signOut } from "@/lib/auth";
 import { roleRequired } from "@/lib/roleRequired";
-import { Rol } from "@prisma/client";
+import { Rol } from "app/generated/prisma";
 
 /**
  * @swagger

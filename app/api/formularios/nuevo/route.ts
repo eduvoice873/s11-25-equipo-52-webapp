@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/db";
 import { roleRequired } from "@/lib/roleRequired";
-import { Rol } from "@prisma/client";
+import { Rol } from "app/generated/prisma";
 
 /**
  * @openapi

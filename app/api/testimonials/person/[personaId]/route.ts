@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { PersonService } from "@/models/person/personService";
 import { TestimonialService } from "@/models/testimonial/testimonialService";
 import { roleRequired } from "@/lib/roleRequired";
-import { Rol } from "@prisma/client";
+import { Rol } from "app/generated/prisma";
 
 const testimonialService = new TestimonialService();
 const personService = new PersonService();

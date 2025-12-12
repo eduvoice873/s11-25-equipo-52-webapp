@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { Rol } from "@prisma/client";
+import { Rol } from "app/generated/prisma";
 
 const ADMIN_ONLY = ["/api/users", "/api/categories", "/api/formularios", "/api/dashboard"];
 const EDITOR_ONLY = ["/api/testimonials"];

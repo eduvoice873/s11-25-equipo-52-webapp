@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { roleRequired } from "@/lib/roleRequired";
-import { Rol } from "@prisma/client";
+import { Rol } from "app/generated/prisma";
 
 export async function PATCH(
   request: NextRequest,
@@ -25,7 +25,7 @@ export async function PATCH(
       return NextResponse.json({ error: "Estado inválido" }, { status: 400 });
     }
 
-    
+
 
     // Actualizar estado en RespuestaFormulario
     const respuesta = await prisma.respuestaFormulario.update({

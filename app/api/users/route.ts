@@ -4,7 +4,7 @@ import { UserService } from "@/models/user/userService";
 import { OrganizationService } from "@/models/organization/organizationService";
 import bcrypt from "bcrypt";
 import { roleRequired } from "@/lib/roleRequired";
-import { Rol } from "@prisma/client";
+import { Rol } from "app/generated/prisma";
 import { auth } from '@/lib/auth';
 
 const userService = new UserService();
@@ -103,7 +103,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 export async function GET(request: NextRequest) {
   const authCheck = await roleRequired([Rol.admin])(request);
   if (authCheck) return authCheck;
-  
+
   try {
     // Verificar autenticación
     const session = await auth();

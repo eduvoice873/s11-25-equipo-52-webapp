@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth";
 import { OrganizationService } from "@/models/organization/organizationService";
 import { OrganizationCreateSchema } from "@/models/organization/dto/organization";
 import { roleRequired } from "@/lib/roleRequired";
-import { Rol } from "@prisma/client";
+import { Rol } from "app/generated/prisma";
 
 const organizationService = new OrganizationService();
 

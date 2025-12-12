@@ -4,7 +4,7 @@ import { CategoryService } from "@/models/category/categoryService";
 import { OrganizationService } from "@/models/organization/organizationService";
 import { CategoryCreateSchema } from "@/models/category/dto/category";
 import { roleRequired } from "@/lib/roleRequired";
-import { Rol } from "@prisma/client";
+import { Rol } from "app/generated/prisma";
 
 const categoryService = new CategoryService();
 const organizationService = new OrganizationService();

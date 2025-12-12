@@ -5,7 +5,7 @@ import { OrganizationService } from "@/models/organization/organizationService";
 import { UserCreateSchema } from "@/models/user/dto/user";
 import bcrypt from "bcrypt";
 import { roleRequired } from "@/lib/roleRequired";
-import { Rol } from "@prisma/client";
+import { Rol } from "app/generated/prisma";
 
 const userService = new UserService();
 const organizationService = new OrganizationService();
@@ -54,7 +54,7 @@ const organizationService = new OrganizationService();
 export async function POST(request: NextRequest) {
   const authCheck = await roleRequired([Rol.admin])(request);
   if (authCheck) return authCheck;
-  
+
   const session = await auth();
   if (!session)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -129,7 +129,7 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   const authCheck = await roleRequired([Rol.admin])(request);
   if (authCheck) return authCheck;
-  
+
   const usersEditors = await userService.getUserByEditorRol();
   return NextResponse.json(usersEditors, { status: 200 });
 }

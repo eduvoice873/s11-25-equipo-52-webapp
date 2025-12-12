@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
 import { TagService } from "@/models/tag/tagService";
 import { OrganizationService } from "@/models/organization/organizationService";
 import { roleRequired } from "@/lib/roleRequired";
-import { Rol } from "@prisma/client";
+import { Rol } from "app/generated/prisma";
 
 const tagService = new TagService();
 const organizationService = new OrganizationService();

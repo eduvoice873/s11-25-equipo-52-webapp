@@ -7,7 +7,7 @@ import { sanitizeBigInt } from "@/lib/sanitizeBigInt";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/db";
 import { roleRequired } from "@/lib/roleRequired";
-import { Rol } from "@prisma/client";
+import { Rol } from "app/generated/prisma";
 
 const testimonialService = new TestimonialService();
 const organizationService = new OrganizationService();

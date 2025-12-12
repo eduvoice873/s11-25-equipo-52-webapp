@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { roleRequired } from "@/lib/roleRequired";
-import { Rol } from "@prisma/client";
+import { Rol } from "app/generated/prisma";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -109,17 +109,17 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
         // Asegurarse de que siga siendo aprobado/publicado
         estado:
           testimonioExistente.estado === "aprobado" ||
-          testimonioExistente.estado === "publicado"
+            testimonioExistente.estado === "publicado"
             ? testimonioExistente.estado
             : "aprobado",
         etiquetas:
           Array.isArray(etiquetas) && etiquetas.length > 0
             ? {
-                set: etiquetasConnect,
-              }
+              set: etiquetasConnect,
+            }
             : {
-                set: [],
-              },
+              set: [],
+            },
       },
       include: {
         persona: true,

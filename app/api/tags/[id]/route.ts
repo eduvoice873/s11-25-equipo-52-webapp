@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { TagService } from "@/models/tag/tagService";
 import { TagUpdateSchema } from "@/models/tag/dto/tag";
 import { roleRequired } from "@/lib/roleRequired";
-import { Rol } from "@prisma/client";
+import { Rol } from "app/generated/prisma";
 
 const tagService = new TagService();
 

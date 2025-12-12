@@ -5,7 +5,7 @@ import bcrypt from "bcrypt";
 import { ZodError } from "zod";
 import { headers } from "next/headers";
 import { roleRequired } from "@/lib/roleRequired";
-import { Rol } from "@prisma/client";
+import { Rol } from "app/generated/prisma";
 
 const userService = new UserService();
 

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { OrganizationService } from "@/models/organization/organizationService";
 import { OrganizationUpdateSchema } from "@/models/organization/dto/organization";
 import { roleRequired } from "@/lib/roleRequired";
-import { Rol } from "@prisma/client";
+import { Rol } from "app/generated/prisma";
 
 const organizationService = new OrganizationService();
 

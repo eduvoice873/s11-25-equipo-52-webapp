@@ -2,8 +2,32 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { roleRequired } from "@/lib/roleRequired";
-import { Rol } from "@prisma/client";
+import { Rol } from "app/generated/prisma";
 
+/**
+ * @openapi
+ * /api/testimonials/moderacion:
+ *   get:
+ *     summary: Obtiene los testimonios que el usuario actual puede moderar
+ *     tags:
+ *       - Testimonios
+ *     parameters:
+ *       - in: query
+ *         name: formularioUrl
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Url de la respuesta del formulario
+ *     responses:
+ *       200:
+ *         description: Testimonios obtenidos
+ *       400:
+ *         description: Error de validación
+ *       404:
+ *         description: Testimonio no encontrado
+ *       500:
+ *         description: Error interno
+ */
 /**
  * GET /api/testimonials/moderacion
  * Obtener testimonios que el usuario actual puede moderar
